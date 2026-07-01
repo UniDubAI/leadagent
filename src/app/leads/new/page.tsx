@@ -1,0 +1,194 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+const INDUSTRY_OPTIONS = ['Restoran', "Go'zallik saloni", "Do'kon", 'Fitnes', "Ta'lim", 'Boshqa']
+const LANGUAGE_OPTIONS = ["O'zbek", 'Rus', 'Ingliz']
+const SOURCE_OPTIONS = ['Instagram', 'LinkedIn', 'Google Maps', 'Telegram', 'Boshqa']
+
+export default function NewLeadPage() {
+  const router = useRouter()
+  const [form, setForm] = useState({
+    name: '',
+    company: '',
+    email: '',
+    linkedin_url: '',
+    phone: '',
+    industry: '',
+    message_language: '',
+    source: '',
+    notes: '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  const set = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }))
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSaving(true)
+    setError('')
+
+    const res = await fetch('/api/leads', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    })
+
+    if (!res.ok) {
+      const d = await res.json()
+      setError(d.error ?? 'Xatolik yuz berdi')
+      setSaving(false)
+      return
+    }
+
+    const lead = await res.json()
+    router.push(`/leads/${lead.id}`)
+  }
+
+  return (
+    <div className="max-w-xl mx-auto px-4 py-8">
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Yangi lid qo'shish</h1>
+
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Ism <span className="text-red-500">*</span>
+          </label>
+          <input
+            required
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.name}
+            onChange={set('name')}
+            placeholder="John Smith"
+          />
+        </div>
+
+        {/* Company */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Kompaniya</label>
+          <input
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.company}
+            onChange={set('company')}
+            placeholder="Acme Corp"
+          />
+        </div>
+
+        {/* Industry */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Soha</label>
+          <select
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={form.industry}
+            onChange={set('industry')}
+          >
+            <option value="">— Tanlang —</option>
+            {INDUSTRY_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Email */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.email}
+            onChange={set('email')}
+            placeholder="john@acme.com"
+          />
+        </div>
+
+        {/* Phone */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Telefon raqam</label>
+          <input
+            type="tel"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.phone}
+            onChange={set('phone')}
+            placeholder="+998 90 123 45 67"
+          />
+        </div>
+
+        {/* LinkedIn */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+          <input
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.linkedin_url}
+            onChange={set('linkedin_url')}
+            placeholder="https://linkedin.com/in/..."
+          />
+        </div>
+
+        {/* Source */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Manba</label>
+          <select
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={form.source}
+            onChange={set('source')}
+          >
+            <option value="">— Tanlang —</option>
+            {SOURCE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Message language */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Xabar tili</label>
+          <select
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            value={form.message_language}
+            onChange={set('message_language')}
+          >
+            <option value="">— Tanlang —</option>
+            {LANGUAGE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Notes */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Izohlar</label>
+          <textarea
+            rows={3}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={form.notes}
+            onChange={set('notes')}
+            placeholder="Lid haqida qo'shimcha ma'lumot..."
+          />
+        </div>
+
+        {error && <p className="text-red-600 text-sm">{error}</p>}
+
+        <div className="flex gap-3 pt-2">
+          <button
+            type="submit"
+            disabled={saving}
+            className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+          </button>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-gray-50"
+          >
+            Bekor qilish
+          </button>
+        </div>
+      </form>
+    </div>
+  )
+}
