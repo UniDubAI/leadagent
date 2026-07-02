@@ -21,6 +21,7 @@ export interface Lead {
   message_language: string | null
   source: string | null
   notes: string | null
+  email_sent_at: string | null
   created_at: string
   updated_at: string
 }

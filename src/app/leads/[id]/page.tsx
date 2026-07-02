@@ -16,7 +16,9 @@ export default function LeadDetailPage() {
   const [channel, setChannel] = useState<OutreachChannel>('email')
   const [context, setContext] = useState('')
   const [generating, setGenerating] = useState(false)
-  const [sending, setSending] = useState<string | null>(null)
+  const [sending, setSending] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
+  const [sendError, setSendError] = useState('')
   const [activeMessage, setActiveMessage] = useState<OutreachMessage | null>(null)
 
   const fetchLead = () => {
@@ -47,18 +49,39 @@ export default function LeadDetailPage() {
     setGenerating(false)
     if (data.message) {
       setActiveMessage(data.message)
+      setEmailSent(false)
+      setSendError('')
       fetchLead()
     }
   }
 
-  const sendEmail = async (messageId: string) => {
-    setSending(messageId)
-    await fetch('/api/outreach/send-email', {
+  const sendEmail = async () => {
+    if (!activeMessage || !lead) return
+    if (!confirm('Yuborilsinmi?')) return
+
+    setSending(true)
+    setSendError('')
+
+    const res = await fetch('/api/send-email', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message_id: messageId }),
+      body: JSON.stringify({
+        to: lead.email,
+        subject: activeMessage.subject,
+        body: activeMessage.body,
+        leadId: id,
+      }),
     })
-    setSending(null)
+
+    setSending(false)
+
+    if (!res.ok) {
+      const data = await res.json()
+      setSendError(data.error ?? 'Email yuborishda xatolik yuz berdi')
+      return
+    }
+
+    setEmailSent(true)
     fetchLead()
   }
 
@@ -92,6 +115,12 @@ export default function LeadDetailPage() {
             {lead.email && (
               <p className="text-sm text-gray-600 mb-1">
                 <span className="font-medium">Email:</span> {lead.email}
+              </p>
+            )}
+            {lead.email_sent_at && (
+              <p className="text-sm text-primary-700 mb-1">
+                <span className="font-medium">Oxirgi email:</span>{' '}
+                {new Date(lead.email_sent_at).toLocaleDateString('uz-UZ')}
               </p>
             )}
             {lead.phone && (
@@ -209,13 +238,23 @@ export default function LeadDetailPage() {
               <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans mb-4">{activeMessage.body}</pre>
 
               {activeMessage.channel === 'email' ? (
-                <button
-                  onClick={() => sendEmail(activeMessage.id)}
-                  disabled={sending === activeMessage.id}
-                  className="bg-brand-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
-                >
-                  {sending === activeMessage.id ? 'Yuborilmoqda...' : '✉ Email yuborish'}
-                </button>
+                <div>
+                  <button
+                    onClick={sendEmail}
+                    disabled={sending || emailSent || !lead.email}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 ${
+                      emailSent
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-brand-gradient text-white hover:brightness-90'
+                    }`}
+                  >
+                    {sending ? 'Yuborilmoqda...' : emailSent ? 'Yuborildi ✓' : '✉ Email yuborish'}
+                  </button>
+                  {!lead.email && (
+                    <p className="text-xs text-red-600 mt-2">Lidda email manzil yo&apos;q</p>
+                  )}
+                  {sendError && <p className="text-xs text-red-600 mt-2">{sendError}</p>}
+                </div>
               ) : (
                 <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
                   <p className="text-xs text-yellow-700">LinkedIn xabarni nusxalab, qo'lda yuboring</p>
@@ -250,15 +289,6 @@ export default function LeadDetailPage() {
                       </div>
                       {msg.subject && <p className="text-xs font-medium text-gray-700 mb-1">Mavzu: {msg.subject}</p>}
                       <p className="text-xs text-gray-600 line-clamp-3">{msg.body}</p>
-                      {msg.status === 'draft' && msg.channel === 'email' && (
-                        <button
-                          onClick={() => sendEmail(msg.id)}
-                          disabled={sending === msg.id}
-                          className="mt-2 text-xs text-primary-700 hover:underline disabled:opacity-50"
-                        >
-                          {sending === msg.id ? 'Yuborilmoqda...' : 'Yuborish'}
-                        </button>
-                      )}
                     </div>
                   ))}
               </div>

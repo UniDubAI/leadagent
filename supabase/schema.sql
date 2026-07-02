@@ -14,6 +14,7 @@ create table if not exists leads (
   message_language text,
   source           text,
   notes            text,
+  email_sent_at    timestamptz,
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );
