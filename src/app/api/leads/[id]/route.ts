@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
+import { sendTelegramMessage } from '@/lib/telegram'
+
+const STATUS_LABELS: Record<string, string> = {
+  new: 'Yangi',
+  contacted: "Bog'lanildi",
+  replied: 'Javob berdi',
+  qualified: 'Malakali',
+  closed_won: "Yutildi",
+  closed_lost: "Yo'qotildi",
+}
 
 export async function GET(
   _req: NextRequest,
@@ -35,6 +45,13 @@ export async function PATCH(
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  if (body.status) {
+    const label = STATUS_LABELS[data.status] ?? data.status
+    await sendTelegramMessage(
+      `🔄 <b>Lid statusi o'zgardi</b>\n${data.name}: <b>${label}</b>`,
+    )
+  }
 
   return NextResponse.json(data)
 }
