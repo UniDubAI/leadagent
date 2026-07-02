@@ -14,15 +14,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="uz" className={geist.className}>
       <body className="min-h-screen bg-gray-50">
-        <nav className="bg-white border-b border-gray-200 px-4">
+        <nav className="bg-brand-gradient px-4">
           <div className="max-w-5xl mx-auto flex items-center gap-6 h-14">
-            <Link href="/" className="font-bold text-gray-900 text-sm">
+            <Link href="/" className="font-bold text-white text-sm">
               LeadAgent
             </Link>
-            <Link href="/leads" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/leads" className="text-sm text-white/80 hover:text-white">
               Lidlar
             </Link>
-            <Link href="/leads/new" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/leads/new" className="text-sm text-white/80 hover:text-white">
               + Yangi lid
             </Link>
           </div>

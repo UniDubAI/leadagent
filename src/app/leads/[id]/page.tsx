@@ -102,7 +102,7 @@ export default function LeadDetailPage() {
             {lead.linkedin_url && (
               <p className="text-sm text-gray-600 mb-1">
                 <span className="font-medium">LinkedIn:</span>{' '}
-                <a href={lead.linkedin_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                <a href={lead.linkedin_url} target="_blank" rel="noreferrer" className="text-secondary-700 hover:underline">
                   Profil
                 </a>
               </p>
@@ -137,8 +137,8 @@ export default function LeadDetailPage() {
                   onClick={() => updateStatus(s)}
                   className={`text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                     lead.status === s
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-50 text-gray-600 hover:bg-gray-100'
+                      ? 'bg-brand-gradient text-white'
+                      : 'bg-gray-50 text-gray-600 hover:bg-secondary-50'
                   }`}
                 >
                   <StatusBadge status={s} />
@@ -168,8 +168,8 @@ export default function LeadDetailPage() {
                   onClick={() => setChannel(ch)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     channel === ch
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-blue-400'
+                      ? 'bg-brand-gradient text-white border-transparent'
+                      : 'bg-white text-gray-600 border-gray-300 hover:border-secondary-400'
                   }`}
                 >
                   {ch === 'email' ? '✉ Email' : '💼 LinkedIn'}
@@ -179,7 +179,7 @@ export default function LeadDetailPage() {
 
             <textarea
               rows={2}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-secondary-500"
               placeholder="Qo'shimcha kontekst (ixtiyoriy): mahsulot, pain point, muloqot sababi..."
               value={context}
               onChange={(e) => setContext(e.target.value)}
@@ -188,7 +188,7 @@ export default function LeadDetailPage() {
             <button
               onClick={generateMessage}
               disabled={generating}
-              className="w-full bg-blue-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="w-full bg-brand-gradient text-white py-2.5 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
             >
               {generating ? 'AI yozmoqda...' : `${channel === 'email' ? 'Email' : 'LinkedIn xabar'} generatsiya qilish`}
             </button>
@@ -196,10 +196,10 @@ export default function LeadDetailPage() {
 
           {/* Active/latest generated message */}
           {activeMessage && (
-            <div className="bg-blue-50 rounded-xl border border-blue-200 p-5">
+            <div className="bg-secondary-50 rounded-xl border border-secondary-100 p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-blue-800">Yangi draft</p>
-                <span className="text-xs text-blue-500 uppercase">{activeMessage.channel}</span>
+                <p className="text-sm font-semibold text-secondary-700">Yangi draft</p>
+                <span className="text-xs text-secondary-600 uppercase">{activeMessage.channel}</span>
               </div>
               {activeMessage.subject && (
                 <p className="text-sm font-medium text-gray-800 mb-2">
@@ -212,7 +212,7 @@ export default function LeadDetailPage() {
                 <button
                   onClick={() => sendEmail(activeMessage.id)}
                   disabled={sending === activeMessage.id}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 disabled:opacity-50"
+                  className="bg-brand-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
                 >
                   {sending === activeMessage.id ? 'Yuborilmoqda...' : '✉ Email yuborish'}
                 </button>
@@ -221,7 +221,7 @@ export default function LeadDetailPage() {
                   <p className="text-xs text-yellow-700">LinkedIn xabarni nusxalab, qo'lda yuboring</p>
                   <button
                     onClick={() => navigator.clipboard.writeText(activeMessage.body)}
-                    className="text-xs text-blue-600 hover:underline mt-1"
+                    className="text-xs text-secondary-700 hover:underline mt-1"
                   >
                     Nusxalash
                   </button>
@@ -241,7 +241,7 @@ export default function LeadDetailPage() {
                     <div key={msg.id} className="border border-gray-100 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-medium uppercase text-gray-500">{msg.channel}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded ${msg.status === 'sent' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${msg.status === 'sent' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600'}`}>
                           {msg.status === 'sent' ? 'Yuborildi' : 'Draft'}
                         </span>
                         <span className="text-xs text-gray-400 ml-auto">
@@ -254,7 +254,7 @@ export default function LeadDetailPage() {
                         <button
                           onClick={() => sendEmail(msg.id)}
                           disabled={sending === msg.id}
-                          className="mt-2 text-xs text-green-600 hover:underline disabled:opacity-50"
+                          className="mt-2 text-xs text-primary-700 hover:underline disabled:opacity-50"
                         >
                           {sending === msg.id ? 'Yuborilmoqda...' : 'Yuborish'}
                         </button>

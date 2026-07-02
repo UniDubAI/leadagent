@@ -29,7 +29,7 @@ export default function DashboardPage() {
         </div>
         <Link
           href="/leads/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="bg-brand-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-90 transition"
         >
           + Yangi lid
         </Link>
@@ -41,7 +41,7 @@ export default function DashboardPage() {
           <Link
             key={status}
             href={`/leads?status=${status}`}
-            className="bg-white rounded-xl border border-gray-200 p-4 hover:shadow-sm transition-shadow text-center"
+            className="bg-white rounded-xl border border-gray-200 p-4 hover:border-secondary-400 hover:shadow-sm transition text-center"
           >
             <p className="text-2xl font-bold text-gray-900">{loading ? '—' : countByStatus(status)}</p>
             <div className="mt-1 flex justify-center">
@@ -55,7 +55,7 @@ export default function DashboardPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h2 className="font-semibold text-gray-900">So'nggi lidlar</h2>
-          <Link href="/leads" className="text-sm text-blue-600 hover:underline">Barchasi →</Link>
+          <Link href="/leads" className="text-sm text-secondary-700 hover:underline">Barchasi →</Link>
         </div>
 
         {loading ? (
@@ -63,7 +63,7 @@ export default function DashboardPage() {
         ) : recent.length === 0 ? (
           <div className="text-center py-10 text-gray-400">
             Hali lid yo'q.{' '}
-            <Link href="/leads/new" className="text-blue-600 hover:underline">Qo'shing</Link>
+            <Link href="/leads/new" className="text-secondary-700 hover:underline">Qo'shing</Link>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">

@@ -47,7 +47,7 @@ export default function LeadsPage() {
         <h1 className="text-2xl font-bold text-gray-900">Lidlar</h1>
         <Link
           href="/leads/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+          className="bg-brand-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-90 transition"
         >
           + Yangi lid
         </Link>
@@ -60,13 +60,13 @@ export default function LeadsPage() {
           placeholder="Ism yoki kompaniya bo'yicha qidirish..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[220px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 min-w-[220px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
         />
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-secondary-500"
         >
           {STATUSES.map((s) => (
             <option key={s.value} value={s.value}>{s.label}</option>
@@ -76,7 +76,7 @@ export default function LeadsPage() {
         <select
           value={industryFilter}
           onChange={(e) => setIndustryFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-secondary-500"
         >
           <option value="">Barcha sohalar</option>
           {INDUSTRIES.map((ind) => (
@@ -100,7 +100,7 @@ export default function LeadsPage() {
         <div className="text-center py-16 text-gray-400">
           <p className="text-lg mb-2">{leads.length === 0 ? 'Lidlar topilmadi' : 'Filtr bo\'yicha natija yo\'q'}</p>
           {leads.length === 0 && (
-            <Link href="/leads/new" className="text-blue-600 hover:underline text-sm">
+            <Link href="/leads/new" className="text-secondary-700 hover:underline text-sm">
               Birinchi lidni qo'shing
             </Link>
           )}
@@ -127,7 +127,7 @@ export default function LeadsPage() {
               {filtered.map((lead) => (
                 <tr
                   key={lead.id}
-                  className="hover:bg-gray-50 cursor-pointer"
+                  className="hover:bg-secondary-50 cursor-pointer"
                   onClick={() => (window.location.href = `/leads/${lead.id}`)}
                 >
                   <td className="px-4 py-3 font-medium text-gray-900">{lead.name}</td>
