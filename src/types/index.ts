@@ -22,6 +22,8 @@ export interface Lead {
   source: string | null
   notes: string | null
   email_sent_at: string | null
+  last_contact_at: string | null
+  followup_sent_at: string | null
   created_at: string
   updated_at: string
 }

@@ -32,9 +32,10 @@ export async function POST(req: NextRequest) {
   }
 
   const db = createServerClient()
+  const now = new Date().toISOString()
   const { data: lead, error: dbError } = await db
     .from('leads')
-    .update({ email_sent_at: new Date().toISOString() })
+    .update({ email_sent_at: now, last_contact_at: now })
     .eq('id', leadId)
     .select()
     .single()

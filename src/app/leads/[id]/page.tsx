@@ -8,6 +8,14 @@ import { StatusBadge } from '@/components/StatusBadge'
 
 const STATUSES: LeadStatus[] = ['new', 'contacted', 'replied', 'qualified', 'closed_won', 'closed_lost']
 
+function daysAgo(dateStr: string) {
+  const diffMs = Date.now() - new Date(dateStr).getTime()
+  const days = Math.floor(diffMs / (24 * 60 * 60 * 1000))
+  if (days <= 0) return 'bugun'
+  if (days === 1) return '1 kun oldin'
+  return `${days} kun oldin`
+}
+
 export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -121,6 +129,11 @@ export default function LeadDetailPage() {
               <p className="text-sm text-primary-700 mb-1">
                 <span className="font-medium">Oxirgi email:</span>{' '}
                 {new Date(lead.email_sent_at).toLocaleDateString('uz-UZ')}
+              </p>
+            )}
+            {lead.last_contact_at && (
+              <p className="text-sm text-gray-600 mb-1">
+                <span className="font-medium">Oxirgi aloqa:</span> {daysAgo(lead.last_contact_at)}
               </p>
             )}
             {lead.phone && (

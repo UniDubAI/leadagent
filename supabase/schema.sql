@@ -15,6 +15,8 @@ create table if not exists leads (
   source           text,
   notes            text,
   email_sent_at    timestamptz,
+  last_contact_at  timestamptz,
+  followup_sent_at timestamptz,
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );

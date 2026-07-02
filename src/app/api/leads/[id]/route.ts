@@ -44,9 +44,14 @@ export async function PATCH(
   const body = await req.json()
   const db = createServerClient()
 
+  const update = { ...body }
+  if (update.status === 'contacted') {
+    update.last_contact_at = new Date().toISOString()
+  }
+
   const { data, error } = await db
     .from('leads')
-    .update(body)
+    .update(update)
     .eq('id', id)
     .select()
     .single()
