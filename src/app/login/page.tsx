@@ -1,11 +1,10 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 function LoginForm() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const [mode, setMode] = useState<'login' | 'reset'>('login')
   const [email, setEmail] = useState('')
@@ -29,8 +28,10 @@ function LoginForm() {
       return
     }
 
-    router.push(searchParams.get('redirect') || '/leads')
-    router.refresh()
+    // Hard navigation: a client-side router.push() here can be served from
+    // the Router Cache's stale pre-login prefetch (proxy.ts redirect to
+    // /login), even though the new session cookie is already valid.
+    window.location.href = searchParams.get('redirect') || '/leads'
   }
 
   const handleReset = async (e: React.FormEvent) => {

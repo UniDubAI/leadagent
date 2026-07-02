@@ -1,11 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 export default function UpdatePasswordPage() {
-  const router = useRouter()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -36,9 +34,10 @@ export default function UpdatePasswordPage() {
     }
 
     setSuccess(true)
+    // Hard navigation avoids a stale Router Cache entry from any pre-login
+    // prefetch of /leads bouncing this back to /login.
     setTimeout(() => {
-      router.push('/leads')
-      router.refresh()
+      window.location.href = '/leads'
     }, 1500)
   }
 

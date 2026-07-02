@@ -1,14 +1,14 @@
 'use client'
 
 import { Suspense, useEffect, useRef } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 
 const INVALID_LINK_ERROR = "Havola yaroqsiz yoki muddati o'tgan"
+const LOGIN_ERROR_URL = `/login?error=${encodeURIComponent(INVALID_LINK_ERROR)}`
 
 function AuthConfirmHandler() {
-  const router = useRouter()
   const searchParams = useSearchParams()
   const ran = useRef(false)
 
@@ -16,6 +16,9 @@ function AuthConfirmHandler() {
     if (ran.current) return
     ran.current = true
 
+    // Hard navigation throughout: a client-side router transition to a
+    // protected route right after establishing the session can be served
+    // from the Router Cache's stale pre-auth prefetch (redirect to /login).
     const confirm = async () => {
       const supabase = createClient()
       const next = searchParams.get('next') ?? '/update-password'
@@ -26,7 +29,7 @@ function AuthConfirmHandler() {
 
       if (token_hash && type) {
         const { error } = await supabase.auth.verifyOtp({ type, token_hash })
-        router.replace(error ? `/login?error=${encodeURIComponent(INVALID_LINK_ERROR)}` : next)
+        window.location.href = error ? LOGIN_ERROR_URL : next
         return
       }
 
@@ -38,15 +41,15 @@ function AuthConfirmHandler() {
 
       if (access_token && refresh_token) {
         const { error } = await supabase.auth.setSession({ access_token, refresh_token })
-        router.replace(error ? `/login?error=${encodeURIComponent(INVALID_LINK_ERROR)}` : next)
+        window.location.href = error ? LOGIN_ERROR_URL : next
         return
       }
 
-      router.replace(`/login?error=${encodeURIComponent(INVALID_LINK_ERROR)}`)
+      window.location.href = LOGIN_ERROR_URL
     }
 
     confirm()
-  }, [router, searchParams])
+  }, [searchParams])
 
   return (
     <div className="max-w-sm mx-auto px-4 py-16 text-center">
