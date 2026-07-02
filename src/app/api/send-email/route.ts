@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
   })
 
   if (sendError) {
+    console.error('[send-email] Resend error:', sendError.name, sendError.message)
     return NextResponse.json({ error: sendError.message }, { status: 500 })
   }
 
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (dbError) {
+    console.error('[send-email] Supabase error:', dbError.message)
     return NextResponse.json({ error: dbError.message }, { status: 500 })
   }
 
