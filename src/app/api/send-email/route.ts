@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createServerClient } from '@/lib/supabase'
+import { getUser } from '@/lib/supabase/server'
 import { sendTelegramMessage } from '@/lib/telegram'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(req: NextRequest) {
+  const user = await getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   const { to, subject, body, leadId } = await req.json()
 
   if (!to || !subject || !body || !leadId) {
