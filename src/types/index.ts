@@ -40,3 +40,13 @@ export interface OutreachMessage {
 export interface LeadWithMessages extends Lead {
   outreach_messages: OutreachMessage[]
 }
+
+export type SmmIndustry = 'Restoran' | "Go'zallik" | 'Avto' | "Ta'lim" | "Do'kon" | 'Boshqa'
+export type SmmPlatform = 'instagram' | 'telegram' | 'both'
+export type SmmContentType = 'single' | 'weekly' | 'launch'
+export type SmmLanguage = "O'zbek" | 'Rus'
+
+export interface SmmPost {
+  label: string
+  content: string
+}

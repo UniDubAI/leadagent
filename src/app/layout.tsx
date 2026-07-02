@@ -26,6 +26,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Link href="/leads" className="text-sm text-white/80 hover:text-white">
               Lidlar
             </Link>
+            <Link href="/smm" className="text-sm text-white/80 hover:text-white">
+              SMM
+            </Link>
             <Link href="/leads/new" className="text-sm text-white/80 hover:text-white">
               + Yangi lid
             </Link>
