@@ -2,8 +2,6 @@ import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import Link from 'next/link'
 import './globals.css'
-import { createClient } from '@/lib/supabase/server'
-import { LogoutButton } from '@/components/LogoutButton'
 
 const geist = Geist({ subsets: ['latin'] })
 
@@ -12,10 +10,7 @@ export const metadata: Metadata = {
   description: 'Mijoz topish va outreach boshqaruvi',
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="uz" className={geist.className}>
       <body className="min-h-screen bg-gray-50">
@@ -30,15 +25,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <Link href="/leads/new" className="text-sm text-gray-600 hover:text-gray-900">
               + Yangi lid
             </Link>
-            <div className="ml-auto">
-              {user ? (
-                <LogoutButton />
-              ) : (
-                <Link href="/login" className="text-sm text-gray-600 hover:text-gray-900">
-                  Kirish
-                </Link>
-              )}
-            </div>
           </div>
         </nav>
         <main>{children}</main>
