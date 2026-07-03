@@ -51,4 +51,5 @@ export type SmmLanguage = "O'zbek" | 'Rus'
 export interface SmmPost {
   label: string
   content: string
+  trend_basis?: string
 }

@@ -24,6 +24,7 @@ export default function SmmPage() {
     contentType: 'single',
     language: "O'zbek",
     notes: '',
+    considerTrends: false,
   })
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
@@ -146,6 +147,16 @@ export default function SmmPage() {
           />
         </div>
 
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={form.considerTrends}
+            onChange={(e) => setForm((prev) => ({ ...prev, considerTrends: e.target.checked }))}
+            className="h-4 w-4 rounded border-gray-300 text-secondary-600 focus:ring-secondary-500"
+          />
+          <span className="text-sm font-medium text-gray-700">Dolzarb trendlarni hisobga ol</span>
+        </label>
+
         {error && <p className="text-red-600 text-sm">{error}</p>}
 
         <button
@@ -153,7 +164,11 @@ export default function SmmPage() {
           disabled={generating}
           className="w-full bg-brand-gradient text-white py-2.5 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
         >
-          {generating ? 'AI yozmoqda...' : 'Generatsiya qilish'}
+          {generating
+            ? form.considerTrends
+              ? 'Trendlar qidirilmoqda...'
+              : 'AI yozmoqda...'
+            : 'Generatsiya qilish'}
         </button>
       </form>
 
@@ -175,6 +190,9 @@ export default function SmmPage() {
                 </button>
               </div>
               <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">{post.content}</pre>
+              {post.trend_basis && (
+                <p className="mt-2 text-xs text-gray-400">Trend: {post.trend_basis}</p>
+              )}
             </div>
           ))}
         </div>
