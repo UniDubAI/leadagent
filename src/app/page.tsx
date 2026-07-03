@@ -1,11 +1,20 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Lead, LeadStatus } from '@/types'
 import { StatusBadge } from '@/components/StatusBadge'
 
 const STATUS_ORDER: LeadStatus[] = ['new', 'contacted', 'replied', 'qualified', 'closed_won', 'closed_lost']
+const WEEKDAYS_UZ = ['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Juma', 'Shan']
+const STALE_STATUSES: LeadStatus[] = ['new', 'contacted']
+const STALE_DAYS = 3
+const DAY_MS = 24 * 60 * 60 * 1000
+const MAX_BAR_HEIGHT = 120
+
+function dateKey(d: Date) {
+  return d.toISOString().slice(0, 10)
+}
 
 export default function DashboardPage() {
   const [leads, setLeads] = useState<Lead[]>([])
@@ -19,6 +28,32 @@ export default function DashboardPage() {
 
   const countByStatus = (status: LeadStatus) => leads.filter((l) => l.status === status).length
   const recent = leads.slice(0, 5)
+
+  const emailsSent = leads.filter((l) => l.email_sent_at).length
+  const closedWon = countByStatus('closed_won')
+  const conversionRate = leads.length > 0 ? Math.round((closedWon / leads.length) * 100) : 0
+
+  const last7Days = useMemo(() => {
+    const now = new Date()
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(now)
+      d.setDate(d.getDate() - (6 - i))
+      const key = dateKey(d)
+      const count = leads.filter((l) => dateKey(new Date(l.created_at)) === key).length
+      return { key, label: WEEKDAYS_UZ[d.getDay()], date: d.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit' }), count }
+    })
+  }, [leads])
+
+  const maxDayCount = Math.max(1, ...last7Days.map((d) => d.count))
+
+  const staleLeads = useMemo(() => {
+    const now = Date.now()
+    return leads
+      .filter((l) => STALE_STATUSES.includes(l.status) && l.last_contact_at)
+      .map((l) => ({ lead: l, days: Math.floor((now - new Date(l.last_contact_at!).getTime()) / DAY_MS) }))
+      .filter(({ days }) => days >= STALE_DAYS)
+      .sort((a, b) => b.days - a.days)
+  }, [leads])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -35,7 +70,23 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {/* Stats */}
+      {/* Overview stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <p className="text-sm text-gray-500">Jami lidlar</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1">{loading ? '—' : leads.length}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <p className="text-sm text-gray-500">Yuborilgan emaillar</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1">{loading ? '—' : emailsSent}</p>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <p className="text-sm text-gray-500">Konversiya</p>
+          <p className="text-3xl font-bold text-gray-900 mt-1">{loading ? '—' : `${conversionRate}%`}</p>
+        </div>
+      </div>
+
+      {/* Status breakdown */}
       <div className="grid grid-cols-3 md:grid-cols-6 gap-3 mb-8">
         {STATUS_ORDER.map((status) => (
           <Link
@@ -49,6 +100,67 @@ export default function DashboardPage() {
             </div>
           </Link>
         ))}
+      </div>
+
+      {/* Last 7 days */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8">
+        <h2 className="font-semibold text-gray-900 mb-4">Oxirgi 7 kun</h2>
+        {loading ? (
+          <div className="text-center py-6 text-gray-400">Yuklanmoqda...</div>
+        ) : (
+          <div className="flex items-end justify-between gap-2">
+            {last7Days.map((day) => {
+              const barHeight = Math.max(4, Math.round((day.count / maxDayCount) * MAX_BAR_HEIGHT))
+              return (
+                <div key={day.key} className="flex-1 flex flex-col items-center gap-2">
+                  <div
+                    className="w-full flex flex-col items-center justify-end gap-1"
+                    style={{ height: MAX_BAR_HEIGHT }}
+                  >
+                    <span className="text-xs font-medium text-gray-900">{day.count}</span>
+                    <div
+                      className={`w-full rounded-t-md ${day.count === 0 ? 'bg-gray-200' : 'bg-brand-gradient'}`}
+                      style={{ height: barHeight }}
+                      title={`${day.count} ta lid`}
+                    />
+                  </div>
+                  <p className="text-[11px] text-gray-400">{day.label} {day.date}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Needs attention */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+        <div className="px-5 py-4 border-b border-gray-100">
+          <h2 className="font-semibold text-gray-900">E'tibor kerak</h2>
+          <p className="text-xs text-gray-500 mt-0.5">3+ kun aloqasiz qolgan lidlar</p>
+        </div>
+        {loading ? (
+          <div className="text-center py-10 text-gray-400">Yuklanmoqda...</div>
+        ) : staleLeads.length === 0 ? (
+          <div className="text-center py-10 text-gray-400">Hammasi nazoratda — e'tibor talab qiladigan lid yo'q.</div>
+        ) : (
+          <div className="divide-y divide-gray-100">
+            {staleLeads.map(({ lead, days }) => (
+              <Link
+                key={lead.id}
+                href={`/leads/${lead.id}`}
+                className="flex items-center justify-between px-5 py-3 hover:bg-gray-50"
+              >
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{lead.name}</p>
+                  <p className="text-xs text-gray-500">{lead.company ?? '—'}</p>
+                </div>
+                <span className="text-xs font-medium text-secondary-700 bg-secondary-50 px-2.5 py-1 rounded-full">
+                  {days} kun
+                </span>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Recent leads */}
