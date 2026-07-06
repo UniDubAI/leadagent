@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUser } from '@/lib/supabase/server'
 import type { OsmSearchResult } from '@/types'
 
-const OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
+// Overpass'ning bepul umumiy serverlari ko'pincha band bo'lib 504/429
+// qaytaradi. Har biri bitta marta sinaladi, biri ishlamasa keyingisiga o'tiladi.
+const OVERPASS_MIRRORS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass.private.coffee/api/interpreter',
+]
 const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
 
 // OSM amenity/shop teglariga moslashtirilgan soha xaritasi.
@@ -44,12 +50,59 @@ function buildQuery(industry: string, bbox: BBox, limit: number) {
   const tagFilter = INDUSTRY_TAGS[industry] ?? INDUSTRY_TAGS.boshqa
   const bboxStr = `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`
 
-  return `[out:json][timeout:25];
+  return `[out:json][timeout:50];
 (
   node${tagFilter}(${bboxStr});
   way${tagFilter}(${bboxStr});
 );
 out center ${limit};`
+}
+
+// Mirrorlarni navbat bilan sinaydi (har biriga 30s, jami bitta o'tish).
+// 429/504 yoki tarmoq xatosida keyingi mirrorga o'tadi; hammasi muvaffaqiyatsiz
+// bo'lsa, chaqiruvchi tarafda foydalanuvchiga tushunarli xabar ko'rsatiladi.
+async function fetchOverpass(query: string): Promise<OverpassElement[]> {
+  let lastError = 'Overpass mirrorlari javob bermadi'
+
+  for (const url of OVERPASS_MIRRORS) {
+    try {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 30000)
+      const res = await fetch(url, {
+        method: 'POST',
+        // Overpass-api.de returns 406 for requests without a User-Agent header
+        // (Node's fetch sends none by default, unlike curl/browsers).
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'LeadAgent-Search/1.0',
+        },
+        body: `data=${encodeURIComponent(query)}`,
+        signal: controller.signal,
+      })
+      clearTimeout(timer)
+
+      if (!res.ok) {
+        const body = await res.text()
+        lastError = `${url} -> HTTP ${res.status}`
+        console.error('[search] overpass mirror failed:', lastError, body.slice(0, 500))
+        continue
+      }
+
+      const data = await res.json()
+      if (data.remark) {
+        lastError = `${url} -> remark: ${data.remark}`
+        console.error('[search] overpass mirror remark:', lastError)
+        continue
+      }
+
+      return data.elements ?? []
+    } catch (err) {
+      lastError = `${url} -> ${err instanceof Error ? err.message : String(err)}`
+      console.error('[search] overpass mirror unreachable:', lastError)
+    }
+  }
+
+  throw new Error(lastError)
 }
 
 function formatAddress(tags: Record<string, string>) {
@@ -120,35 +173,13 @@ export async function POST(req: NextRequest) {
 
   let elements: OverpassElement[]
   try {
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 30000)
-    const res = await fetch(OVERPASS_URL, {
-      method: 'POST',
-      // Overpass-api.de returns 406 for requests without a User-Agent header
-      // (Node's fetch sends none by default, unlike curl/browsers).
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'LeadAgent-Search/1.0',
-      },
-      body: `data=${encodeURIComponent(query)}`,
-      signal: controller.signal,
-    })
-    clearTimeout(timer)
-
-    if (!res.ok) {
-      const body = await res.text()
-      console.error('[search] overpass non-ok response:', res.status, body.slice(0, 1000))
-      return NextResponse.json({ error: `Overpass API xato qaytardi: ${res.status}` }, { status: 502 })
-    }
-
-    const data = await res.json()
-    if (data.remark) {
-      console.error('[search] overpass remark:', data.remark)
-    }
-    elements = data.elements ?? []
+    elements = await fetchOverpass(query)
   } catch (err) {
-    console.error('[search] overpass error:', err instanceof Error ? err.message : err)
-    return NextResponse.json({ error: "Overpass API bilan bog'lanib bo'lmadi" }, { status: 502 })
+    console.error('[search] all overpass mirrors failed:', err instanceof Error ? err.message : err)
+    return NextResponse.json(
+      { error: "Qidiruv serveri hozir band, 1-2 daqiqadan keyin qayta urinib ko'ring" },
+      { status: 503 },
+    )
   }
 
   const businesses = elements
