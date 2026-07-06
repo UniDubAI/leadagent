@@ -12,6 +12,10 @@ const STATUS_LABELS: Record<string, string> = {
   closed_lost: "Yo'qotildi",
 }
 
+// "Yangi" va "Murojaat/Bog'lanildi"ga o'tish oddiy workflow bosqichlari —
+// faqat natija chiqargan status o'zgarishlarida Telegram'ga xabar boradi.
+const NOTIFY_STATUSES = new Set(['replied', 'qualified', 'closed_won', 'closed_lost'])
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
@@ -58,7 +62,7 @@ export async function PATCH(
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
-  if (body.status) {
+  if (body.status && NOTIFY_STATUSES.has(body.status)) {
     const label = STATUS_LABELS[data.status] ?? data.status
     await sendTelegramMessage(
       `🔄 <b>Lid statusi o'zgardi</b>\n${data.name}: <b>${label}</b>`,
