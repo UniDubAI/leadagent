@@ -63,3 +63,27 @@ export interface OsmSearchResult {
   website: string | null
   email: string | null
 }
+
+export interface BizReview {
+  author: string
+  text: string
+}
+
+export interface BizPage {
+  id: string
+  slug: string
+  business_name: string
+  tagline: string | null
+  phone: string | null
+  address: string | null
+  instagram: string | null
+  telegram: string | null
+  facebook: string | null
+  website: string | null
+  menu_url: string | null
+  working_hours: string | null
+  reviews: BizReview[]
+  theme: string
+  lead_id: string | null
+  created_at: string
+}

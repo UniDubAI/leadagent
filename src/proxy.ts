@@ -46,7 +46,8 @@ export async function proxy(request: NextRequest) {
 }
 
 // API routes check auth themselves (so they can return 401 JSON instead of
-// an HTML redirect); everything else under this matcher requires a session.
+// an HTML redirect); /b/* are public client-facing mini-pages; everything
+// else under this matcher requires a session.
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|b/).*)'],
 }
