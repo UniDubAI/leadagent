@@ -66,16 +66,16 @@ export default function SmmPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">SMM kontent generatsiya</h1>
+      <h1 className="text-2xl font-bold text-ink mb-6">SMM kontent generatsiya</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-line p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-ink mb-1">
             Biznes nomi <span className="text-red-500">*</span>
           </label>
           <input
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.businessName}
             onChange={set('businessName')}
             placeholder="Masalan: Sunrise Cafe"
@@ -83,10 +83,10 @@ export default function SmmPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Soha</label>
+          <label className="block text-sm font-medium text-ink mb-1">Soha</label>
           <select
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.industry}
             onChange={set('industry')}
           >
@@ -98,9 +98,9 @@ export default function SmmPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Platforma</label>
+          <label className="block text-sm font-medium text-ink mb-1">Platforma</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.platform}
             onChange={set('platform')}
           >
@@ -111,9 +111,9 @@ export default function SmmPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kontent turi</label>
+          <label className="block text-sm font-medium text-ink mb-1">Kontent turi</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.contentType}
             onChange={set('contentType')}
           >
@@ -124,9 +124,9 @@ export default function SmmPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Til</label>
+          <label className="block text-sm font-medium text-ink mb-1">Til</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.language}
             onChange={set('language')}
           >
@@ -137,10 +137,10 @@ export default function SmmPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Qo&apos;shimcha izoh</label>
+          <label className="block text-sm font-medium text-ink mb-1">Qo&apos;shimcha izoh</label>
           <textarea
             rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.notes}
             onChange={set('notes')}
             placeholder="Masalan: yangi menyu chiqdi, hafta oxiri aksiya bor..."
@@ -152,9 +152,9 @@ export default function SmmPage() {
             type="checkbox"
             checked={form.considerTrends}
             onChange={(e) => setForm((prev) => ({ ...prev, considerTrends: e.target.checked }))}
-            className="h-4 w-4 rounded border-gray-300 text-secondary-600 focus:ring-secondary-500"
+            className="h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500"
           />
-          <span className="text-sm font-medium text-gray-700">Dolzarb trendlarni hisobga ol</span>
+          <span className="text-sm font-medium text-ink">Dolzarb trendlarni hisobga ol</span>
         </label>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -162,7 +162,7 @@ export default function SmmPage() {
         <button
           type="submit"
           disabled={generating}
-          className="w-full bg-brand-gradient text-white py-2.5 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
+          className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
         >
           {generating
             ? form.considerTrends
@@ -175,23 +175,23 @@ export default function SmmPage() {
       {posts && posts.length > 0 && (
         <div className="mt-6 space-y-4">
           {posts.map((post, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+            <div key={index} className="bg-white rounded-xl shadow-sm border border-line p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-secondary-700">{post.label}</p>
+                <p className="text-sm font-semibold text-primary-500">{post.label}</p>
                 <button
                   onClick={() => copyPost(post, index)}
                   className={`text-xs px-3 py-1 rounded-lg font-medium transition ${
                     copiedIndex === index
-                      ? 'bg-primary-100 text-primary-700'
-                      : 'bg-brand-gradient text-white hover:brightness-90'
+                      ? 'bg-white border border-primary-500 text-primary-500'
+                      : 'bg-primary-500 hover:bg-primary-600 text-white'
                   }`}
                 >
                   {copiedIndex === index ? 'Nusxalandi ✓' : 'Nusxalash'}
                 </button>
               </div>
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans">{post.content}</pre>
+              <pre className="text-sm text-ink whitespace-pre-wrap font-sans">{post.content}</pre>
               {post.trend_basis && (
-                <p className="mt-2 text-xs text-gray-400">Trend: {post.trend_basis}</p>
+                <p className="mt-2 text-xs text-ink-muted">Trend: {post.trend_basis}</p>
               )}
             </div>
           ))}

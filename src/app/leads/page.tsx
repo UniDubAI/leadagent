@@ -44,10 +44,10 @@ export default function LeadsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Lidlar</h1>
+        <h1 className="text-2xl font-bold text-ink">Lidlar</h1>
         <Link
           href="/leads/new"
-          className="bg-brand-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-90 transition"
+          className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border-2 border-primary-500 px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           + Yangi lid
         </Link>
@@ -60,13 +60,13 @@ export default function LeadsPage() {
           placeholder="Ism yoki kompaniya bo'yicha qidirish..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 min-w-[220px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+          className="flex-1 min-w-[220px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
 
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-secondary-500"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           {STATUSES.map((s) => (
             <option key={s.value} value={s.value}>{s.label}</option>
@@ -76,7 +76,7 @@ export default function LeadsPage() {
         <select
           value={industryFilter}
           onChange={(e) => setIndustryFilter(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-secondary-500"
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <option value="">Barcha sohalar</option>
           {INDUSTRIES.map((ind) => (
@@ -87,7 +87,7 @@ export default function LeadsPage() {
         {(search || statusFilter || industryFilter) && (
           <button
             onClick={() => { setSearch(''); setStatusFilter(''); setIndustryFilter('') }}
-            className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="px-3 py-2 text-sm text-ink-muted hover:text-ink border border-gray-300 rounded-lg hover:bg-gray-50"
           >
             Tozalash
           </button>
@@ -95,51 +95,51 @@ export default function LeadsPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-gray-400">Yuklanmoqda...</div>
+        <div className="text-center py-16 text-ink-muted">Yuklanmoqda...</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-gray-400">
+        <div className="text-center py-16 text-ink-muted">
           <p className="text-lg mb-2">{leads.length === 0 ? 'Lidlar topilmadi' : 'Filtr bo\'yicha natija yo\'q'}</p>
           {leads.length === 0 && (
-            <Link href="/leads/new" className="text-secondary-700 hover:underline text-sm">
+            <Link href="/leads/new" className="text-primary-500 hover:text-primary-600 hover:underline text-sm">
               Birinchi lidni qo'shing
             </Link>
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden overflow-x-auto">
-          <div className="px-4 py-2 border-b border-gray-100 text-xs text-gray-400">
+        <div className="bg-white rounded-xl shadow-sm border border-line overflow-hidden overflow-x-auto">
+          <div className="px-4 py-2 border-b border-gray-100 text-xs text-ink-muted">
             {filtered.length} ta lid{filtered.length !== leads.length && ` (jami ${leads.length} dan)`}
           </div>
           <table className="w-full text-sm min-w-[900px]">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Ism</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Kompaniya</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Soha</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Telefon</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Manba</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Til</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-600">Sana</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Ism</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Kompaniya</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Soha</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Telefon</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Manba</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Til</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Status</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Sana</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.map((lead) => (
                 <tr
                   key={lead.id}
-                  className="hover:bg-secondary-50 cursor-pointer"
+                  className="hover:bg-gray-50 cursor-pointer"
                   onClick={() => (window.location.href = `/leads/${lead.id}`)}
                 >
-                  <td className="px-4 py-3 font-medium text-gray-900">{lead.name}</td>
-                  <td className="px-4 py-3 text-gray-600">{lead.company ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{lead.industry ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{lead.phone ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{lead.source ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-600">{lead.message_language ?? '—'}</td>
+                  <td className="px-4 py-3 font-medium text-ink">{lead.name}</td>
+                  <td className="px-4 py-3 text-ink-muted">{lead.company ?? '—'}</td>
+                  <td className="px-4 py-3 text-ink-muted">{lead.industry ?? '—'}</td>
+                  <td className="px-4 py-3 text-ink-muted">{lead.phone ?? '—'}</td>
+                  <td className="px-4 py-3 text-ink-muted">{lead.source ?? '—'}</td>
+                  <td className="px-4 py-3 text-ink-muted">{lead.message_language ?? '—'}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={lead.status as LeadStatus} />
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-ink-muted">
                     {new Date(lead.created_at).toLocaleDateString('uz-UZ')}
                   </td>
                 </tr>

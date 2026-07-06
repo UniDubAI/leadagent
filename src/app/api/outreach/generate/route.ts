@@ -46,14 +46,15 @@ Qoidalar:
 - CTA yumshoq bo'lsin: "15 daqiqalik qo'ng'iroq", "fikringizni bilsam" kabi.
 - Har doim JSON formatida qaytaring: {"subject": "...", "body": "..."}
 - Xabarni ${language} tilida yozing.`
-      : `Siz B2B savdo mutaxassisisiz. Vazifangiz: LinkedIn uchun qisqa, tabiiy va shaxsiylashtirilgan xabar yozish.
+      : `Siz B2B savdo mutaxassisisiz. Vazifangiz: LinkedIn uchun ikkita alohida matn yozish — qisqa connection so'rovi va connection qabul qilingandan keyin yuboriladigan to'liqroq DM xabari.
 
 Qoidalar:
-- Connection request uchun maksimal 300 belgi, InMail uchun 1000 belgi.
-- Oddiy, do'stona ohang — reklama emas, tanishish xabari kabi.
+- "connection_request": MAKSIMAL 300 belgi. Juda qisqa, tabiiy, bitta aniq sabab bilan tanishuv taklifi. Reklama emas.
+- "dm": to'liqroq DM/InMail xabari, maksimal 1000 belgi. Muammo/vaziyat → qisqa taklif → yumshoq CTA.
+- Ikkalasi ham oddiy, do'stona ohangda — reklama emas, tanishish xabari kabi.
 - Mijozning sohasiga mos bitta aniq sabab ko'rsating.
-- Har doim JSON formatida qaytaring: {"body": "..."}
-- Xabarni ${language} tilida yozing.`
+- Har doim JSON formatida qaytaring: {"connection_request": "...", "dm": "..."}
+- Ikkala xabarni ham ${language} tilida yozing.`
 
     const userPrompt = `Quyidagi lid uchun ${isEmail ? 'email' : 'LinkedIn xabar'} yozing:
 
@@ -80,13 +81,19 @@ Xabar ${language} tilida bo'lsin. Shaxsiylashtirilgan, qisqa va tabiiy yozing.`
 
     const generated = JSON.parse(jsonMatch[0])
 
+    // For LinkedIn, the "subject" column doubles up as the short connection
+    // request text so the two variants can be generated and stored together
+    // without a schema change; "body" holds the longer DM/InMail text.
+    const subject = isEmail ? (generated.subject ?? null) : generated.connection_request
+    const body = isEmail ? generated.body : generated.dm
+
     const { data: saved } = await db
       .from('outreach_messages')
       .insert({
         lead_id,
         channel,
-        subject: generated.subject ?? null,
-        body: generated.body,
+        subject,
+        body,
         status: 'draft',
       })
       .select()

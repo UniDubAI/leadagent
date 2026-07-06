@@ -50,17 +50,17 @@ export default function NewLeadPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Yangi lid qo'shish</h1>
+      <h1 className="text-2xl font-bold text-ink mb-6">Yangi lid qo'shish</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 space-y-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-line p-6 space-y-4">
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-ink mb-1">
             Ism <span className="text-red-500">*</span>
           </label>
           <input
             required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.name}
             onChange={set('name')}
             placeholder="John Smith"
@@ -69,9 +69,9 @@ export default function NewLeadPage() {
 
         {/* Company */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Kompaniya</label>
+          <label className="block text-sm font-medium text-ink mb-1">Kompaniya</label>
           <input
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.company}
             onChange={set('company')}
             placeholder="Acme Corp"
@@ -80,9 +80,9 @@ export default function NewLeadPage() {
 
         {/* Industry */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Soha</label>
+          <label className="block text-sm font-medium text-ink mb-1">Soha</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.industry}
             onChange={set('industry')}
           >
@@ -95,10 +95,10 @@ export default function NewLeadPage() {
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label className="block text-sm font-medium text-ink mb-1">Email</label>
           <input
             type="email"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.email}
             onChange={set('email')}
             placeholder="john@acme.com"
@@ -107,10 +107,10 @@ export default function NewLeadPage() {
 
         {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Telefon raqam</label>
+          <label className="block text-sm font-medium text-ink mb-1">Telefon raqam</label>
           <input
             type="tel"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.phone}
             onChange={set('phone')}
             placeholder="+998 90 123 45 67"
@@ -119,9 +119,9 @@ export default function NewLeadPage() {
 
         {/* LinkedIn */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">LinkedIn URL</label>
+          <label className="block text-sm font-medium text-ink mb-1">LinkedIn URL</label>
           <input
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.linkedin_url}
             onChange={set('linkedin_url')}
             placeholder="https://linkedin.com/in/..."
@@ -130,9 +130,9 @@ export default function NewLeadPage() {
 
         {/* Source */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Manba</label>
+          <label className="block text-sm font-medium text-ink mb-1">Manba</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.source}
             onChange={set('source')}
           >
@@ -145,9 +145,9 @@ export default function NewLeadPage() {
 
         {/* Message language */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Xabar tili</label>
+          <label className="block text-sm font-medium text-ink mb-1">Xabar tili</label>
           <select
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500 bg-white"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.message_language}
             onChange={set('message_language')}
           >
@@ -160,10 +160,10 @@ export default function NewLeadPage() {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Izohlar</label>
+          <label className="block text-sm font-medium text-ink mb-1">Izohlar</label>
           <textarea
             rows={3}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-secondary-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.notes}
             onChange={set('notes')}
             placeholder="Lid haqida qo'shimcha ma'lumot..."
@@ -176,14 +176,14 @@ export default function NewLeadPage() {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 bg-brand-gradient text-white py-2 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
+            className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
             {saving ? 'Saqlanmoqda...' : 'Saqlash'}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
-            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-600 hover:bg-secondary-50 hover:border-secondary-400"
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-ink-muted hover:bg-gray-50 hover:border-primary-500"
           >
             Bekor qilish
           </button>

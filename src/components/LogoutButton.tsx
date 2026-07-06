@@ -10,7 +10,7 @@ export function LogoutButton() {
   }
 
   return (
-    <button onClick={handleLogout} className="text-sm text-white/80 hover:text-white">
+    <button onClick={handleLogout} className="text-sm text-white/70 hover:text-white">
       Chiqish
     </button>
   )

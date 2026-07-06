@@ -99,79 +99,79 @@ export default function LeadDetailPage() {
     router.push('/leads')
   }
 
-  if (loading) return <div className="text-center py-16 text-gray-400">Yuklanmoqda...</div>
-  if (!lead) return <div className="text-center py-16 text-gray-400">Lid topilmadi</div>
+  if (loading) return <div className="text-center py-16 text-ink-muted">Yuklanmoqda...</div>
+  if (!lead) return <div className="text-center py-16 text-ink-muted">Lid topilmadi</div>
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <Link href="/leads" className="text-sm text-gray-500 hover:text-gray-700">← Lidlar ro'yxati</Link>
+        <Link href="/leads" className="text-sm text-ink-muted hover:text-ink">← Lidlar ro'yxati</Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Lead info */}
         <div className="md:col-span-1 space-y-4">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+          <div className="bg-white rounded-xl shadow-sm border border-line p-5">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h1 className="text-xl font-bold text-gray-900">{lead.name}</h1>
-                {lead.company && <p className="text-gray-500 text-sm">{lead.company}</p>}
+                <h1 className="text-xl font-bold text-ink">{lead.name}</h1>
+                {lead.company && <p className="text-ink-muted text-sm">{lead.company}</p>}
               </div>
               <StatusBadge status={lead.status as LeadStatus} />
             </div>
 
             {lead.email && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Email:</span> {lead.email}
               </p>
             )}
             {lead.email_sent_at && (
-              <p className="text-sm text-primary-700 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Oxirgi email:</span>{' '}
                 {new Date(lead.email_sent_at).toLocaleDateString('uz-UZ')}
               </p>
             )}
             {lead.last_contact_at && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Oxirgi aloqa:</span> {daysAgo(lead.last_contact_at)}
               </p>
             )}
             {lead.phone && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Telefon:</span> {lead.phone}
               </p>
             )}
             {lead.linkedin_url && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">LinkedIn:</span>{' '}
-                <a href={lead.linkedin_url} target="_blank" rel="noreferrer" className="text-secondary-700 hover:underline">
+                <a href={lead.linkedin_url} target="_blank" rel="noreferrer" className="text-primary-500 hover:text-primary-600 hover:underline">
                   Profil
                 </a>
               </p>
             )}
             {lead.industry && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Soha:</span> {lead.industry}
               </p>
             )}
             {lead.source && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Manba:</span> {lead.source}
               </p>
             )}
             {lead.message_language && (
-              <p className="text-sm text-gray-600 mb-1">
+              <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">Xabar tili:</span> {lead.message_language}
               </p>
             )}
             {lead.notes && (
-              <p className="text-sm text-gray-600 mt-3 border-t pt-3">{lead.notes}</p>
+              <p className="text-sm text-ink-muted mt-3 border-t pt-3">{lead.notes}</p>
             )}
           </div>
 
           {/* Status update */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <p className="text-sm font-medium text-gray-700 mb-3">Status o'zgartirish</p>
+          <div className="bg-white rounded-xl shadow-sm border border-line p-5">
+            <p className="text-sm font-medium text-ink mb-3">Status o'zgartirish</p>
             <div className="flex flex-col gap-2">
               {STATUSES.map((s) => (
                 <button
@@ -179,8 +179,8 @@ export default function LeadDetailPage() {
                   onClick={() => updateStatus(s)}
                   className={`text-left px-3 py-2 rounded-lg text-sm transition-colors ${
                     lead.status === s
-                      ? 'bg-brand-gradient text-white'
-                      : 'bg-gray-50 text-gray-600 hover:bg-secondary-50'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-50 text-ink-muted hover:bg-gray-100'
                   }`}
                 >
                   <StatusBadge status={s} />
@@ -200,8 +200,8 @@ export default function LeadDetailPage() {
         {/* Right: Outreach panel */}
         <div className="md:col-span-2 space-y-4">
           {/* Generate section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-            <h2 className="font-semibold text-gray-900 mb-4">AI Outreach Generatsiya</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-line p-5">
+            <h2 className="font-semibold text-ink mb-4">AI Outreach Generatsiya</h2>
 
             <div className="flex gap-2 mb-4">
               {(['email', 'linkedin'] as OutreachChannel[]).map((ch) => (
@@ -210,8 +210,8 @@ export default function LeadDetailPage() {
                   onClick={() => setChannel(ch)}
                   className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
                     channel === ch
-                      ? 'bg-brand-gradient text-white border-transparent'
-                      : 'bg-white text-gray-600 border-gray-300 hover:border-secondary-400'
+                      ? 'bg-primary-500 text-white border-transparent'
+                      : 'bg-white text-ink-muted border-gray-300 hover:border-primary-500'
                   }`}
                 >
                   {ch === 'email' ? '✉ Email' : '💼 LinkedIn'}
@@ -221,7 +221,7 @@ export default function LeadDetailPage() {
 
             <textarea
               rows={2}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-secondary-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Qo'shimcha kontekst (ixtiyoriy): mahsulot, pain point, muloqot sababi..."
               value={context}
               onChange={(e) => setContext(e.target.value)}
@@ -230,78 +230,101 @@ export default function LeadDetailPage() {
             <button
               onClick={generateMessage}
               disabled={generating}
-              className="w-full bg-brand-gradient text-white py-2.5 rounded-lg text-sm font-medium hover:brightness-90 transition disabled:opacity-50"
+              className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
             >
               {generating ? 'AI yozmoqda...' : `${channel === 'email' ? 'Email' : 'LinkedIn xabar'} generatsiya qilish`}
             </button>
           </div>
 
           {/* Active/latest generated message */}
-          {activeMessage && (
-            <div className="bg-secondary-50 rounded-xl border border-secondary-100 p-5">
+          {activeMessage && activeMessage.channel === 'email' && (
+            <div className="bg-white rounded-xl border border-primary-500 p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-secondary-700">Yangi draft</p>
-                <span className="text-xs text-secondary-600 uppercase">{activeMessage.channel}</span>
+                <p className="text-sm font-semibold text-primary-500">Yangi draft</p>
+                <span className="text-xs text-primary-500 uppercase">{activeMessage.channel}</span>
               </div>
               {activeMessage.subject && (
-                <p className="text-sm font-medium text-gray-800 mb-2">
+                <p className="text-sm font-medium text-ink mb-2">
                   Mavzu: {activeMessage.subject}
                 </p>
               )}
-              <pre className="text-sm text-gray-700 whitespace-pre-wrap font-sans mb-4">{activeMessage.body}</pre>
+              <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-4">{activeMessage.body}</pre>
 
-              {activeMessage.channel === 'email' ? (
-                <div>
-                  <button
-                    onClick={sendEmail}
-                    disabled={sending || emailSent || !lead.email}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 ${
-                      emailSent
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-brand-gradient text-white hover:brightness-90'
-                    }`}
-                  >
-                    {sending ? 'Yuborilmoqda...' : emailSent ? 'Yuborildi ✓' : '✉ Email yuborish'}
-                  </button>
-                  {!lead.email && (
-                    <p className="text-xs text-red-600 mt-2">Lidda email manzil yo&apos;q</p>
-                  )}
-                  {sendError && <p className="text-xs text-red-600 mt-2">{sendError}</p>}
+              <div>
+                <button
+                  onClick={sendEmail}
+                  disabled={sending || emailSent || !lead.email}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 ${
+                    emailSent
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-primary-500 hover:bg-primary-600 text-white'
+                  }`}
+                >
+                  {sending ? 'Yuborilmoqda...' : emailSent ? 'Yuborildi ✓' : '✉ Email yuborish'}
+                </button>
+                {!lead.email && (
+                  <p className="text-xs text-red-600 mt-2">Lidda email manzil yo&apos;q</p>
+                )}
+                {sendError && <p className="text-xs text-red-600 mt-2">{sendError}</p>}
+              </div>
+            </div>
+          )}
+
+          {activeMessage && activeMessage.channel === 'linkedin' && (
+            <div className="space-y-3">
+              <div className="bg-white rounded-xl border border-primary-500 p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-semibold text-primary-500">Connection so'rovi</p>
+                  <span className="text-xs text-primary-500">{(activeMessage.subject ?? '').length}/300</span>
                 </div>
-              ) : (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-3 py-2">
-                  <p className="text-xs text-yellow-700">LinkedIn xabarni nusxalab, qo'lda yuboring</p>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(activeMessage.body)}
-                    className="text-xs text-secondary-700 hover:underline mt-1"
-                  >
-                    Nusxalash
-                  </button>
-                </div>
-              )}
+                <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-3">{activeMessage.subject}</pre>
+                <button
+                  onClick={() => navigator.clipboard.writeText(activeMessage.subject ?? '')}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition"
+                >
+                  Nusxalash
+                </button>
+              </div>
+
+              <div className="bg-white rounded-xl border border-primary-500 p-5">
+                <p className="text-sm font-semibold text-primary-500 mb-2">DM xabari (connection qabul bo&apos;lgach)</p>
+                <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-3">{activeMessage.body}</pre>
+                <button
+                  onClick={() => navigator.clipboard.writeText(activeMessage.body)}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition"
+                >
+                  Nusxalash
+                </button>
+              </div>
+
+              <p className="text-xs text-ink-muted px-1">LinkedIn API ishlatilmaydi — matnlarni nusxalab, qo&apos;lda yuboring.</p>
             </div>
           )}
 
           {/* Message history */}
           {lead.outreach_messages?.length > 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-              <h3 className="font-semibold text-gray-900 mb-4">Xabarlar tarixi</h3>
+            <div className="bg-white rounded-xl shadow-sm border border-line p-5">
+              <h3 className="font-semibold text-ink mb-4">Xabarlar tarixi</h3>
               <div className="space-y-3">
                 {[...lead.outreach_messages]
                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                   .map((msg) => (
                     <div key={msg.id} className="border border-gray-100 rounded-lg p-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-medium uppercase text-gray-500">{msg.channel}</span>
-                        <span className={`text-xs px-1.5 py-0.5 rounded ${msg.status === 'sent' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600'}`}>
+                        <span className="text-xs font-medium uppercase text-ink-muted">{msg.channel}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${msg.status === 'sent' ? 'bg-white border border-primary-500 text-primary-500' : 'bg-gray-100 text-ink-muted'}`}>
                           {msg.status === 'sent' ? 'Yuborildi' : 'Draft'}
                         </span>
-                        <span className="text-xs text-gray-400 ml-auto">
+                        <span className="text-xs text-ink-muted ml-auto">
                           {new Date(msg.created_at).toLocaleDateString('uz-UZ')}
                         </span>
                       </div>
-                      {msg.subject && <p className="text-xs font-medium text-gray-700 mb-1">Mavzu: {msg.subject}</p>}
-                      <p className="text-xs text-gray-600 line-clamp-3">{msg.body}</p>
+                      {msg.subject && (
+                        <p className="text-xs font-medium text-ink mb-1">
+                          {msg.channel === 'email' ? 'Mavzu' : 'Connection so\'rovi'}: {msg.subject}
+                        </p>
+                      )}
+                      <p className="text-xs text-ink-muted line-clamp-3">{msg.body}</p>
                     </div>
                   ))}
               </div>

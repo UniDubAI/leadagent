@@ -59,12 +59,12 @@ export default function DashboardPage() {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">LeadAgent</h1>
-          <p className="text-gray-500 text-sm">Mijoz topish va outreach boshqaruvi</p>
+          <h1 className="text-2xl font-bold text-ink">LeadAgent</h1>
+          <p className="text-ink-muted text-sm">Mijoz topish va outreach boshqaruvi</p>
         </div>
         <Link
           href="/leads/new"
-          className="bg-brand-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:brightness-90 transition"
+          className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border-2 border-primary-500 px-4 py-2 rounded-lg text-sm font-medium transition"
         >
           + Yangi lid
         </Link>
@@ -72,17 +72,17 @@ export default function DashboardPage() {
 
       {/* Overview stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Jami lidlar</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{loading ? '—' : leads.length}</p>
+        <div className="bg-white rounded-xl border border-line shadow-sm p-4">
+          <p className="text-sm text-ink-muted">Jami lidlar</p>
+          <p className="text-3xl font-bold text-primary-500 mt-1">{loading ? '—' : leads.length}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Yuborilgan emaillar</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{loading ? '—' : emailsSent}</p>
+        <div className="bg-white rounded-xl border border-line shadow-sm p-4">
+          <p className="text-sm text-ink-muted">Yuborilgan emaillar</p>
+          <p className="text-3xl font-bold text-primary-500 mt-1">{loading ? '—' : emailsSent}</p>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">Konversiya</p>
-          <p className="text-3xl font-bold text-gray-900 mt-1">{loading ? '—' : `${conversionRate}%`}</p>
+        <div className="bg-white rounded-xl border border-line shadow-sm p-4">
+          <p className="text-sm text-ink-muted">Konversiya</p>
+          <p className="text-3xl font-bold text-primary-500 mt-1">{loading ? '—' : `${conversionRate}%`}</p>
         </div>
       </div>
 
@@ -92,9 +92,9 @@ export default function DashboardPage() {
           <Link
             key={status}
             href={`/leads?status=${status}`}
-            className="bg-white rounded-xl border border-gray-200 p-4 hover:border-secondary-400 hover:shadow-sm transition text-center"
+            className="bg-white rounded-xl border border-line p-4 hover:border-primary-500 hover:shadow-sm transition text-center"
           >
-            <p className="text-2xl font-bold text-gray-900">{loading ? '—' : countByStatus(status)}</p>
+            <p className="text-2xl font-bold text-primary-500">{loading ? '—' : countByStatus(status)}</p>
             <div className="mt-1 flex justify-center">
               <StatusBadge status={status} />
             </div>
@@ -103,10 +103,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Last 7 days */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-8">
-        <h2 className="font-semibold text-gray-900 mb-4">Oxirgi 7 kun</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-line p-5 mb-8">
+        <h2 className="font-semibold text-ink mb-4">Oxirgi 7 kun</h2>
         {loading ? (
-          <div className="text-center py-6 text-gray-400">Yuklanmoqda...</div>
+          <div className="text-center py-6 text-ink-muted">Yuklanmoqda...</div>
         ) : (
           <div className="flex items-end justify-between gap-2">
             {last7Days.map((day) => {
@@ -117,14 +117,14 @@ export default function DashboardPage() {
                     className="w-full flex flex-col items-center justify-end gap-1"
                     style={{ height: MAX_BAR_HEIGHT }}
                   >
-                    <span className="text-xs font-medium text-gray-900">{day.count}</span>
+                    <span className="text-xs font-medium text-ink">{day.count}</span>
                     <div
-                      className={`w-full rounded-t-md ${day.count === 0 ? 'bg-gray-200' : 'bg-brand-gradient'}`}
+                      className={`w-full rounded-t-md ${day.count === 0 ? 'bg-gray-200' : 'bg-primary-500'}`}
                       style={{ height: barHeight }}
                       title={`${day.count} ta lid`}
                     />
                   </div>
-                  <p className="text-[11px] text-gray-400">{day.label} {day.date}</p>
+                  <p className="text-[11px] text-ink-muted">{day.label} {day.date}</p>
                 </div>
               )
             })}
@@ -133,15 +133,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Needs attention */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
+      <div className="bg-white rounded-xl shadow-sm border border-line mb-8">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">E'tibor kerak</h2>
-          <p className="text-xs text-gray-500 mt-0.5">3+ kun aloqasiz qolgan lidlar</p>
+          <h2 className="font-semibold text-ink">E'tibor kerak</h2>
+          <p className="text-xs text-ink-muted mt-0.5">3+ kun aloqasiz qolgan lidlar</p>
         </div>
         {loading ? (
-          <div className="text-center py-10 text-gray-400">Yuklanmoqda...</div>
+          <div className="text-center py-10 text-ink-muted">Yuklanmoqda...</div>
         ) : staleLeads.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">Hammasi nazoratda — e'tibor talab qiladigan lid yo'q.</div>
+          <div className="text-center py-10 text-ink-muted">Hammasi nazoratda — e'tibor talab qiladigan lid yo'q.</div>
         ) : (
           <div className="divide-y divide-gray-100">
             {staleLeads.map(({ lead, days }) => (
@@ -151,10 +151,10 @@ export default function DashboardPage() {
                 className="flex items-center justify-between px-5 py-3 hover:bg-gray-50"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{lead.name}</p>
-                  <p className="text-xs text-gray-500">{lead.company ?? '—'}</p>
+                  <p className="text-sm font-medium text-ink">{lead.name}</p>
+                  <p className="text-xs text-ink-muted">{lead.company ?? '—'}</p>
                 </div>
-                <span className="text-xs font-medium text-secondary-700 bg-secondary-50 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-medium text-primary-500 bg-white border border-primary-500 px-2.5 py-1 rounded-full">
                   {days} kun
                 </span>
               </Link>
@@ -164,18 +164,18 @@ export default function DashboardPage() {
       </div>
 
       {/* Recent leads */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
+      <div className="bg-white rounded-xl shadow-sm border border-line">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">So'nggi lidlar</h2>
-          <Link href="/leads" className="text-sm text-secondary-700 hover:underline">Barchasi →</Link>
+          <h2 className="font-semibold text-ink">So'nggi lidlar</h2>
+          <Link href="/leads" className="text-sm text-primary-500 hover:text-primary-600 hover:underline">Barchasi →</Link>
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-gray-400">Yuklanmoqda...</div>
+          <div className="text-center py-10 text-ink-muted">Yuklanmoqda...</div>
         ) : recent.length === 0 ? (
-          <div className="text-center py-10 text-gray-400">
+          <div className="text-center py-10 text-ink-muted">
             Hali lid yo'q.{' '}
-            <Link href="/leads/new" className="text-secondary-700 hover:underline">Qo'shing</Link>
+            <Link href="/leads/new" className="text-primary-500 hover:text-primary-600 hover:underline">Qo'shing</Link>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
@@ -186,8 +186,8 @@ export default function DashboardPage() {
                 className="flex items-center justify-between px-5 py-3 hover:bg-gray-50"
               >
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{lead.name}</p>
-                  <p className="text-xs text-gray-500">{lead.company ?? '—'}</p>
+                  <p className="text-sm font-medium text-ink">{lead.name}</p>
+                  <p className="text-xs text-ink-muted">{lead.company ?? '—'}</p>
                 </div>
                 <StatusBadge status={lead.status as LeadStatus} />
               </Link>
