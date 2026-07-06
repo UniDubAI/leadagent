@@ -12,6 +12,30 @@ interface IncomingLead {
   industry?: string | null
 }
 
+function escapeHtml(text: string) {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+function buildTelegramMessage(added: IncomingLead[]) {
+  if (added.length === 1) {
+    const lead = added[0]
+    return [
+      "🔍 <b>Qidiruvdan yangi lid:</b>",
+      `📌 ${escapeHtml(lead.name!)}`,
+      `📞 ${lead.phone ? escapeHtml(lead.phone) : '—'}`,
+      `📧 ${lead.email ? escapeHtml(lead.email) : '—'}`,
+      `🌐 ${lead.website ? escapeHtml(lead.website) : '—'}`,
+      `📂 ${lead.industry ? escapeHtml(lead.industry) : '—'}`,
+    ].join('\n')
+  }
+
+  const lines = added.map((lead, i) => {
+    const contact = lead.phone ?? lead.email ?? '—'
+    return `${i + 1}. ${escapeHtml(lead.name!)} — ${escapeHtml(contact)}`
+  })
+  return [`🔍 <b>${added.length} ta yangi lid qidiruvdan:</b>`, ...lines].join('\n')
+}
+
 export async function POST(req: NextRequest) {
   const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -31,6 +55,7 @@ export async function POST(req: NextRequest) {
   )
 
   const results: Array<{ name: string; status: 'added' | 'duplicate' }> = []
+  const addedDetails: IncomingLead[] = []
   const toInsert: Array<{
     name: string
     phone: string | null
@@ -65,6 +90,7 @@ export async function POST(req: NextRequest) {
       source: 'OSM qidiruv',
       status: 'new',
     })
+    addedDetails.push({ ...lead, name, email })
     results.push({ name, status: 'added' })
   }
 
@@ -72,7 +98,7 @@ export async function POST(req: NextRequest) {
     const { error: insertError } = await db.from('leads').insert(toInsert)
     if (insertError) return NextResponse.json({ error: insertError.message }, { status: 500 })
 
-    await sendTelegramMessage(`🔎 <b>${toInsert.length} ta yangi lid qidiruvdan qo'shildi</b>`)
+    await sendTelegramMessage(buildTelegramMessage(addedDetails))
   }
 
   return NextResponse.json({ results, addedCount: toInsert.length })
