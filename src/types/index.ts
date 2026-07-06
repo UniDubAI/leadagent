@@ -53,3 +53,13 @@ export interface SmmPost {
   content: string
   trend_basis?: string
 }
+
+export type SearchIndustry = 'restoran' | 'gozallik' | 'dokon' | 'fitnes' | 'talim' | 'boshqa'
+
+export interface OsmSearchResult {
+  name: string
+  address: string | null
+  phone: string | null
+  website: string | null
+  email: string | null
+}

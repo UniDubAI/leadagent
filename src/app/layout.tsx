@@ -25,6 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               LeadAgent
             </Link>
             <NavLink href="/leads">Lidlar</NavLink>
+            <NavLink href="/qidiruv">Qidiruv</NavLink>
             <NavLink href="/smm">SMM</NavLink>
             <NavLink href="/leads/new">+ Yangi lid</NavLink>
             {user && (
