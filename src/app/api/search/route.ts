@@ -3,6 +3,7 @@ import { getUser } from '@/lib/supabase/server'
 import type { OsmSearchResult } from '@/types'
 
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter'
+const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
 
 // OSM amenity/shop teglariga moslashtirilgan soha xaritasi.
 const INDUSTRY_TAGS: Record<string, string> = {
@@ -15,16 +16,38 @@ const INDUSTRY_TAGS: Record<string, string> = {
 }
 
 type OverpassElement = { tags?: Record<string, string> }
+type BBox = { south: number; north: number; west: number; east: number }
 
-function buildQuery(industry: string, city: string, limit: number) {
+// Shahar nomini area["name"=...] orqali Overpass ichida qidirish OSM'dagi
+// haqiqiy tegga (masalan Toshkent -> "Toshkent shahri") qat'iy mos kelishni
+// talab qiladi, regex+harflar katta-kichikligini hisobga olmasdan qidirish
+// esa butun bazani skanerlab timeout beradi. Shu sabab shahar birinchi
+// navbatda Nominatim orqali geokodlanadi, keyin Overpass'ga faqat bitta
+// tezkor bbox so'rovi yuboriladi.
+async function geocodeCity(city: string): Promise<BBox | null> {
+  const url = `${NOMINATIM_URL}?city=${encodeURIComponent(city)}&format=json&limit=1`
+  const res = await fetch(url, { headers: { 'User-Agent': 'LeadAgent-Search/1.0' } })
+  if (!res.ok) {
+    console.error('[search] nominatim error:', res.status, await res.text())
+    return null
+  }
+
+  const data = await res.json()
+  const bbox = data?.[0]?.boundingbox
+  if (!bbox) return null
+
+  const [south, north, west, east] = bbox.map(Number)
+  return { south, north, west, east }
+}
+
+function buildQuery(industry: string, bbox: BBox, limit: number) {
   const tagFilter = INDUSTRY_TAGS[industry] ?? INDUSTRY_TAGS.boshqa
-  const cityEscaped = city.replace(/["\\]/g, '').trim()
+  const bboxStr = `${bbox.south},${bbox.west},${bbox.north},${bbox.east}`
 
   return `[out:json][timeout:25];
-area["name"~"^${cityEscaped}$",i]->.searchArea;
 (
-  node${tagFilter}(area.searchArea);
-  way${tagFilter}(area.searchArea);
+  node${tagFilter}(${bboxStr});
+  way${tagFilter}(${bboxStr});
 );
 out center ${limit};`
 }
@@ -81,7 +104,19 @@ export async function POST(req: NextRequest) {
   }
 
   const cappedLimit = Math.min(Math.max(Number(limit) || 20, 1), 50)
-  const query = buildQuery(industry, city, cappedLimit)
+
+  let bbox: BBox | null
+  try {
+    bbox = await geocodeCity(city)
+  } catch (err) {
+    console.error('[search] geocode error:', err instanceof Error ? err.message : err)
+    return NextResponse.json({ error: "Shahar joylashuvini aniqlab bo'lmadi" }, { status: 502 })
+  }
+  if (!bbox) {
+    return NextResponse.json({ error: `"${city}" shahri topilmadi` }, { status: 404 })
+  }
+
+  const query = buildQuery(industry, bbox, cappedLimit)
 
   let elements: OverpassElement[]
   try {
@@ -89,17 +124,27 @@ export async function POST(req: NextRequest) {
     const timer = setTimeout(() => controller.abort(), 30000)
     const res = await fetch(OVERPASS_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      // Overpass-api.de returns 406 for requests without a User-Agent header
+      // (Node's fetch sends none by default, unlike curl/browsers).
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'LeadAgent-Search/1.0',
+      },
       body: `data=${encodeURIComponent(query)}`,
       signal: controller.signal,
     })
     clearTimeout(timer)
 
     if (!res.ok) {
+      const body = await res.text()
+      console.error('[search] overpass non-ok response:', res.status, body.slice(0, 1000))
       return NextResponse.json({ error: `Overpass API xato qaytardi: ${res.status}` }, { status: 502 })
     }
 
     const data = await res.json()
+    if (data.remark) {
+      console.error('[search] overpass remark:', data.remark)
+    }
     elements = data.elements ?? []
   } catch (err) {
     console.error('[search] overpass error:', err instanceof Error ? err.message : err)
