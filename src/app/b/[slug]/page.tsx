@@ -1,6 +1,27 @@
+import { cache } from 'react'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { createServerClient } from '@/lib/supabase'
 import type { BizPage } from '@/types'
+
+// Page va generateMetadata ikkalasi ham sahifani so'raydi — cache() bilan
+// o'ralgan holda bir so'rov ikkalasiga ham xizmat qiladi.
+const getBizPage = cache(async (slug: string) => {
+  const db = createServerClient()
+  const { data } = await db.from('biz_pages').select('*').eq('slug', slug).maybeSingle<BizPage>()
+  return data
+})
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const page = await getBizPage(slug)
+  if (!page) return {}
+
+  return {
+    title: page.business_name,
+    description: page.tagline ?? undefined,
+  }
+}
 
 function Button({ href, children }: { href: string; children: React.ReactNode }) {
   return (
@@ -18,9 +39,7 @@ function Button({ href, children }: { href: string; children: React.ReactNode })
 export default async function BizPublicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
 
-  const db = createServerClient()
-  const { data: page } = await db.from('biz_pages').select('*').eq('slug', slug).maybeSingle<BizPage>()
-
+  const page = await getBizPage(slug)
   if (!page) notFound()
 
   const mapsHref = page.address
