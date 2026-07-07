@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { lead_id, channel, context } = await req.json()
+    const { lead_id, channel, context, language: languageOverride } = await req.json()
 
     if (!lead_id || !channel) {
       return NextResponse.json({ error: 'lead_id and channel required' }, { status: 400 })
@@ -34,10 +34,23 @@ export async function POST(req: NextRequest) {
       'Rus': 'Russian',
       'Ingliz': 'English',
     }
-    const language = langMap[lead.message_language] ?? 'English'
+    // Lid tilida til belgilanmagan bo'lsa, O'zbek tiliga default qilamiz —
+    // avvalgi 'English' default OSM qidiruvdan kelgan lidlarga inglizcha xabar yozib yuborardi.
+    const language = langMap[languageOverride] ?? langMap[lead.message_language] ?? 'Uzbek'
+
+    // Uzbek-tilidagi majburiy ko'rsatma — model boshqa tilga "sirg'alib ketmasligi" uchun
+    // sistem promptning boshida ham, oxirida ham qat'iy takrorlanadi.
+    const langInstructionMap: Record<string, string> = {
+      Uzbek: "Javobni FAQAT o'zbek tilida yoz.",
+      Russian: 'Javobni FAQAT rus tilida yoz.',
+      English: 'Javobni FAQAT ingliz tilida yoz.',
+    }
+    const languageInstruction = langInstructionMap[language]
 
     const systemPrompt = isEmail
       ? `Siz B2B savdo mutaxassisisiz. Vazifangiz: mijozga shaxsiylashtirilgan, qisqa va tabiiy tuyuladigan sovuq email yozish.
+
+MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
 Qoidalar:
 - Reklama tilida YOZMANG. Oddiy, insoniy ohangda yozing.
@@ -45,8 +58,10 @@ Qoidalar:
 - 3-4 qisqa paragraf: muammo/vaziyat → qisqa taklif → CTA.
 - CTA yumshoq bo'lsin: "15 daqiqalik qo'ng'iroq", "fikringizni bilsam" kabi.
 - Har doim JSON formatida qaytaring: {"subject": "...", "body": "..."}
-- Xabarni ${language} tilida yozing.`
+- ${languageInstruction}`
       : `Siz B2B savdo mutaxassisisiz. Vazifangiz: LinkedIn uchun ikkita alohida matn yozish — qisqa connection so'rovi va connection qabul qilingandan keyin yuboriladigan to'liqroq DM xabari.
+
+MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
 Qoidalar:
 - "connection_request": MAKSIMAL 300 belgi. Juda qisqa, tabiiy, bitta aniq sabab bilan tanishuv taklifi. Reklama emas.
@@ -54,7 +69,7 @@ Qoidalar:
 - Ikkalasi ham oddiy, do'stona ohangda — reklama emas, tanishish xabari kabi.
 - Mijozning sohasiga mos bitta aniq sabab ko'rsating.
 - Har doim JSON formatida qaytaring: {"connection_request": "...", "dm": "..."}
-- Ikkala xabarni ham ${language} tilida yozing.`
+- ${languageInstruction}`
 
     const userPrompt = `Quyidagi lid uchun ${isEmail ? 'email' : 'LinkedIn xabar'} yozing:
 
@@ -64,7 +79,7 @@ Soha: ${lead.industry || 'noma\'lum'}
 Email: ${lead.email || 'N/A'}
 ${context ? `Qo'shimcha ma'lumot: ${context}` : ''}
 
-Xabar ${language} tilida bo'lsin. Shaxsiylashtirilgan, qisqa va tabiiy yozing.`
+${languageInstruction} Shaxsiylashtirilgan, qisqa va tabiiy yozing.`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',

@@ -7,6 +7,7 @@ import { LeadWithMessages, LeadStatus, OutreachChannel, OutreachMessage } from '
 import { StatusBadge } from '@/components/StatusBadge'
 
 const STATUSES: LeadStatus[] = ['new', 'contacted', 'replied', 'qualified', 'closed_won', 'closed_lost']
+const LANGUAGE_OPTIONS = ["O'zbek", 'Rus', 'Ingliz']
 
 function daysAgo(dateStr: string) {
   const diffMs = Date.now() - new Date(dateStr).getTime()
@@ -23,16 +24,27 @@ export default function LeadDetailPage() {
   const [loading, setLoading] = useState(true)
   const [channel, setChannel] = useState<OutreachChannel>('email')
   const [context, setContext] = useState('')
+  const [messageLanguage, setMessageLanguage] = useState<string>("O'zbek")
   const [generating, setGenerating] = useState(false)
   const [sending, setSending] = useState(false)
   const [emailSent, setEmailSent] = useState(false)
   const [sendError, setSendError] = useState('')
   const [activeMessage, setActiveMessage] = useState<OutreachMessage | null>(null)
+  const [editing, setEditing] = useState(false)
+  const [editEmail, setEditEmail] = useState('')
+  const [editPhone, setEditPhone] = useState('')
+  const [savingContact, setSavingContact] = useState(false)
 
   const fetchLead = () => {
     fetch(`/api/leads/${id}`)
       .then((r) => r.json())
-      .then((data) => { setLead(data); setLoading(false) })
+      .then((data: LeadWithMessages) => {
+        setLead(data)
+        setLoading(false)
+        setMessageLanguage(data.message_language || "O'zbek")
+        setEditEmail(data.email ?? '')
+        setEditPhone(data.phone ?? '')
+      })
   }
 
   useEffect(() => { fetchLead() }, [id])
@@ -51,7 +63,7 @@ export default function LeadDetailPage() {
     const res = await fetch('/api/outreach/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lead_id: id, channel, context }),
+      body: JSON.stringify({ lead_id: id, channel, context, language: messageLanguage }),
     })
     const data = await res.json()
     setGenerating(false)
@@ -65,6 +77,11 @@ export default function LeadDetailPage() {
 
   const sendEmail = async () => {
     if (!activeMessage || !lead) return
+    if (!lead.email) {
+      alert('Email kiriting')
+      setEditing(true)
+      return
+    }
     if (!confirm('Yuborilsinmi?')) return
 
     setSending(true)
@@ -90,6 +107,21 @@ export default function LeadDetailPage() {
     }
 
     setEmailSent(true)
+    fetchLead()
+  }
+
+  const saveContact = async () => {
+    setSavingContact(true)
+    await fetch(`/api/leads/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: editEmail.trim() || null,
+        phone: editPhone.trim() || null,
+      }),
+    })
+    setSavingContact(false)
+    setEditing(false)
     fetchLead()
   }
 
@@ -120,26 +152,74 @@ export default function LeadDetailPage() {
               <StatusBadge status={lead.status as LeadStatus} />
             </div>
 
-            {lead.email && (
-              <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Email:</span> {lead.email}
-              </p>
-            )}
-            {lead.email_sent_at && (
-              <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Oxirgi email:</span>{' '}
-                {new Date(lead.email_sent_at).toLocaleDateString('uz-UZ')}
-              </p>
-            )}
-            {lead.last_contact_at && (
-              <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Oxirgi aloqa:</span> {daysAgo(lead.last_contact_at)}
-              </p>
-            )}
-            {lead.phone && (
-              <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Telefon:</span> {lead.phone}
-              </p>
+            {editing ? (
+              <div className="space-y-2 mb-3">
+                <div>
+                  <label className="block text-xs font-medium text-ink-muted mb-1">Email</label>
+                  <input
+                    type="email"
+                    className="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={editEmail}
+                    onChange={(e) => setEditEmail(e.target.value)}
+                    placeholder="email@misol.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-ink-muted mb-1">Telefon</label>
+                  <input
+                    type="text"
+                    className="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    value={editPhone}
+                    onChange={(e) => setEditPhone(e.target.value)}
+                    placeholder="+998..."
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={saveContact}
+                    disabled={savingContact}
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition disabled:opacity-50"
+                  >
+                    {savingContact ? 'Saqlanmoqda...' : 'Saqlash'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditing(false)
+                      setEditEmail(lead.email ?? '')
+                      setEditPhone(lead.phone ?? '')
+                    }}
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium text-ink-muted hover:text-ink transition"
+                  >
+                    Bekor qilish
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <p className="text-sm text-ink-muted mb-1">
+                  <span className="font-medium">Email:</span> {lead.email || '—'}
+                </p>
+                {lead.email_sent_at && (
+                  <p className="text-sm text-ink-muted mb-1">
+                    <span className="font-medium">Oxirgi email:</span>{' '}
+                    {new Date(lead.email_sent_at).toLocaleDateString('uz-UZ')}
+                  </p>
+                )}
+                {lead.last_contact_at && (
+                  <p className="text-sm text-ink-muted mb-1">
+                    <span className="font-medium">Oxirgi aloqa:</span> {daysAgo(lead.last_contact_at)}
+                  </p>
+                )}
+                <p className="text-sm text-ink-muted mb-1">
+                  <span className="font-medium">Telefon:</span> {lead.phone || '—'}
+                </p>
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-xs text-primary-500 hover:text-primary-600 font-medium mb-2"
+                >
+                  ✎ Kontaktni tahrirlash
+                </button>
+              </>
             )}
             {lead.linkedin_url && (
               <p className="text-sm text-ink-muted mb-1">
@@ -217,6 +297,16 @@ export default function LeadDetailPage() {
                   {ch === 'email' ? '✉ Email' : '💼 LinkedIn'}
                 </button>
               ))}
+
+              <select
+                value={messageLanguage}
+                onChange={(e) => setMessageLanguage(e.target.value)}
+                className="ml-auto border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white text-ink focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                {LANGUAGE_OPTIONS.map((lang) => (
+                  <option key={lang} value={lang}>{lang}</option>
+                ))}
+              </select>
             </div>
 
             <textarea
@@ -253,7 +343,7 @@ export default function LeadDetailPage() {
               <div>
                 <button
                   onClick={sendEmail}
-                  disabled={sending || emailSent || !lead.email}
+                  disabled={sending || emailSent}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50 ${
                     emailSent
                       ? 'bg-primary-500 text-white'
@@ -263,7 +353,7 @@ export default function LeadDetailPage() {
                   {sending ? 'Yuborilmoqda...' : emailSent ? 'Yuborildi ✓' : '✉ Email yuborish'}
                 </button>
                 {!lead.email && (
-                  <p className="text-xs text-red-600 mt-2">Lidda email manzil yo&apos;q</p>
+                  <p className="text-xs text-red-600 mt-2">Lidda email manzil yo&apos;q — avval kiriting</p>
                 )}
                 {sendError && <p className="text-xs text-red-600 mt-2">{sendError}</p>}
               </div>
