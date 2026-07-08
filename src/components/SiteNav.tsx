@@ -20,6 +20,7 @@ export function SiteNav({ hasUser }: { hasUser: boolean }) {
         <NavLink href="/qidiruv">Qidiruv</NavLink>
         <NavLink href="/sahifalar">Sahifalar</NavLink>
         <NavLink href="/smm">SMM</NavLink>
+        <NavLink href="/tavsiyalar">Tavsiyalar</NavLink>
         <NavLink href="/leads/new">+ Yangi lid</NavLink>
         {hasUser && (
           <div className="ml-auto">

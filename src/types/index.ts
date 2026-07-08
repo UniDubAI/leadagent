@@ -107,3 +107,9 @@ export interface BizPage {
   lead_id: string | null
   created_at: string
 }
+
+export interface RecommendationsRecord {
+  id: string
+  items: string[]
+  generated_at: string
+}
