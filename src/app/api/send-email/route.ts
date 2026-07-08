@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     .from('leads')
     .update({ email_sent_at: now, last_contact_at: now })
     .eq('id', leadId)
+    .eq('user_id', user.id)
     .select()
     .single()
 

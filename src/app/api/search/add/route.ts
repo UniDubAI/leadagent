@@ -46,7 +46,10 @@ export async function POST(req: NextRequest) {
   }
 
   const db = createServerClient()
-  const { data: existing, error: fetchError } = await db.from('leads').select('name, email')
+  const { data: existing, error: fetchError } = await db
+    .from('leads')
+    .select('name, email')
+    .eq('user_id', user.id)
   if (fetchError) return NextResponse.json({ error: fetchError.message }, { status: 500 })
 
   const existingNames = new Set(existing.map((l) => l.name.trim().toLowerCase()))
@@ -57,6 +60,7 @@ export async function POST(req: NextRequest) {
   const results: Array<{ name: string; status: 'added' | 'duplicate' }> = []
   const addedDetails: IncomingLead[] = []
   const toInsert: Array<{
+    user_id: string
     name: string
     phone: string | null
     email: string | null
@@ -82,6 +86,7 @@ export async function POST(req: NextRequest) {
     if (emailKey) existingEmails.add(emailKey)
 
     toInsert.push({
+      user_id: user.id,
       name,
       phone: lead.phone ?? null,
       email,

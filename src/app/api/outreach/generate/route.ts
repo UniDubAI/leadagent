@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       .from('leads')
       .select('*')
       .eq('id', lead_id)
+      .eq('user_id', user.id)
       .single()
 
     if (error || !lead) {
@@ -105,6 +106,7 @@ ${languageInstruction} Shaxsiylashtirilgan, qisqa va tabiiy yozing.`
     const { data: saved } = await db
       .from('outreach_messages')
       .insert({
+        user_id: user.id,
         lead_id,
         channel,
         subject,

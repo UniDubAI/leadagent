@@ -12,6 +12,7 @@ export async function GET() {
   const { data, error } = await db
     .from('biz_pages')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
   const { data, error } = await db
     .from('biz_pages')
     .insert({
+      user_id: user.id,
       slug: finalSlug,
       business_name,
       tagline: tagline || null,

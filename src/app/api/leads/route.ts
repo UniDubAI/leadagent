@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
   let query = db
     .from('leads')
     .select('*')
+    .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
   if (status) query = query.eq('status', status)
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
   const db = createServerClient()
   const { data, error } = await db
     .from('leads')
-    .insert({ name, company, email, linkedin_url, phone, industry, message_language, source, notes })
+    .insert({ user_id: user.id, name, company, email, linkedin_url, phone, industry, message_language, source, notes })
     .select()
     .single()
 

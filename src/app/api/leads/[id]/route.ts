@@ -30,6 +30,7 @@ export async function GET(
     .from('leads')
     .select('*, outreach_messages(*)')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 404 })
@@ -48,7 +49,7 @@ export async function PATCH(
   const body = await req.json()
   const db = createServerClient()
 
-  const update = { ...body }
+  const { user_id: _ignoredUserId, ...update } = body
   if (update.status === 'contacted') {
     update.last_contact_at = new Date().toISOString()
   }
@@ -57,6 +58,7 @@ export async function PATCH(
     .from('leads')
     .update(update)
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -82,7 +84,7 @@ export async function DELETE(
   const { id } = await params
   const db = createServerClient()
 
-  const { error } = await db.from('leads').delete().eq('id', id)
+  const { error } = await db.from('leads').delete().eq('id', id).eq('user_id', user.id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return new NextResponse(null, { status: 204 })
