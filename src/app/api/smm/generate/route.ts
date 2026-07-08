@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
+import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -103,11 +104,11 @@ export async function POST(req: NextRequest) {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const { businessName, industry, platform, contentType, language, notes, considerTrends } = await req.json()
+    const { platform, contentType, language, notes, considerTrends } = await req.json()
 
-    if (!businessName || !industry || !platform || !contentType || !language) {
+    if (!platform || !contentType || !language) {
       return NextResponse.json(
-        { error: 'businessName, industry, platform, contentType, language required' },
+        { error: 'platform, contentType, language required' },
         { status: 400 },
       )
     }
@@ -117,9 +118,24 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid contentType' }, { status: 400 })
     }
 
+    const db = createServerClient()
+    const { data: profile, error: profileError } = await db
+      .from('business_profiles')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (profileError) return NextResponse.json({ error: profileError.message }, { status: 500 })
+    if (!profile) {
+      return NextResponse.json(
+        { error: "Avval biznesingiz haqida ma'lumot to'ldiring" },
+        { status: 400 },
+      )
+    }
+
     const trendsInstruction = `
 
-Trend qidiruvi yoqilgan: postlarni yozishdan oldin web_search tool orqali "${industry}" sohasi bo'yicha O'zbekistondagi dolzarb trendlar, yangiliklar va mavsumiy mavzularni qidiring (masalan: "${industry} trendlari 2026 Toshkent"). Topilgan dolzarb mavzularni postlar kontentiga tabiiy tarzda bog'lang. Har bir post uchun submit_posts'dagi trend_basis maydonida qaysi trend yoki manbaga asoslanganini bir jumlada yozing. Agar qidiruv natija bermasa yoki foydali trend topilmasa, oddiy sifatli kontent yozishda davom eting va trend_basis'ni bo'sh qoldiring.`
+Trend qidiruvi yoqilgan: postlarni yozishdan oldin web_search tool orqali "${profile.industry}" sohasi bo'yicha ${profile.city ? `${profile.city} shahri va ` : ''}O'zbekistondagi dolzarb trendlar, yangiliklar va mavsumiy mavzularni qidiring (masalan: "${profile.industry} trendlari 2026 ${profile.city ?? 'Toshkent'}"). Topilgan dolzarb mavzularni postlar kontentiga tabiiy tarzda bog'lang. Har bir post uchun submit_posts'dagi trend_basis maydonida qaysi trend yoki manbaga asoslanganini bir jumlada yozing. Agar qidiruv natija bermasa yoki foydali trend topilmasa, oddiy sifatli kontent yozishda davom eting va trend_basis'ni bo'sh qoldiring.`
 
     const systemPrompt = `Siz professional SMM kontent yaratuvchisiz. Vazifangiz: kichik biznes uchun ijtimoiy tarmoq posti(lari)ni yozish.
 
@@ -129,9 +145,9 @@ Qoidalar:
 - Har bir postning oxiriga 5-8 ta relevant hashtag qo'shing.
 - Emojidan me'yorida foydalaning — postni ortiqcha to'ldirmang.${considerTrends ? trendsInstruction : ''}`
 
-    const userPrompt = `Biznes nomi: ${businessName}
-Soha: ${industry}
-Platforma: ${PLATFORM_LABELS[platform] ?? platform}
+    const userPrompt = `Biznes nomi: ${profile.business_name}
+Soha: ${profile.industry}
+${profile.description ? `Biznes haqida: ${profile.description}\n` : ''}${profile.city ? `Shahar: ${profile.city}\n` : ''}Platforma: ${PLATFORM_LABELS[platform] ?? platform}
 ${notes ? `Qo'shimcha izoh: ${notes}` : ''}
 
 ${contentPlan}
@@ -153,7 +169,23 @@ Postlarni ${language} tilida yozing.`
       }
     }
 
-    return NextResponse.json({ posts: generated.posts })
+    const { data: saved, error: saveError } = await db
+      .from('smm_posts')
+      .insert({
+        user_id: user.id,
+        business_profile_id: profile.id,
+        platform,
+        content_type: contentType,
+        language,
+        consider_trends: Boolean(considerTrends),
+        posts: generated.posts,
+      })
+      .select()
+      .single()
+
+    if (saveError) console.error('[smm/generate] failed to save post history:', saveError.message)
+
+    return NextResponse.json({ posts: generated.posts, saved })
   } catch (err: unknown) {
     if (err instanceof APIError) {
       console.error('[smm/generate] anthropic error:', err.status, err.message)

@@ -54,6 +54,26 @@ export interface SmmPost {
   trend_basis?: string
 }
 
+export interface BusinessProfile {
+  id: string
+  business_name: string
+  industry: string
+  description: string | null
+  city: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface SmmPostRecord {
+  id: string
+  platform: SmmPlatform
+  content_type: SmmContentType
+  language: string
+  consider_trends: boolean
+  posts: SmmPost[]
+  created_at: string
+}
+
 export type SearchIndustry = 'restoran' | 'gozallik' | 'dokon' | 'fitnes' | 'talim' | 'boshqa'
 
 export interface OsmSearchResult {
