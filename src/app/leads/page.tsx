@@ -117,6 +117,7 @@ export default function LeadsPage() {
                 <th className="text-left px-4 py-3 font-medium text-ink-muted">Kompaniya</th>
                 <th className="text-left px-4 py-3 font-medium text-ink-muted">Soha</th>
                 <th className="text-left px-4 py-3 font-medium text-ink-muted">Telefon</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">Email</th>
                 <th className="text-left px-4 py-3 font-medium text-ink-muted">Manba</th>
                 <th className="text-left px-4 py-3 font-medium text-ink-muted">Til</th>
                 <th className="text-left px-4 py-3 font-medium text-ink-muted">Status</th>
@@ -134,6 +135,7 @@ export default function LeadsPage() {
                   <td className="px-4 py-3 text-ink-muted">{lead.company ?? '—'}</td>
                   <td className="px-4 py-3 text-ink-muted">{lead.industry ?? '—'}</td>
                   <td className="px-4 py-3 text-ink-muted">{lead.phone ?? '—'}</td>
+                  <td className="px-4 py-3 text-ink-muted">{lead.email ?? '—'}</td>
                   <td className="px-4 py-3 text-ink-muted">{lead.source ?? '—'}</td>
                   <td className="px-4 py-3 text-ink-muted">{lead.message_language ?? '—'}</td>
                   <td className="px-4 py-3">
