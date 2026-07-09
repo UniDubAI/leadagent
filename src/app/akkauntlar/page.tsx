@@ -399,10 +399,27 @@ function FinanceCard({
 export default function AkkauntlarPage() {
   const [accounts, setAccounts] = useState<ConnectedAccount[] | undefined>(undefined)
   const [finance, setFinance] = useState<BusinessFinance | null | undefined>(undefined)
+  const [loadError, setLoadError] = useState('')
 
   useEffect(() => {
-    fetch('/api/accounts').then((r) => r.json()).then(setAccounts)
-    fetch('/api/finance').then((r) => r.json()).then(setFinance)
+    fetch('/api/accounts').then(async (r) => {
+      const body = await r.json()
+      if (!r.ok) {
+        setLoadError(body.error ?? "Ma'lumotlarni yuklashda xatolik yuz berdi")
+        setAccounts([])
+        return
+      }
+      setAccounts(body)
+    })
+    fetch('/api/finance').then(async (r) => {
+      const body = await r.json()
+      if (!r.ok) {
+        setLoadError(body.error ?? "Ma'lumotlarni yuklashda xatolik yuz berdi")
+        setFinance(null)
+        return
+      }
+      setFinance(body)
+    })
   }, [])
 
   const upsertAccount = (account: ConnectedAccount) => {
@@ -427,6 +444,12 @@ export default function AkkauntlarPage() {
           Ijtimoiy tarmoq va moliya ma&apos;lumotlarini ulang — bular &quot;Tavsiyalar&quot; bo&apos;limida to&apos;liq biznes audit uchun ishlatiladi.
         </p>
       </div>
+
+      {loadError && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
+          Ma&apos;lumotlarni yuklashda xatolik: {loadError}
+        </div>
+      )}
 
       <TelegramCard account={telegramAccount} onSaved={upsertAccount} />
       <InstagramCard account={instagramAccount} onSaved={upsertAccount} />
