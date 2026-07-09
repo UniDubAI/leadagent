@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
   if (messageId) {
     const { error: messageError } = await db
       .from('outreach_messages')
-      .update({ status: 'sent', sent_at: now })
+      .update({ status: 'sent', sent_at: now, subject, body })
       .eq('id', messageId)
       .eq('user_id', user.id)
 

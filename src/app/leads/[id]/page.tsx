@@ -30,6 +30,8 @@ export default function LeadDetailPage() {
   const [emailSent, setEmailSent] = useState(false)
   const [sendError, setSendError] = useState('')
   const [activeMessage, setActiveMessage] = useState<OutreachMessage | null>(null)
+  const [draftSubject, setDraftSubject] = useState('')
+  const [draftBody, setDraftBody] = useState('')
   const [editing, setEditing] = useState(false)
   const [editEmail, setEditEmail] = useState('')
   const [editPhone, setEditPhone] = useState('')
@@ -69,6 +71,8 @@ export default function LeadDetailPage() {
     setGenerating(false)
     if (data.message) {
       setActiveMessage(data.message)
+      setDraftSubject(data.message.subject ?? '')
+      setDraftBody(data.message.body ?? '')
       setEmailSent(false)
       setSendError('')
       fetchLead()
@@ -92,8 +96,8 @@ export default function LeadDetailPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: lead.email,
-        subject: activeMessage.subject,
-        body: activeMessage.body,
+        subject: draftSubject,
+        body: draftBody,
         leadId: id,
         messageId: activeMessage.id,
       }),
@@ -334,12 +338,27 @@ export default function LeadDetailPage() {
                 <p className="text-sm font-semibold text-primary-500">Yangi draft</p>
                 <span className="text-xs text-primary-500 uppercase">{activeMessage.channel}</span>
               </div>
-              {activeMessage.subject && (
-                <p className="text-sm font-medium text-ink mb-2">
-                  Mavzu: {activeMessage.subject}
-                </p>
-              )}
-              <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-4">{activeMessage.body}</pre>
+
+              <div className="mb-3">
+                <label className="block text-xs font-medium text-ink-muted mb-1">Mavzu</label>
+                <input
+                  type="text"
+                  disabled={sending || emailSent}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-50"
+                  value={draftSubject}
+                  onChange={(e) => setDraftSubject(e.target.value)}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-xs font-medium text-ink-muted mb-1">Matn</label>
+                <textarea
+                  rows={8}
+                  disabled={sending || emailSent}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-sans focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:bg-gray-50"
+                  value={draftBody}
+                  onChange={(e) => setDraftBody(e.target.value)}
+                />
+              </div>
 
               <div>
                 <button
