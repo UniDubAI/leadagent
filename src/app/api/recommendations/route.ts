@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
-import type { LeadStatus } from '@/types'
+import type { ConnectedAccount, InstagramAccountData, LeadStatus, TelegramAccountData } from '@/types'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -35,7 +35,7 @@ const SUBMIT_RECOMMENDATIONS_TOOL: Anthropic.Tool = {
           description: "Bitta aniq, amaliy tavsiya, o'zbek tilida, 1-2 gap",
         },
         minItems: 3,
-        maxItems: 5,
+        maxItems: 6,
       },
     },
     required: ['recommendations'],
@@ -78,9 +78,26 @@ export async function POST() {
 
     if (smmError) return NextResponse.json({ error: smmError.message }, { status: 500 })
 
+    const { data: connectedAccounts, error: accountsError } = await db
+      .from('connected_accounts')
+      .select('platform, account_name, data, updated_at')
+      .eq('user_id', user.id)
+
+    if (accountsError) return NextResponse.json({ error: accountsError.message }, { status: 500 })
+
+    const { data: finance, error: financeError } = await db
+      .from('business_finances')
+      .select('monthly_revenue, monthly_expense, avg_receipt')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (financeError) return NextResponse.json({ error: financeError.message }, { status: 500 })
+
+    const hasFinanceData = !!finance && (finance.monthly_revenue != null || finance.monthly_expense != null || finance.avg_receipt != null)
+
     // Brand-new account with nothing to analyze yet — skip the AI call and
     // give a friendly onboarding nudge instead of asking Claude to invent advice.
-    if (leads.length === 0) {
+    if (leads.length === 0 && smmPosts.length === 0 && connectedAccounts.length === 0 && !hasFinanceData) {
       const items = [
         "Hali lidlaringiz yo'q. Avval \"Qidiruv\" bo'limi yoki \"+ Yangi lid\" tugmasi orqali birinchi mijozingizni qo'shing — shundan keyin sizga moslashtirilgan tavsiyalar tayyor bo'ladi.",
       ]
@@ -138,8 +155,40 @@ export async function POST() {
       ? staleLeads.slice(0, 8).map((l) => `- ${l.name}${l.company ? ` (${l.company})` : ''} — ${l.days} kundan beri javobsiz`).join('\n')
       : 'Yo\'q — barcha faol lidlar bilan yaqinda aloqa bo\'lgan.'
 
-    const userPrompt = `Quyidagi statistikaga asoslanib, foydalanuvchiga 3-5 ta aniq, amaliy, o'zbek tilidagi tavsiya bering.
+    const telegramAccount = (connectedAccounts as ConnectedAccount[]).find((a) => a.platform === 'telegram')
+    const instagramAccount = (connectedAccounts as ConnectedAccount[]).find((a) => a.platform === 'instagram')
 
+    const telegramLine = telegramAccount
+      ? (() => {
+          const d = telegramAccount.data as TelegramAccountData
+          return `${telegramAccount.account_name} — ${d.members_count} obunachi (so'nggi tekshiruv: ${new Date(telegramAccount.updated_at).toLocaleDateString('uz-UZ')})`
+        })()
+      : "Ulanmagan — foydalanuvchi hali Telegram kanalini qo'shmagan."
+
+    const instagramLine = instagramAccount
+      ? (() => {
+          const d = instagramAccount.data as InstagramAccountData
+          return `${instagramAccount.account_name} — ${d.followers} obunachi, so'nggi 30 kunda ${d.posts_last_30d} post, o'rtacha ${d.avg_likes} like, o'rtacha ${d.avg_views} ko'rish`
+        })()
+      : "Ulanmagan — foydalanuvchi hali Instagram ma'lumotlarini kiritmagan."
+
+    const financeLine = hasFinanceData
+      ? (() => {
+          const revenue = finance!.monthly_revenue
+          const expense = finance!.monthly_expense
+          const profit = revenue != null && expense != null ? revenue - expense : null
+          return [
+            revenue != null ? `oylik daromad: ${revenue} so'm` : null,
+            expense != null ? `oylik xarajat: ${expense} so'm` : null,
+            profit != null ? `taxminiy foyda: ${profit} so'm` : null,
+            finance!.avg_receipt != null ? `o'rtacha chek: ${finance!.avg_receipt} so'm` : null,
+          ].filter(Boolean).join(', ')
+        })()
+      : "Kiritilmagan — foydalanuvchi hali moliya ma'lumotlarini to'ldirmagan."
+
+    const userPrompt = `Quyidagi statistikaga asoslanib, foydalanuvchiga to'liq biznes auditi sifatida 3-6 ta aniq, amaliy, o'zbek tilidagi tavsiya bering.
+
+## Lidlar va outreach
 Jami lidlar: ${leads.length}
 Status bo'yicha: ${statusLines}
 Top sohalar: ${industryLines}
@@ -149,12 +198,25 @@ Yuborilgan emaillar (jami): ${emailsSentTotal}, so'nggi 7 kunda: ${emailsSentLas
 3+ kun javobsiz qolgan lidlar:
 ${staleLines}
 
-SMM: jami generatsiya qilingan post/reja soni: ${smmTotal}, so'nggi 7 kunda: ${smmLast7Days}`
+## SMM kontent faolligi
+Jami generatsiya qilingan post/reja soni: ${smmTotal}, so'nggi 7 kunda: ${smmLast7Days}
 
-    const systemPrompt = `Siz B2B savdo va marketing bo'yicha maslahatchisiz. Foydalanuvchi — kichik biznes egasi, texnik bilimi yo'q. Berilgan raqamli statistikaga asoslanib, aniq va amaliy tavsiyalar bering.
+## Telegram kanal
+${telegramLine}
+
+## Instagram
+${instagramLine}
+
+## Moliya
+${financeLine}`
+
+    const systemPrompt = `Siz kichik bizneslar uchun to'liq biznes auditi o'tkazadigan maslahatchisiz — savdo (lidlar), marketing (SMM, Telegram, Instagram) va moliya bo'yicha. Foydalanuvchi — kichik biznes egasi, texnik bilimi yo'q. Berilgan raqamli statistikaga asoslanib, har bir yo'nalishdagi kamchiliklarni aniqlab, aniq yechim bering.
 
 Qoidalar:
-- 3 tadan 5 tagacha tavsiya bering, har biri 1-2 gap, oddiy va tushunarli tilda.
+- 3 tadan 6 tagacha tavsiya bering, har biri 1-2 gap, oddiy va tushunarli tilda.
+- Ma'lumot mavjud bo'lgan har bir yo'nalishni (lidlar, Telegram, Instagram, moliya) qamrab olishga harakat qiling — biror yo'nalish ulanmagan/kiritilmagan bo'lsa, buni ham aytib, ulashni/kiritishni tavsiya qiling.
+- Moliya ma'lumoti mavjud bo'lsa, daromad-xarajat nisbatidagi aniq muammoni yoki imkoniyatni ko'rsating (masalan: foyda past, xarajatni qaysi joyda qisqartirish mumkin).
+- Telegram/Instagram ma'lumoti mavjud bo'lsa, o'sish yoki faollik bo'yicha aniq muammoni ko'rsating (masalan: obunachi soniga nisbatan like/ko'rish past — bu qiziqarli emas degani).
 - Sayoz yoki umumiy maslahat bermang ("marketingga ko'proq e'tibor bering" kabi) — faqat berilgan raqamlar va nomlarga asoslaning.
 - Agar muayyan lid javobsiz qolgan bo'lsa, uning ismini aniq ko'rsating (masalan: "Bobur Jamgirov 4 kundan beri javobsiz — follow-up yuboring").
 - Agar emaillar kam yuborilgan bo'lsa, aniq raqam bilan ayting (masalan: "Bu hafta faqat 1 email yubordingiz — kuniga 2-3 taga oshiring").

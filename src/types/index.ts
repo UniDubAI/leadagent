@@ -113,3 +113,35 @@ export interface RecommendationsRecord {
   items: string[]
   generated_at: string
 }
+
+export type ConnectedPlatform = 'telegram' | 'instagram'
+
+export interface TelegramAccountData {
+  title: string
+  description: string | null
+  members_count: number
+}
+
+export interface InstagramAccountData {
+  followers: number
+  posts_last_30d: number
+  avg_likes: number
+  avg_views: number
+}
+
+export interface ConnectedAccount {
+  id: string
+  platform: ConnectedPlatform
+  account_name: string
+  data: TelegramAccountData | InstagramAccountData
+  connected_at: string
+  updated_at: string
+}
+
+export interface BusinessFinance {
+  id: string
+  monthly_revenue: number | null
+  monthly_expense: number | null
+  avg_receipt: number | null
+  updated_at: string
+}

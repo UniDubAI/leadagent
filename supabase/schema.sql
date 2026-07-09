@@ -120,6 +120,39 @@ create table if not exists recommendations (
   generated_at timestamptz not null default now()
 );
 
+-- Connected accounts (Telegram via Bot API, Instagram entered manually) --
+-- one row per user per platform, refreshed in place.
+create table if not exists connected_accounts (
+  id           uuid primary key default gen_random_uuid(),
+  user_id      uuid not null references auth.users(id) on delete cascade,
+  platform     text not null check (platform in ('telegram', 'instagram')),
+  account_name text not null,
+  data         jsonb not null default '{}'::jsonb,
+  connected_at timestamptz not null default now(),
+  updated_at   timestamptz not null default now(),
+  unique (user_id, platform)
+);
+
+create trigger connected_accounts_updated_at
+  before update on connected_accounts
+  for each row execute function update_updated_at();
+
+create index if not exists connected_accounts_user_id_idx on connected_accounts(user_id);
+
+-- Business finances -- one simple manually-entered snapshot per user.
+create table if not exists business_finances (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid not null unique references auth.users(id) on delete cascade,
+  monthly_revenue numeric,
+  monthly_expense numeric,
+  avg_receipt     numeric,
+  updated_at      timestamptz not null default now()
+);
+
+create trigger business_finances_updated_at
+  before update on business_finances
+  for each row execute function update_updated_at();
+
 -- Row Level Security -- every user only sees/manages their own rows. Public
 -- mini-pages (/b/[slug]) are readable by anyone by design.
 alter table leads enable row level security;
@@ -128,6 +161,8 @@ alter table biz_pages enable row level security;
 alter table business_profiles enable row level security;
 alter table smm_posts enable row level security;
 alter table recommendations enable row level security;
+alter table connected_accounts enable row level security;
+alter table business_finances enable row level security;
 
 create policy "leads_select_own" on leads for select using (auth.uid() = user_id);
 create policy "leads_insert_own" on leads for insert with check (auth.uid() = user_id);
@@ -154,3 +189,12 @@ create policy "smm_posts_insert_own" on smm_posts for insert with check (auth.ui
 create policy "recommendations_select_own" on recommendations for select using (auth.uid() = user_id);
 create policy "recommendations_insert_own" on recommendations for insert with check (auth.uid() = user_id);
 create policy "recommendations_update_own" on recommendations for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "connected_accounts_select_own" on connected_accounts for select using (auth.uid() = user_id);
+create policy "connected_accounts_insert_own" on connected_accounts for insert with check (auth.uid() = user_id);
+create policy "connected_accounts_update_own" on connected_accounts for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+create policy "connected_accounts_delete_own" on connected_accounts for delete using (auth.uid() = user_id);
+
+create policy "business_finances_select_own" on business_finances for select using (auth.uid() = user_id);
+create policy "business_finances_insert_own" on business_finances for insert with check (auth.uid() = user_id);
+create policy "business_finances_update_own" on business_finances for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
