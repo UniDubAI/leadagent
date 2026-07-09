@@ -95,6 +95,7 @@ export default function LeadDetailPage() {
         subject: activeMessage.subject,
         body: activeMessage.body,
         leadId: id,
+        messageId: activeMessage.id,
       }),
     })
 

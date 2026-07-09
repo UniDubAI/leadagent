@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { to, subject, body, leadId } = await req.json()
+  const { to, subject, body, leadId, messageId } = await req.json()
 
   if (!to || !subject || !body || !leadId) {
     return NextResponse.json(
@@ -47,6 +47,18 @@ export async function POST(req: NextRequest) {
   if (dbError) {
     console.error('[send-email] Supabase error:', dbError.message)
     return NextResponse.json({ error: dbError.message }, { status: 500 })
+  }
+
+  if (messageId) {
+    const { error: messageError } = await db
+      .from('outreach_messages')
+      .update({ status: 'sent', sent_at: now })
+      .eq('id', messageId)
+      .eq('user_id', user.id)
+
+    if (messageError) {
+      console.error('[send-email] outreach_messages update error:', messageError.message)
+    }
   }
 
   await sendTelegramMessage(`📧 Email yuborildi: ${lead.name}`)
