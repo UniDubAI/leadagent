@@ -1,7 +1,21 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { RecommendationsRecord } from '@/types'
+import Link from 'next/link'
+import type { RecommendationItem, RecommendationsRecord } from '@/types'
+
+function normalizeItem(item: string | RecommendationItem): RecommendationItem {
+  if (typeof item === 'string') return { text: item, action_type: 'boshqa', lead_id: null }
+  return item
+}
+
+function actionHref(item: RecommendationItem): string | null {
+  if ((item.action_type === 'email_yuborish' || item.action_type === 'followup') && item.lead_id) {
+    return `/leads/${item.lead_id}`
+  }
+  if (item.action_type === 'smm_post') return '/smm'
+  return null
+}
 
 export default function TavsiyalarPage() {
   const [record, setRecord] = useState<RecommendationsRecord | null | undefined>(undefined)
@@ -65,12 +79,24 @@ export default function TavsiyalarPage() {
             Oxirgi yangilanish: {new Date(record.generated_at).toLocaleString('uz-UZ')}
           </p>
           <div className="bg-white rounded-xl shadow-sm border border-line divide-y divide-gray-100">
-            {record.items.map((item, index) => (
-              <div key={index} className="flex gap-3 px-5 py-4">
-                <span className="text-primary-500 font-bold shrink-0">{index + 1}.</span>
-                <p className="text-sm text-ink">{item}</p>
-              </div>
-            ))}
+            {record.items.map((raw, index) => {
+              const item = normalizeItem(raw)
+              const href = actionHref(item)
+              return (
+                <div key={index} className="flex items-center gap-3 px-5 py-4">
+                  <span className="text-primary-500 font-bold shrink-0">{index + 1}.</span>
+                  <p className="text-sm text-ink flex-1">{item.text}</p>
+                  {href && (
+                    <Link
+                      href={href}
+                      className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition shrink-0"
+                    >
+                      Bajarish
+                    </Link>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </>
       )}

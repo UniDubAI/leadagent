@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
-import type { ConnectedAccount, InstagramAccountData, LeadStatus, TelegramAccountData } from '@/types'
+import type { ConnectedAccount, InstagramAccountData, LeadStatus, RecommendationItem, TelegramAccountData } from '@/types'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -22,6 +22,8 @@ function daysSince(iso: string) {
   return Math.floor((Date.now() - new Date(iso).getTime()) / DAY_MS)
 }
 
+const ACTION_TYPES = ['email_yuborish', 'followup', 'smm_post', 'boshqa'] as const
+
 const SUBMIT_RECOMMENDATIONS_TOOL: Anthropic.Tool = {
   name: 'submit_recommendations',
   description: 'Generatsiya qilingan amaliy tavsiyalarni topshirish',
@@ -31,8 +33,25 @@ const SUBMIT_RECOMMENDATIONS_TOOL: Anthropic.Tool = {
       recommendations: {
         type: 'array',
         items: {
-          type: 'string',
-          description: "Bitta aniq, amaliy tavsiya, o'zbek tilida, 1-2 gap",
+          type: 'object',
+          properties: {
+            text: {
+              type: 'string',
+              description: "Bitta aniq, amaliy tavsiya, o'zbek tilida, 1-2 gap",
+            },
+            action_type: {
+              type: 'string',
+              enum: ACTION_TYPES as unknown as string[],
+              description:
+                "Tavsiya turi: 'email_yuborish' — bitta lidga birinchi marta email yuborish kerak, 'followup' — javobsiz qolgan bitta lidga follow-up kerak, 'smm_post' — SMM/Telegram/Instagram kontent bilan bog'liq, 'boshqa' — hech qaysi lidga bog'liq bo'lmagan tavsiya",
+            },
+            lead_id: {
+              type: 'string',
+              description:
+                "action_type 'email_yuborish' yoki 'followup' bo'lsa, promptdagi tegishli ro'yxatdan aynan shu lidning id'si. Aks holda bo'sh string ('')",
+            },
+          },
+          required: ['text', 'action_type', 'lead_id'],
         },
         minItems: 3,
         maxItems: 6,
@@ -66,7 +85,7 @@ export async function POST() {
 
     const { data: leads, error: leadsError } = await db
       .from('leads')
-      .select('name, company, status, industry, email_sent_at, last_contact_at, created_at')
+      .select('id, name, company, status, industry, email_sent_at, last_contact_at, created_at')
       .eq('user_id', user.id)
 
     if (leadsError) return NextResponse.json({ error: leadsError.message }, { status: 500 })
@@ -98,8 +117,12 @@ export async function POST() {
     // Brand-new account with nothing to analyze yet — skip the AI call and
     // give a friendly onboarding nudge instead of asking Claude to invent advice.
     if (leads.length === 0 && smmPosts.length === 0 && connectedAccounts.length === 0 && !hasFinanceData) {
-      const items = [
-        "Hali lidlaringiz yo'q. Avval \"Qidiruv\" bo'limi yoki \"+ Yangi lid\" tugmasi orqali birinchi mijozingizni qo'shing — shundan keyin sizga moslashtirilgan tavsiyalar tayyor bo'ladi.",
+      const items: RecommendationItem[] = [
+        {
+          text: "Hali lidlaringiz yo'q. Avval \"Qidiruv\" bo'limi yoki \"+ Yangi lid\" tugmasi orqali birinchi mijozingizni qo'shing — shundan keyin sizga moslashtirilgan tavsiyalar tayyor bo'ladi.",
+          action_type: 'boshqa',
+          lead_id: null,
+        },
       ]
       const { data: saved, error: saveError } = await db
         .from('recommendations')
@@ -116,7 +139,8 @@ export async function POST() {
     let emailsSentTotal = 0
     let emailsSentLast7Days = 0
     let newLeadsLast7Days = 0
-    const staleLeads: Array<{ name: string; company: string | null; days: number }> = []
+    const staleLeads: Array<{ id: string; name: string; company: string | null; days: number }> = []
+    const neverEmailed: Array<{ id: string; name: string; company: string | null }> = []
 
     for (const lead of leads) {
       byStatus[lead.status] = (byStatus[lead.status] ?? 0) + 1
@@ -125,13 +149,15 @@ export async function POST() {
       if (lead.email_sent_at) {
         emailsSentTotal++
         if (daysSince(lead.email_sent_at) <= 7) emailsSentLast7Days++
+      } else if (lead.status === 'new') {
+        neverEmailed.push({ id: lead.id, name: lead.name, company: lead.company })
       }
 
       if (daysSince(lead.created_at) <= 7) newLeadsLast7Days++
 
       if (['new', 'contacted'].includes(lead.status) && lead.last_contact_at) {
         const days = daysSince(lead.last_contact_at)
-        if (days >= STALE_DAYS) staleLeads.push({ name: lead.name, company: lead.company, days })
+        if (days >= STALE_DAYS) staleLeads.push({ id: lead.id, name: lead.name, company: lead.company, days })
       }
     }
     staleLeads.sort((a, b) => b.days - a.days)
@@ -152,8 +178,12 @@ export async function POST() {
       : "ma'lumot yo'q"
 
     const staleLines = staleLeads.length
-      ? staleLeads.slice(0, 8).map((l) => `- ${l.name}${l.company ? ` (${l.company})` : ''} — ${l.days} kundan beri javobsiz`).join('\n')
+      ? staleLeads.slice(0, 8).map((l) => `- id: ${l.id} — ${l.name}${l.company ? ` (${l.company})` : ''} — ${l.days} kundan beri javobsiz`).join('\n')
       : 'Yo\'q — barcha faol lidlar bilan yaqinda aloqa bo\'lgan.'
+
+    const neverEmailedLines = neverEmailed.length
+      ? neverEmailed.slice(0, 8).map((l) => `- id: ${l.id} — ${l.name}${l.company ? ` (${l.company})` : ''}`).join('\n')
+      : "Yo'q — barcha yangi lidlarga birinchi email yuborilgan."
 
     const telegramAccount = (connectedAccounts as ConnectedAccount[]).find((a) => a.platform === 'telegram')
     const instagramAccount = (connectedAccounts as ConnectedAccount[]).find((a) => a.platform === 'instagram')
@@ -195,8 +225,11 @@ Top sohalar: ${industryLines}
 So'nggi 7 kunda qo'shilgan yangi lidlar: ${newLeadsLast7Days}
 Yuborilgan emaillar (jami): ${emailsSentTotal}, so'nggi 7 kunda: ${emailsSentLast7Days}
 
-3+ kun javobsiz qolgan lidlar:
+3+ kun javobsiz qolgan lidlar (follow-up uchun, id bilan):
 ${staleLines}
+
+Birinchi marta email kerak bo'lgan yangi lidlar (id bilan):
+${neverEmailedLines}
 
 ## SMM kontent faolligi
 Jami generatsiya qilingan post/reja soni: ${smmTotal}, so'nggi 7 kunda: ${smmLast7Days}
@@ -211,6 +244,14 @@ ${instagramLine}
 ${financeLine}`
 
     const systemPrompt = `Siz kichik bizneslar uchun to'liq biznes auditi o'tkazadigan maslahatchisiz — savdo (lidlar), marketing (SMM, Telegram, Instagram) va moliya bo'yicha. Foydalanuvchi — kichik biznes egasi, texnik bilimi yo'q. Berilgan raqamli statistikaga asoslanib, har bir yo'nalishdagi kamchiliklarni aniqlab, aniq yechim bering.
+
+Har bir tavsiya uchun action_type va lead_id shart:
+- "email_yuborish": promptdagi "Birinchi marta email kerak bo'lgan yangi lidlar" ro'yxatidan bitta lidga tegishli bo'lsa — lead_id'ga aynan shu lidning id'sini yozing.
+- "followup": promptdagi "3+ kun javobsiz qolgan lidlar" ro'yxatidan bitta lidga tegishli bo'lsa — lead_id'ga aynan shu lidning id'sini yozing.
+- "smm_post": SMM/Telegram/Instagram kontent faolligiga tegishli tavsiya bo'lsa — lead_id'ni bo'sh string ("") qoldiring.
+- "boshqa": moliya, umumiy strategiya va hech qaysi lidga bog'liq bo'lmagan tavsiyalar — lead_id'ni bo'sh string ("") qoldiring.
+- lead_id faqat yuqoridagi ro'yxatlarda berilgan id'lardan bo'lishi kerak, o'zingizdan id o'ylab topmang.
+- Bir xil lidga ikkita alohida tavsiya bag'ishlamang.
 
 Qoidalar:
 - 3 tadan 6 tagacha tavsiya bering, har biri 1-2 gap, oddiy va tushunarli tilda.
@@ -239,7 +280,18 @@ Qoidalar:
       return NextResponse.json({ error: 'Claude tavsiyalarni qaytarmadi' }, { status: 500 })
     }
 
-    const items = (toolUse.input as { recommendations: string[] }).recommendations
+    const rawItems = (toolUse.input as {
+      recommendations: Array<{ text: string; action_type: string; lead_id: string }>
+    }).recommendations
+
+    const validLeadIds = new Set(leads.map((l) => l.id))
+    const items: RecommendationItem[] = rawItems.map((r) => ({
+      text: r.text,
+      action_type: (ACTION_TYPES as readonly string[]).includes(r.action_type)
+        ? (r.action_type as RecommendationItem['action_type'])
+        : 'boshqa',
+      lead_id: r.lead_id && validLeadIds.has(r.lead_id) ? r.lead_id : null,
+    }))
 
     const { data: saved, error: saveError } = await db
       .from('recommendations')

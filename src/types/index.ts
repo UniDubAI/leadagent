@@ -108,9 +108,17 @@ export interface BizPage {
   created_at: string
 }
 
+export type RecommendationActionType = 'email_yuborish' | 'followup' | 'smm_post' | 'boshqa'
+
+export interface RecommendationItem {
+  text: string
+  action_type: RecommendationActionType
+  lead_id: string | null
+}
+
 export interface RecommendationsRecord {
   id: string
-  items: string[]
+  items: Array<string | RecommendationItem>
   generated_at: string
 }
 
