@@ -82,6 +82,8 @@ export interface OsmSearchResult {
   phone: string | null
   website: string | null
   email: string | null
+  opening_hours: string | null
+  already_added: boolean
 }
 
 export interface BizReview {

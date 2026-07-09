@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
 import type { OsmSearchResult } from '@/types'
 
@@ -192,14 +193,33 @@ export async function POST(req: NextRequest) {
         phone: tags.phone ?? tags['contact:phone'] ?? null,
         website: tags.website ?? tags['contact:website'] ?? null,
         email: tags.email ?? tags['contact:email'] ?? null,
+        opening_hours: tags.opening_hours ?? null,
       }
     })
 
-  const results: OsmSearchResult[] = await mapWithConcurrency(businesses, 5, async (b) => {
+  const scraped = await mapWithConcurrency(businesses, 5, async (b) => {
     if (b.email || !b.website) return b
     const email = await scrapeEmail(b.website)
     return { ...b, email }
   })
+
+  // Flag results that match a lead already in this user's base (by name or
+  // email) so the UI can show "Qo'shilgan" and skip them up front, instead
+  // of only discovering the duplicate after the user clicks to add it.
+  const db = createServerClient()
+  const { data: existing, error: existingError } = await db
+    .from('leads')
+    .select('name, email')
+    .eq('user_id', user.id)
+  if (existingError) return NextResponse.json({ error: existingError.message }, { status: 500 })
+
+  const existingNames = new Set(existing.map((l) => l.name.trim().toLowerCase()))
+  const existingEmails = new Set(existing.filter((l) => l.email).map((l) => l.email!.trim().toLowerCase()))
+
+  const results: OsmSearchResult[] = scraped.map((b) => ({
+    ...b,
+    already_added: existingNames.has(b.name.trim().toLowerCase()) || (!!b.email && existingEmails.has(b.email.trim().toLowerCase())),
+  }))
 
   return NextResponse.json({ results })
 }

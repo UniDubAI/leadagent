@@ -25,6 +25,7 @@ export default function QidiruvPage() {
   const [results, setResults] = useState<OsmSearchResult[] | null>(null)
   const [rowStatus, setRowStatus] = useState<Record<number, RowStatus>>({})
   const [addingAll, setAddingAll] = useState(false)
+  const [searchedCity, setSearchedCity] = useState('')
 
   const industryLabel = SEARCH_INDUSTRIES.find((opt) => opt.value === industry)?.label ?? 'Boshqa'
 
@@ -47,6 +48,12 @@ export default function QidiruvPage() {
         return
       }
       setResults(data.results)
+      setSearchedCity(city)
+      const initialStatus: Record<number, RowStatus> = {}
+      data.results.forEach((r: OsmSearchResult, i: number) => {
+        if (r.already_added) initialStatus[i] = 'duplicate'
+      })
+      setRowStatus(initialStatus)
     } finally {
       setSearching(false)
     }
@@ -158,13 +165,16 @@ export default function QidiruvPage() {
             <div className="text-center py-12 text-ink-muted text-sm">Hech narsa topilmadi</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[700px]">
+              <table className="w-full text-sm min-w-[1000px]">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Nom</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Telefon</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Email</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Sayt</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Manzil</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Ish vaqti</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                   </tr>
                 </thead>
@@ -188,11 +198,23 @@ export default function QidiruvPage() {
                             </a>
                           ) : '—'}
                         </td>
+                        <td className="px-4 py-3 text-ink-muted">{r.address ?? '—'}</td>
+                        <td className="px-4 py-3 text-ink-muted">{r.opening_hours ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          <a
+                            href={`https://www.google.com/search?q=${encodeURIComponent(`${r.name} ${searchedCity}`)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary-500 hover:underline"
+                          >
+                            Tekshirish
+                          </a>
+                        </td>
                         <td className="px-4 py-3">
                           {status === 'added' ? (
                             <span className="text-xs text-ink-muted">Qo&apos;shildi</span>
                           ) : status === 'duplicate' ? (
-                            <span className="text-xs text-ink-muted">Allaqachon bazada</span>
+                            <span className="text-xs text-ink-muted">Qo&apos;shilgan</span>
                           ) : (
                             <button
                               onClick={() => addLeads([i])}

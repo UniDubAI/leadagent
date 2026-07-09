@@ -9,6 +9,7 @@ interface IncomingLead {
   email?: string | null
   address?: string | null
   website?: string | null
+  opening_hours?: string | null
   industry?: string | null
 }
 
@@ -91,8 +92,12 @@ export async function POST(req: NextRequest) {
       phone: lead.phone ?? null,
       email,
       industry: lead.industry ?? null,
-      notes: [lead.address, lead.website].filter(Boolean).join(' | ') || null,
-      source: 'OSM qidiruv',
+      notes: [
+        lead.address ? `Manzil: ${lead.address}` : null,
+        lead.website ? `Sayt: ${lead.website}` : null,
+        lead.opening_hours ? `Ish vaqti: ${lead.opening_hours}` : null,
+      ].filter(Boolean).join(' | ') || null,
+      source: `OSM qidiruv (${new Date().toISOString().slice(0, 10)})`,
       status: 'new',
     })
     addedDetails.push({ ...lead, name, email })
