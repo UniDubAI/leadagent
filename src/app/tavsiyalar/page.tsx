@@ -5,15 +5,24 @@ import Link from 'next/link'
 import type { RecommendationItem, RecommendationsRecord } from '@/types'
 
 function normalizeItem(item: string | RecommendationItem): RecommendationItem {
-  if (typeof item === 'string') return { text: item, action_type: 'boshqa', lead_id: null }
+  if (typeof item === 'string') return { text: item, action_type: 'boshqa', lead_id: null, platform: null, context: null }
   return item
 }
 
 function actionHref(item: RecommendationItem): string | null {
   if ((item.action_type === 'email_yuborish' || item.action_type === 'followup') && item.lead_id) {
-    return `/leads/${item.lead_id}`
+    const params = new URLSearchParams()
+    if (item.context) params.set('kontekst', item.context)
+    const qs = params.toString()
+    return `/leads/${item.lead_id}${qs ? `?${qs}` : ''}`
   }
-  if (item.action_type === 'smm_post') return '/smm'
+  if (item.action_type === 'smm_post') {
+    const params = new URLSearchParams()
+    if (item.platform) params.set('platform', item.platform)
+    if (item.context) params.set('kontekst', item.context)
+    const qs = params.toString()
+    return `/smm${qs ? `?${qs}` : ''}`
+  }
   return null
 }
 

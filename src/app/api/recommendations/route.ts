@@ -50,8 +50,19 @@ const SUBMIT_RECOMMENDATIONS_TOOL: Anthropic.Tool = {
               description:
                 "action_type 'email_yuborish' yoki 'followup' bo'lsa, promptdagi tegishli ro'yxatdan aynan shu lidning id'si. Aks holda bo'sh string ('')",
             },
+            platform: {
+              type: 'string',
+              enum: ['telegram', 'instagram', ''],
+              description:
+                "action_type 'smm_post' bo'lsa va tavsiya aynan Telegram yoki Instagram'ga tegishli bo'lsa, shu maydonga platforma nomini yozing. Aks holda bo'sh string ('')",
+            },
+            context: {
+              type: 'string',
+              description:
+                "5-8 so'zlik qisqa kontekst, foydalanuvchi tugmani bosganda mos formaning \"Qo'shimcha izoh\" maydoniga avtomatik yoziladi. 'followup' uchun masalan: \"follow-up: N kundan beri javob yo'q\". 'email_yuborish' uchun masalan: \"birinchi tanishuv xati, sohaga mos\". 'smm_post' uchun masalan: \"kanalga faollikni oshiruvchi qiziqarli post\". 'boshqa' uchun bo'sh string ('')",
+            },
           },
-          required: ['text', 'action_type', 'lead_id'],
+          required: ['text', 'action_type', 'lead_id', 'platform', 'context'],
         },
         minItems: 3,
         maxItems: 6,
@@ -122,6 +133,8 @@ export async function POST() {
           text: "Hali lidlaringiz yo'q. Avval \"Qidiruv\" bo'limi yoki \"+ Yangi lid\" tugmasi orqali birinchi mijozingizni qo'shing — shundan keyin sizga moslashtirilgan tavsiyalar tayyor bo'ladi.",
           action_type: 'boshqa',
           lead_id: null,
+          platform: null,
+          context: null,
         },
       ]
       const { data: saved, error: saveError } = await db
@@ -252,6 +265,8 @@ Har bir tavsiya uchun action_type va lead_id shart:
 - "boshqa": moliya, umumiy strategiya va hech qaysi lidga bog'liq bo'lmagan tavsiyalar — lead_id'ni bo'sh string ("") qoldiring.
 - lead_id faqat yuqoridagi ro'yxatlarda berilgan id'lardan bo'lishi kerak, o'zingizdan id o'ylab topmang.
 - Bir xil lidga ikkita alohida tavsiya bag'ishlamang.
+- "smm_post" bo'lsa, tavsiya aynan Telegram yoki Instagram bilan bog'liq bo'lsa platform maydonini to'ldiring (masalan Telegram kanal faolligi past bo'lsa platform="telegram").
+- Har bir tavsiya uchun context maydoniga qisqa (5-8 so'z) izoh yozing — bu izoh "Generatsiya qilish" formasining "Qo'shimcha izoh" maydoniga avtomatik tushadi, shuning uchun aniq va amaliy bo'lsin.
 
 Qoidalar:
 - 3 tadan 6 tagacha tavsiya bering, har biri 1-2 gap, oddiy va tushunarli tilda.
@@ -281,7 +296,7 @@ Qoidalar:
     }
 
     const rawItems = (toolUse.input as {
-      recommendations: Array<{ text: string; action_type: string; lead_id: string }>
+      recommendations: Array<{ text: string; action_type: string; lead_id: string; platform: string; context: string }>
     }).recommendations
 
     const validLeadIds = new Set(leads.map((l) => l.id))
@@ -291,6 +306,8 @@ Qoidalar:
         ? (r.action_type as RecommendationItem['action_type'])
         : 'boshqa',
       lead_id: r.lead_id && validLeadIds.has(r.lead_id) ? r.lead_id : null,
+      platform: r.platform === 'telegram' || r.platform === 'instagram' ? r.platform : null,
+      context: r.context?.trim() || null,
     }))
 
     const { data: saved, error: saveError } = await db

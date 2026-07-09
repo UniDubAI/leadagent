@@ -114,6 +114,8 @@ export interface RecommendationItem {
   text: string
   action_type: RecommendationActionType
   lead_id: string | null
+  platform: 'telegram' | 'instagram' | null
+  context: string | null
 }
 
 export interface RecommendationsRecord {

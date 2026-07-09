@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { LeadWithMessages, LeadStatus, OutreachChannel, OutreachMessage } from '@/types'
 import { StatusBadge } from '@/components/StatusBadge'
@@ -20,6 +20,7 @@ function daysAgo(dateStr: string) {
 export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [lead, setLead] = useState<LeadWithMessages | null>(null)
   const [loading, setLoading] = useState(true)
   const [channel, setChannel] = useState<OutreachChannel>('email')
@@ -50,6 +51,12 @@ export default function LeadDetailPage() {
   }
 
   useEffect(() => { fetchLead() }, [id])
+
+  useEffect(() => {
+    const kontekst = searchParams.get('kontekst')
+    if (kontekst) setContext(kontekst)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const updateStatus = async (status: LeadStatus) => {
     await fetch(`/api/leads/${id}`, {

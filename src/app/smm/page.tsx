@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { BusinessProfile, SmmPost, SmmPostRecord } from '@/types'
 
 const INDUSTRY_OPTIONS = ['Restoran', "Go'zallik", 'Avto', "Ta'lim", "Do'kon", 'Boshqa']
@@ -174,6 +175,7 @@ function PostCard({ post, index, copiedIndex, onCopy }: {
 }
 
 export default function SmmPage() {
+  const searchParams = useSearchParams()
   const [profile, setProfile] = useState<BusinessProfile | null | undefined>(undefined)
   const [editingProfile, setEditingProfile] = useState(false)
 
@@ -184,6 +186,18 @@ export default function SmmPage() {
     notes: '',
     considerTrends: false,
   })
+
+  useEffect(() => {
+    const platform = searchParams.get('platform')
+    const kontekst = searchParams.get('kontekst')
+    if (platform === 'telegram' || platform === 'instagram' || platform === 'both') {
+      setForm((prev) => ({ ...prev, platform }))
+    }
+    if (kontekst) {
+      setForm((prev) => ({ ...prev, notes: kontekst }))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
   const [posts, setPosts] = useState<SmmPost[] | null>(null)
