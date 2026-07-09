@@ -33,6 +33,7 @@ export default function LeadDetailPage() {
   const [activeMessage, setActiveMessage] = useState<OutreachMessage | null>(null)
   const [draftSubject, setDraftSubject] = useState('')
   const [draftBody, setDraftBody] = useState('')
+  const [channelCopied, setChannelCopied] = useState(false)
   const [editing, setEditing] = useState(false)
   const [editEmail, setEditEmail] = useState('')
   const [editPhone, setEditPhone] = useState('')
@@ -82,8 +83,16 @@ export default function LeadDetailPage() {
       setDraftBody(data.message.body ?? '')
       setEmailSent(false)
       setSendError('')
+      setChannelCopied(false)
       fetchLead()
     }
+  }
+
+  const copyChannelMessage = () => {
+    if (!activeMessage) return
+    navigator.clipboard.writeText(activeMessage.body)
+    setChannelCopied(true)
+    setTimeout(() => setChannelCopied(false), 2000)
   }
 
   const sendEmail = async () => {
@@ -295,8 +304,8 @@ export default function LeadDetailPage() {
           <div className="bg-white rounded-xl shadow-sm border border-line p-5">
             <h2 className="font-semibold text-ink mb-4">AI Outreach Generatsiya</h2>
 
-            <div className="flex gap-2 mb-4">
-              {(['email', 'linkedin'] as OutreachChannel[]).map((ch) => (
+            <div className="flex gap-2 mb-4 flex-wrap">
+              {(['email', 'linkedin', 'telegram', 'instagram'] as OutreachChannel[]).map((ch) => (
                 <button
                   key={ch}
                   onClick={() => setChannel(ch)}
@@ -306,7 +315,7 @@ export default function LeadDetailPage() {
                       : 'bg-white text-ink-muted border-gray-300 hover:border-primary-500'
                   }`}
                 >
-                  {ch === 'email' ? '✉ Email' : '💼 LinkedIn'}
+                  {ch === 'email' ? '✉ Email' : ch === 'linkedin' ? '💼 LinkedIn' : ch === 'telegram' ? '💬 Telegram' : '📸 Instagram DM'}
                 </button>
               ))}
 
@@ -334,7 +343,9 @@ export default function LeadDetailPage() {
               disabled={generating}
               className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
             >
-              {generating ? 'AI yozmoqda...' : `${channel === 'email' ? 'Email' : 'LinkedIn xabar'} generatsiya qilish`}
+              {generating
+                ? 'AI yozmoqda...'
+                : `${channel === 'email' ? 'Email' : channel === 'linkedin' ? 'LinkedIn xabar' : channel === 'telegram' ? 'Telegram xabar' : 'Instagram DM'} generatsiya qilish`}
             </button>
           </div>
 
@@ -415,6 +426,32 @@ export default function LeadDetailPage() {
               </div>
 
               <p className="text-xs text-ink-muted px-1">LinkedIn API ishlatilmaydi — matnlarni nusxalab, qo&apos;lda yuboring.</p>
+            </div>
+          )}
+
+          {activeMessage && (activeMessage.channel === 'telegram' || activeMessage.channel === 'instagram') && (
+            <div className="bg-white rounded-xl border border-primary-500 p-5">
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold text-primary-500">Yangi draft</p>
+                <span className="text-xs text-primary-500 uppercase">{activeMessage.channel}</span>
+              </div>
+              <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-4">{activeMessage.body}</pre>
+
+              <div>
+                <button
+                  onClick={copyChannelMessage}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                    channelCopied
+                      ? 'bg-white border border-primary-500 text-primary-500'
+                      : 'bg-primary-500 hover:bg-primary-600 text-white'
+                  }`}
+                >
+                  {channelCopied ? 'Nusxalandi ✓' : 'Nusxalash'}
+                </button>
+                <p className="text-xs text-ink-muted mt-2">
+                  {activeMessage.channel === 'telegram' ? 'Telegram' : 'Instagram'} API ishlatilmaydi — matnni nusxalab, qo&apos;lda yuboring.
+                </p>
+              </div>
             </div>
           )}
 

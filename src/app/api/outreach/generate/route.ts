@@ -28,8 +28,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
-    const isEmail = channel === 'email'
-
     const langMap: Record<string, string> = {
       "O'zbek": 'Uzbek',
       'Rus': 'Russian',
@@ -48,8 +46,15 @@ export async function POST(req: NextRequest) {
     }
     const languageInstruction = langInstructionMap[language]
 
-    const systemPrompt = isEmail
-      ? `Siz B2B savdo mutaxassisisiz. Vazifangiz: mijozga shaxsiylashtirilgan, qisqa va tabiiy tuyuladigan sovuq email yozish.
+    const CHANNEL_LABELS: Record<string, string> = {
+      email: 'email',
+      linkedin: 'LinkedIn xabar',
+      telegram: 'Telegram xabar',
+      instagram: 'Instagram DM',
+    }
+
+    const systemPromptMap: Record<string, string> = {
+      email: `Siz B2B savdo mutaxassisisiz. Vazifangiz: mijozga shaxsiylashtirilgan, qisqa va tabiiy tuyuladigan sovuq email yozish.
 
 MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
@@ -59,8 +64,8 @@ Qoidalar:
 - 3-4 qisqa paragraf: muammo/vaziyat → qisqa taklif → CTA.
 - CTA yumshoq bo'lsin: "15 daqiqalik qo'ng'iroq", "fikringizni bilsam" kabi.
 - Har doim JSON formatida qaytaring: {"subject": "...", "body": "..."}
-- ${languageInstruction}`
-      : `Siz B2B savdo mutaxassisisiz. Vazifangiz: LinkedIn uchun ikkita alohida matn yozish — qisqa connection so'rovi va connection qabul qilingandan keyin yuboriladigan to'liqroq DM xabari.
+- ${languageInstruction}`,
+      linkedin: `Siz B2B savdo mutaxassisisiz. Vazifangiz: LinkedIn uchun ikkita alohida matn yozish — qisqa connection so'rovi va connection qabul qilingandan keyin yuboriladigan to'liqroq DM xabari.
 
 MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
@@ -70,9 +75,37 @@ Qoidalar:
 - Ikkalasi ham oddiy, do'stona ohangda — reklama emas, tanishish xabari kabi.
 - Mijozning sohasiga mos bitta aniq sabab ko'rsating.
 - Har doim JSON formatida qaytaring: {"connection_request": "...", "dm": "..."}
-- ${languageInstruction}`
+- ${languageInstruction}`,
+      telegram: `Siz B2B savdo mutaxassisisiz. Vazifangiz: Telegram orqali qo'lda yuboriladigan qisqa, do'stona xabar yozish — bu rasmiy email emas, Telegram muloqot uslubida yozilishi kerak.
 
-    const userPrompt = `Quyidagi lid uchun ${isEmail ? 'email' : 'LinkedIn xabar'} yozing:
+MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
+
+Qoidalar:
+- 3-5 qisqa gap. Do'stona, tabiiy ohangda — rasmiy email tili emas, xuddi tanish odamga yozayotgandek.
+- Reklama tilida YOZMANG.
+- Mijozning ismi/sohasiga mos bitta aniq sabab ko'rsating.
+- Yumshoq CTA bilan tugating (masalan: "qisqa gaplashib olsak", "fikringizni bilsam bo'ladimi").
+- Har doim JSON formatida qaytaring: {"message": "..."}
+- ${languageInstruction}`,
+      instagram: `Siz B2B savdo mutaxassisisiz. Vazifangiz: Instagram DM uchun juda qisqa, yengil ohangdagi xabar yozish.
+
+MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
+
+Qoidalar:
+- Atigi 2-3 qisqa gap. Instagram DM uslubida — yengil, samimiy, rasmiy emas.
+- Reklama tilida YOZMANG.
+- Mijozning sohasiga mos bitta aniq sabab yoki qisqa komplement bilan boshlang.
+- Yumshoq savol/taklif bilan tugating.
+- Har doim JSON formatida qaytaring: {"message": "..."}
+- ${languageInstruction}`,
+    }
+
+    const systemPrompt = systemPromptMap[channel]
+    if (!systemPrompt) {
+      return NextResponse.json({ error: "Noto'g'ri channel" }, { status: 400 })
+    }
+
+    const userPrompt = `Quyidagi lid uchun ${CHANNEL_LABELS[channel]} yozing:
 
 Ism: ${lead.name}
 Kompaniya: ${lead.company || 'noma\'lum'}
@@ -100,8 +133,18 @@ ${languageInstruction} Shaxsiylashtirilgan, qisqa va tabiiy yozing.`
     // For LinkedIn, the "subject" column doubles up as the short connection
     // request text so the two variants can be generated and stored together
     // without a schema change; "body" holds the longer DM/InMail text.
-    const subject = isEmail ? (generated.subject ?? null) : generated.connection_request
-    const body = isEmail ? generated.body : generated.dm
+    // Telegram/Instagram only ever produce a single message -> body only.
+    let subject: string | null = null
+    let body: string
+    if (channel === 'email') {
+      subject = generated.subject ?? null
+      body = generated.body
+    } else if (channel === 'linkedin') {
+      subject = generated.connection_request
+      body = generated.dm
+    } else {
+      body = generated.message
+    }
 
     const { data: saved } = await db
       .from('outreach_messages')

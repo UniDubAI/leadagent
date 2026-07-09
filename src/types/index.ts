@@ -6,7 +6,7 @@ export type LeadStatus =
   | 'closed_won'
   | 'closed_lost'
 
-export type OutreachChannel = 'email' | 'linkedin'
+export type OutreachChannel = 'email' | 'linkedin' | 'telegram' | 'instagram'
 export type MessageStatus = 'draft' | 'sent'
 
 export interface Lead {

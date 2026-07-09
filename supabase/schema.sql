@@ -27,7 +27,7 @@ create table if not exists outreach_messages (
   id         uuid primary key default gen_random_uuid(),
   user_id    uuid not null references auth.users(id) on delete cascade,
   lead_id    uuid not null references leads(id) on delete cascade,
-  channel    text not null check (channel in ('email', 'linkedin')),
+  channel    text not null check (channel in ('email', 'linkedin', 'telegram', 'instagram')),
   subject    text,            -- email only
   body       text not null,
   status     text not null default 'draft'
