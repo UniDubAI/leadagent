@@ -84,6 +84,8 @@ export interface OsmSearchResult {
   email: string | null
   opening_hours: string | null
   already_added: boolean
+  instagram?: string | null
+  telegram?: string | null
 }
 
 export interface BizReview {

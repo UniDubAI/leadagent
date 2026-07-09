@@ -10,6 +10,8 @@ interface IncomingLead {
   address?: string | null
   website?: string | null
   opening_hours?: string | null
+  instagram?: string | null
+  telegram?: string | null
   industry?: string | null
 }
 
@@ -96,6 +98,8 @@ export async function POST(req: NextRequest) {
         lead.address ? `Manzil: ${lead.address}` : null,
         lead.website ? `Sayt: ${lead.website}` : null,
         lead.opening_hours ? `Ish vaqti: ${lead.opening_hours}` : null,
+        lead.instagram ? `Instagram: ${lead.instagram}` : null,
+        lead.telegram ? `Telegram: ${lead.telegram}` : null,
       ].filter(Boolean).join(' | ') || null,
       source: `OSM qidiruv (${new Date().toISOString().slice(0, 10)})`,
       status: 'new',

@@ -15,6 +15,7 @@ const SEARCH_INDUSTRIES = [
 ]
 
 type RowStatus = 'idle' | 'adding' | 'added' | 'duplicate'
+type EnrichStatus = 'idle' | 'loading' | 'done' | 'error'
 
 export default function QidiruvPage() {
   const [industry, setIndustry] = useState('restoran')
@@ -26,6 +27,8 @@ export default function QidiruvPage() {
   const [rowStatus, setRowStatus] = useState<Record<number, RowStatus>>({})
   const [addingAll, setAddingAll] = useState(false)
   const [searchedCity, setSearchedCity] = useState('')
+  const [enrichStatus, setEnrichStatus] = useState<Record<number, EnrichStatus>>({})
+  const [enrichError, setEnrichError] = useState<Record<number, string>>({})
 
   const industryLabel = SEARCH_INDUSTRIES.find((opt) => opt.value === industry)?.label ?? 'Boshqa'
 
@@ -91,6 +94,45 @@ export default function QidiruvPage() {
     const idle = results.map((_, i) => i).filter((i) => !rowStatus[i] || rowStatus[i] === 'idle')
     await addLeads(idle)
     setAddingAll(false)
+  }
+
+  const enrichRow = async (i: number) => {
+    if (!results) return
+    const r = results[i]
+
+    setEnrichStatus((prev) => ({ ...prev, [i]: 'loading' }))
+    setEnrichError((prev) => {
+      const next = { ...prev }
+      delete next[i]
+      return next
+    })
+
+    const res = await fetch('/api/search/enrich', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: r.name, city: searchedCity, address: r.address }),
+    })
+    const data = await res.json()
+
+    if (!res.ok) {
+      setEnrichStatus((prev) => ({ ...prev, [i]: 'error' }))
+      setEnrichError((prev) => ({ ...prev, [i]: data.error ?? 'Boyitishda xatolik yuz berdi' }))
+      return
+    }
+
+    setResults((prev) => {
+      if (!prev) return prev
+      const next = [...prev]
+      next[i] = {
+        ...next[i],
+        phone: next[i].phone || data.phone,
+        email: next[i].email || data.email,
+        instagram: data.instagram || next[i].instagram,
+        telegram: data.telegram || next[i].telegram,
+      }
+      return next
+    })
+    setEnrichStatus((prev) => ({ ...prev, [i]: 'done' }))
   }
 
   return (
@@ -165,15 +207,18 @@ export default function QidiruvPage() {
             <div className="text-center py-12 text-ink-muted text-sm">Hech narsa topilmadi</div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[1000px]">
+              <table className="w-full text-sm min-w-[1200px]">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Nom</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Telefon</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Email</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Instagram</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Telegram</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Sayt</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Manzil</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Ish vaqti</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                   </tr>
@@ -181,11 +226,14 @@ export default function QidiruvPage() {
                 <tbody className="divide-y divide-gray-100">
                   {results.map((r, i) => {
                     const status = rowStatus[i] ?? 'idle'
+                    const eStatus = enrichStatus[i] ?? 'idle'
                     return (
                       <tr key={i}>
                         <td className="px-4 py-3 font-medium text-ink">{r.name}</td>
                         <td className="px-4 py-3 text-ink-muted">{r.phone ?? '—'}</td>
                         <td className="px-4 py-3 text-ink-muted">{r.email ?? '—'}</td>
+                        <td className="px-4 py-3 text-ink-muted">{r.instagram ?? '—'}</td>
+                        <td className="px-4 py-3 text-ink-muted">{r.telegram ?? '—'}</td>
                         <td className="px-4 py-3 text-ink-muted">
                           {r.website ? (
                             <a
@@ -209,6 +257,19 @@ export default function QidiruvPage() {
                           >
                             Tekshirish
                           </a>
+                        </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => enrichRow(i)}
+                            disabled={eStatus === 'loading'}
+                            className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border border-primary-500 px-3 py-1 rounded-lg text-xs font-medium transition disabled:opacity-50"
+                            title="Web qidiruv orqali telefon/email/Instagram/Telegram topish"
+                          >
+                            {eStatus === 'loading' ? '...' : eStatus === 'done' ? "Boyitildi ✓" : 'Boyitish'}
+                          </button>
+                          {eStatus === 'error' && (
+                            <p className="text-xs text-red-600 mt-1 max-w-[160px]">{enrichError[i]}</p>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           {status === 'added' ? (
