@@ -38,6 +38,9 @@ export default function LeadDetailPage() {
   const [editEmail, setEditEmail] = useState('')
   const [editPhone, setEditPhone] = useState('')
   const [savingContact, setSavingContact] = useState(false)
+  const [enriching, setEnriching] = useState(false)
+  const [enrichResult, setEnrichResult] = useState('')
+  const [enrichError, setEnrichError] = useState('')
 
   const fetchLead = () => {
     fetch(`/api/leads/${id}`)
@@ -150,6 +153,30 @@ export default function LeadDetailPage() {
     fetchLead()
   }
 
+  const enrichLead = async () => {
+    setEnriching(true)
+    setEnrichResult('')
+    setEnrichError('')
+
+    const res = await fetch(`/api/leads/${id}/enrich`, { method: 'POST' })
+    const data = await res.json()
+
+    setEnriching(false)
+
+    if (!res.ok) {
+      setEnrichError(data.error ?? 'Boyitishda xatolik yuz berdi')
+      return
+    }
+
+    const found: string[] = []
+    if (data.updated?.email) found.push(`email: ${data.updated.email}`)
+    if (data.updated?.phone) found.push(`telefon: ${data.updated.phone}`)
+    if (data.found?.instagram) found.push(`Instagram: ${data.found.instagram}`)
+    if (data.found?.telegram) found.push(`Telegram: ${data.found.telegram}`)
+    setEnrichResult(found.length > 0 ? `Topildi — ${found.join(', ')}` : 'Hech narsa topilmadi')
+    fetchLead()
+  }
+
   const deleteLead = async () => {
     if (!confirm(`"${lead?.name}" ni o'chirasizmi?`)) return
     await fetch(`/api/leads/${id}`, { method: 'DELETE' })
@@ -238,12 +265,24 @@ export default function LeadDetailPage() {
                 <p className="text-sm text-ink-muted mb-1">
                   <span className="font-medium">Telefon:</span> {lead.phone || '—'}
                 </p>
-                <button
-                  onClick={() => setEditing(true)}
-                  className="text-xs text-primary-500 hover:text-primary-600 font-medium mb-2"
-                >
-                  ✎ Kontaktni tahrirlash
-                </button>
+                <div className="flex items-center gap-3 mb-2">
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="text-xs text-primary-500 hover:text-primary-600 font-medium"
+                  >
+                    ✎ Kontaktni tahrirlash
+                  </button>
+                  <button
+                    onClick={enrichLead}
+                    disabled={enriching}
+                    className="text-xs text-primary-500 hover:text-primary-600 font-medium disabled:opacity-50"
+                    title="Web qidiruv orqali email/telefon/Instagram/Telegram topish"
+                  >
+                    {enriching ? 'Qidirilmoqda...' : '🔎 Boyitish'}
+                  </button>
+                </div>
+                {enrichResult && <p className="text-xs text-ink-muted mb-2">{enrichResult}</p>}
+                {enrichError && <p className="text-xs text-red-600 mb-2">{enrichError}</p>}
               </>
             )}
             {lead.linkedin_url && (

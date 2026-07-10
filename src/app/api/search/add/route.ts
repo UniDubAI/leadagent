@@ -2,7 +2,11 @@ import { NextRequest, NextResponse, after } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
 import { sendTelegramMessage } from '@/lib/telegram'
-import { enrichBusinessContact } from '@/lib/enrich'
+import { enrichAndUpdateLead } from '@/lib/enrich'
+
+// web_search'li boyitish bir necha o'nlab soniya olishi mumkin — after()
+// fon vazifasi ham shu route'ning maxDuration byudjeti ichida ishlaydi.
+export const maxDuration = 120
 
 interface IncomingLead {
   name?: string
@@ -41,18 +45,6 @@ function buildTelegramMessage(added: IncomingLead[]) {
   return [`🔍 <b>${added.length} ta yangi lid qidiruvdan:</b>`, ...lines].join('\n')
 }
 
-// Instagram/Telegram allaqachon notes'da bo'lsa qayta yozmaydi.
-function mergeContactNotes(
-  baseNotes: string | null,
-  extra: { instagram: string | null; telegram: string | null },
-) {
-  const lines: string[] = []
-  if (extra.instagram && !(baseNotes ?? '').includes('Instagram:')) lines.push(`Instagram: ${extra.instagram}`)
-  if (extra.telegram && !(baseNotes ?? '').includes('Telegram:')) lines.push(`Telegram: ${extra.telegram}`)
-  if (lines.length === 0) return baseNotes
-  return [baseNotes, ...lines].filter(Boolean).join(' | ')
-}
-
 // Qidiruvdan qo'shilgan, lekin email yoki telefoni yetishmayotgan lidni fonda
 // avtomatik boyitadi — bitta lid uchun atigi bitta web_search chaqiruvi bilan
 // (xarajat nazorati), natija bo'sh bo'lsa qayta urinilmaydi.
@@ -64,27 +56,13 @@ async function autoEnrichLead(
     address: string | null
     city: string | null
     notes: string | null
-    needsEmail: boolean
-    needsPhone: boolean
+    email: string | null
+    phone: string | null
   },
 ) {
   try {
-    const found = await enrichBusinessContact(
-      { name: lead.name, city: lead.city, address: lead.address },
-      1,
-    )
-
-    const patch: Record<string, unknown> = {}
-    if (lead.needsEmail && found.email) patch.email = found.email
-    if (lead.needsPhone && found.phone) patch.phone = found.phone
-    const mergedNotes = mergeContactNotes(lead.notes, found)
-    if (mergedNotes !== lead.notes) patch.notes = mergedNotes
-
-    if (Object.keys(patch).length > 0) {
-      await db.from('leads').update(patch).eq('id', lead.id)
-    }
-
-    const hasEmailNow = Boolean(!lead.needsEmail || patch.email)
+    const { patch } = await enrichAndUpdateLead(db, lead, 1)
+    const hasEmailNow = Boolean(lead.email || patch.email)
     await sendTelegramMessage(
       `✨ Lid boyitildi: ${lead.name} — email ${hasEmailNow ? 'topildi' : 'topilmadi'}`,
     )
@@ -94,6 +72,7 @@ async function autoEnrichLead(
       lead.id,
       err instanceof Error ? err.message : err,
     )
+    await sendTelegramMessage(`⚠️ Lid boyitib bo'lmadi: ${lead.name} (xatolik yuz berdi)`)
   }
 }
 
@@ -210,8 +189,8 @@ export async function POST(req: NextRequest) {
           address: ctx.address,
           city: ctx.city,
           notes: row.notes,
-          needsEmail,
-          needsPhone,
+          email: row.email,
+          phone: row.phone,
         }),
       )
     }
