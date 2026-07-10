@@ -1,0 +1,46 @@
+{
+  "Common": {
+    "save": "Сақтау",
+    "saving": "Сақталуда...",
+    "cancel": "Бас тарту",
+    "loading": "Жүктелуде...",
+    "delete": "Жою",
+    "edit": "Өңдеу",
+    "error": "Қате орын алды"
+  },
+  "Nav": {
+    "leads": "Лидтер",
+    "search": "Іздеу",
+    "pages": "Беттер",
+    "smm": "SMM",
+    "recommendations": "Ұсыныстар",
+    "accounts": "Аккаунттар",
+    "newLead": "+ Жаңа лид",
+    "logout": "Шығу",
+    "language": "Тіл"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Құпия сөз"
+  },
+  "Login": {
+    "title": "Кіру",
+    "submit": "Кіру",
+    "submitting": "Кіруде...",
+    "wrongCredentials": "Email немесе құпия сөз қате",
+    "noAccount": "Аккаунтыңыз жоқ па?",
+    "signupLink": "Тіркелу"
+  },
+  "Signup": {
+    "title": "Тіркелу",
+    "submit": "Тіркелу",
+    "submitting": "Жіберілуде...",
+    "alreadyRegistered": "Бұл email бұрын тіркелген",
+    "genericError": "Тіркелу кезінде қате орын алды",
+    "checkEmailTitle": "Поштаңызды тексеріңіз",
+    "checkEmailBody": "{email} мекенжайына растау хаты жіберілді. Сілтемені басып, содан кейін жүйеге кіріңіз.",
+    "goToLogin": "Кіру бетіне өту",
+    "haveAccount": "Аккаунтыңыз бар ма?",
+    "loginLink": "Кіру"
+  }
+}

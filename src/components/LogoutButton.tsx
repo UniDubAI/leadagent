@@ -1,8 +1,11 @@
 'use client'
 
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 export function LogoutButton() {
+  const t = useTranslations('Nav')
+
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -11,7 +14,7 @@ export function LogoutButton() {
 
   return (
     <button onClick={handleLogout} className="text-sm text-white/70 hover:text-white">
-      Chiqish
+      {t('logout')}
     </button>
   )
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
+import { NextIntlClientProvider } from 'next-intl'
+import { getLocale } from 'next-intl/server'
 import './globals.css'
 import { getUser } from '@/lib/supabase/server'
 import { SiteNav } from '@/components/SiteNav'
@@ -12,13 +14,15 @@ export const metadata: Metadata = {
 }
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const user = await getUser()
+  const [user, locale] = await Promise.all([getUser(), getLocale()])
 
   return (
-    <html lang="uz" className={geist.className}>
+    <html lang={locale} className={geist.className}>
       <body className="min-h-screen">
-        <SiteNav hasUser={Boolean(user)} />
-        <main>{children}</main>
+        <NextIntlClientProvider>
+          <SiteNav hasUser={Boolean(user)} />
+          <main>{children}</main>
+        </NextIntlClientProvider>
       </body>
     </html>
   )

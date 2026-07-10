@@ -1,0 +1,46 @@
+{
+  "Common": {
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda...",
+    "cancel": "Bekor qilish",
+    "loading": "Yuklanmoqda...",
+    "delete": "O'chirish",
+    "edit": "Tahrirlash",
+    "error": "Xatolik yuz berdi"
+  },
+  "Nav": {
+    "leads": "Lidlar",
+    "search": "Qidiruv",
+    "pages": "Sahifalar",
+    "smm": "SMM",
+    "recommendations": "Tavsiyalar",
+    "accounts": "Akkauntlar",
+    "newLead": "+ Yangi lid",
+    "logout": "Chiqish",
+    "language": "Til"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Parol"
+  },
+  "Login": {
+    "title": "Kirish",
+    "submit": "Kirish",
+    "submitting": "Kirilmoqda...",
+    "wrongCredentials": "Email yoki parol noto'g'ri",
+    "noAccount": "Hisobingiz yo'qmi?",
+    "signupLink": "Ro'yxatdan o'ting"
+  },
+  "Signup": {
+    "title": "Ro'yxatdan o'tish",
+    "submit": "Ro'yxatdan o'tish",
+    "submitting": "Yuborilmoqda...",
+    "alreadyRegistered": "Bu email allaqachon ro'yxatdan o'tgan",
+    "genericError": "Ro'yxatdan o'tishda xatolik yuz berdi",
+    "checkEmailTitle": "Emailingizni tekshiring",
+    "checkEmailBody": "{email} manziliga tasdiqlash xati yubordik. Havolani bosib, so'ng tizimga kiring.",
+    "goToLogin": "Kirish sahifasiga o'tish",
+    "haveAccount": "Hisobingiz bormi?",
+    "loginLink": "Kiring"
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "Common": {
+    "save": "Yadda saxla",
+    "saving": "Yadda saxlanılır...",
+    "cancel": "Ləğv et",
+    "loading": "Yüklənir...",
+    "delete": "Sil",
+    "edit": "Redaktə et",
+    "error": "Xəta baş verdi"
+  },
+  "Nav": {
+    "leads": "Lidlər",
+    "search": "Axtarış",
+    "pages": "Səhifələr",
+    "smm": "SMM",
+    "recommendations": "Tövsiyələr",
+    "accounts": "Hesablar",
+    "newLead": "+ Yeni lid",
+    "logout": "Çıxış",
+    "language": "Dil"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Şifrə"
+  },
+  "Login": {
+    "title": "Giriş",
+    "submit": "Daxil ol",
+    "submitting": "Daxil olunur...",
+    "wrongCredentials": "Email və ya şifrə yanlışdır",
+    "noAccount": "Hesabınız yoxdur?",
+    "signupLink": "Qeydiyyatdan keçin"
+  },
+  "Signup": {
+    "title": "Qeydiyyat",
+    "submit": "Qeydiyyatdan keç",
+    "submitting": "Göndərilir...",
+    "alreadyRegistered": "Bu email artıq qeydiyyatdan keçib",
+    "genericError": "Qeydiyyat zamanı xəta baş verdi",
+    "checkEmailTitle": "Emailinizi yoxlayın",
+    "checkEmailBody": "{email} ünvanına təsdiq linki göndərdik. Linkə klikləyib sistemə daxil olun.",
+    "goToLogin": "Giriş səhifəsinə keç",
+    "haveAccount": "Artıq hesabınız var?",
+    "loginLink": "Daxil olun"
+  }
+}

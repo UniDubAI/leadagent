@@ -2,10 +2,13 @@
 
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 function LoginForm() {
   const searchParams = useSearchParams()
+  const t = useTranslations('Login')
+  const tAuth = useTranslations('Auth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -21,7 +24,7 @@ function LoginForm() {
 
     if (error) {
       setLoading(false)
-      setError("Email yoki parol noto'g'ri")
+      setError(t('wrongCredentials'))
       return
     }
 
@@ -34,10 +37,10 @@ function LoginForm() {
   return (
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="bg-white rounded-xl shadow-sm border border-line p-6">
-        <h1 className="text-xl font-bold text-ink mb-6">Kirish</h1>
+        <h1 className="text-xl font-bold text-ink mb-6">{t('title')}</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Email</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tAuth('email')}</label>
             <input
               type="email"
               required
@@ -48,7 +51,7 @@ function LoginForm() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Parol</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tAuth('password')}</label>
             <input
               type="password"
               required
@@ -64,13 +67,13 @@ function LoginForm() {
             disabled={loading}
             className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {loading ? 'Kirilmoqda...' : 'Kirish'}
+            {loading ? t('submitting') : t('submit')}
           </button>
         </form>
         <p className="text-sm text-ink-muted mt-4 text-center">
-          Hisobingiz yo&apos;qmi?{' '}
+          {t('noAccount')}{' '}
           <a href="/signup" className="text-primary-500 hover:text-primary-600 hover:underline">
-            Ro&apos;yxatdan o&apos;ting
+            {t('signupLink')}
           </a>
         </p>
       </div>

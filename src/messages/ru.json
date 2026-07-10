@@ -1,0 +1,46 @@
+{
+  "Common": {
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "cancel": "Отмена",
+    "loading": "Загрузка...",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "error": "Произошла ошибка"
+  },
+  "Nav": {
+    "leads": "Лиды",
+    "search": "Поиск",
+    "pages": "Страницы",
+    "smm": "SMM",
+    "recommendations": "Рекомендации",
+    "accounts": "Аккаунты",
+    "newLead": "+ Новый лид",
+    "logout": "Выйти",
+    "language": "Язык"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Пароль"
+  },
+  "Login": {
+    "title": "Вход",
+    "submit": "Войти",
+    "submitting": "Вход...",
+    "wrongCredentials": "Неверный email или пароль",
+    "noAccount": "Нет аккаунта?",
+    "signupLink": "Зарегистрироваться"
+  },
+  "Signup": {
+    "title": "Регистрация",
+    "submit": "Зарегистрироваться",
+    "submitting": "Отправка...",
+    "alreadyRegistered": "Этот email уже зарегистрирован",
+    "genericError": "Ошибка при регистрации",
+    "checkEmailTitle": "Проверьте вашу почту",
+    "checkEmailBody": "Мы отправили письмо с подтверждением на {email}. Перейдите по ссылке и войдите в систему.",
+    "goToLogin": "Перейти на страницу входа",
+    "haveAccount": "Уже есть аккаунт?",
+    "loginLink": "Войти"
+  }
+}

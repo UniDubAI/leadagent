@@ -1,0 +1,46 @@
+{
+  "Common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "delete": "Delete",
+    "edit": "Edit",
+    "error": "Something went wrong"
+  },
+  "Nav": {
+    "leads": "Leads",
+    "search": "Search",
+    "pages": "Pages",
+    "smm": "SMM",
+    "recommendations": "Recommendations",
+    "accounts": "Accounts",
+    "newLead": "+ New lead",
+    "logout": "Log out",
+    "language": "Language"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Password"
+  },
+  "Login": {
+    "title": "Sign in",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "wrongCredentials": "Incorrect email or password",
+    "noAccount": "Don't have an account?",
+    "signupLink": "Sign up"
+  },
+  "Signup": {
+    "title": "Sign up",
+    "submit": "Sign up",
+    "submitting": "Submitting...",
+    "alreadyRegistered": "This email is already registered",
+    "genericError": "Something went wrong while signing up",
+    "checkEmailTitle": "Check your email",
+    "checkEmailBody": "We sent a confirmation link to {email}. Click it, then sign in.",
+    "goToLogin": "Go to the sign-in page",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Sign in"
+  }
+}

@@ -2,9 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
+  const t = useTranslations('Signup')
+  const tAuth = useTranslations('Auth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -22,8 +25,8 @@ export default function SignupPage() {
     if (error) {
       setLoading(false)
       setError(error.message === 'User already registered'
-        ? 'Bu email allaqachon ro\'yxatdan o\'tgan'
-        : "Ro'yxatdan o'tishda xatolik yuz berdi")
+        ? t('alreadyRegistered')
+        : t('genericError'))
       return
     }
 
@@ -42,12 +45,12 @@ export default function SignupPage() {
     return (
       <div className="max-w-sm mx-auto px-4 py-16">
         <div className="bg-white rounded-xl shadow-sm border border-line p-6 text-center">
-          <h1 className="text-xl font-bold text-ink mb-2">Emailingizni tekshiring</h1>
+          <h1 className="text-xl font-bold text-ink mb-2">{t('checkEmailTitle')}</h1>
           <p className="text-sm text-ink-muted mb-4">
-            {email} manziliga tasdiqlash xati yubordik. Havolani bosib, so&apos;ng tizimga kiring.
+            {t('checkEmailBody', { email })}
           </p>
           <Link href="/login" className="text-primary-500 hover:text-primary-600 hover:underline text-sm">
-            Kirish sahifasiga o&apos;tish
+            {t('goToLogin')}
           </Link>
         </div>
       </div>
@@ -57,10 +60,10 @@ export default function SignupPage() {
   return (
     <div className="max-w-sm mx-auto px-4 py-16">
       <div className="bg-white rounded-xl shadow-sm border border-line p-6">
-        <h1 className="text-xl font-bold text-ink mb-6">Ro&apos;yxatdan o&apos;tish</h1>
+        <h1 className="text-xl font-bold text-ink mb-6">{t('title')}</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Email</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tAuth('email')}</label>
             <input
               type="email"
               required
@@ -71,7 +74,7 @@ export default function SignupPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Parol</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tAuth('password')}</label>
             <input
               type="password"
               required
@@ -88,13 +91,13 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {loading ? 'Yuborilmoqda...' : "Ro'yxatdan o'tish"}
+            {loading ? t('submitting') : t('submit')}
           </button>
         </form>
         <p className="text-sm text-ink-muted mt-4 text-center">
-          Hisobingiz bormi?{' '}
+          {t('haveAccount')}{' '}
           <Link href="/login" className="text-primary-500 hover:text-primary-600 hover:underline">
-            Kiring
+            {t('loginLink')}
           </Link>
         </p>
       </div>

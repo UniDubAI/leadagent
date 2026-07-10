@@ -2,11 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import { LogoutButton } from '@/components/LogoutButton'
 import { NavLink } from '@/components/NavLink'
+import { LanguageSwitcher } from '@/components/LanguageSwitcher'
 
 export function SiteNav({ hasUser }: { hasUser: boolean }) {
   const pathname = usePathname()
+  const t = useTranslations('Nav')
   // /b/[slug] are public client-facing mini-pages — no admin chrome.
   if (pathname.startsWith('/b/')) return null
 
@@ -16,18 +19,17 @@ export function SiteNav({ hasUser }: { hasUser: boolean }) {
         <Link href="/" className="font-bold text-white text-sm">
           LeadAgent
         </Link>
-        <NavLink href="/leads">Lidlar</NavLink>
-        <NavLink href="/qidiruv">Qidiruv</NavLink>
-        <NavLink href="/sahifalar">Sahifalar</NavLink>
-        <NavLink href="/smm">SMM</NavLink>
-        <NavLink href="/tavsiyalar">Tavsiyalar</NavLink>
-        <NavLink href="/akkauntlar">Akkauntlar</NavLink>
-        <NavLink href="/leads/new">+ Yangi lid</NavLink>
-        {hasUser && (
-          <div className="ml-auto">
-            <LogoutButton />
-          </div>
-        )}
+        <NavLink href="/leads">{t('leads')}</NavLink>
+        <NavLink href="/qidiruv">{t('search')}</NavLink>
+        <NavLink href="/sahifalar">{t('pages')}</NavLink>
+        <NavLink href="/smm">{t('smm')}</NavLink>
+        <NavLink href="/tavsiyalar">{t('recommendations')}</NavLink>
+        <NavLink href="/akkauntlar">{t('accounts')}</NavLink>
+        <NavLink href="/leads/new">{t('newLead')}</NavLink>
+        <div className="ml-auto flex items-center gap-3">
+          <LanguageSwitcher />
+          {hasUser && <LogoutButton />}
+        </div>
       </div>
     </nav>
   )

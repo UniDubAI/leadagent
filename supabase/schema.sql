@@ -154,6 +154,20 @@ create trigger business_finances_updated_at
   before update on business_finances
   for each row execute function update_updated_at();
 
+-- Per-user interface language preference -- independent of business_profiles
+-- so it exists from first login, before onboarding is completed.
+create table if not exists user_settings (
+  user_id            uuid primary key references auth.users(id) on delete cascade,
+  preferred_language text not null default 'uz'
+                       check (preferred_language in ('uz', 'ru', 'en', 'kk', 'tr', 'az')),
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now()
+);
+
+create trigger user_settings_updated_at
+  before update on user_settings
+  for each row execute function update_updated_at();
+
 -- Row Level Security -- every user only sees/manages their own rows. Public
 -- mini-pages (/b/[slug]) are readable by anyone by design.
 alter table leads enable row level security;
@@ -164,6 +178,7 @@ alter table smm_posts enable row level security;
 alter table recommendations enable row level security;
 alter table connected_accounts enable row level security;
 alter table business_finances enable row level security;
+alter table user_settings enable row level security;
 
 create policy "leads_select_own" on leads for select using (auth.uid() = user_id);
 create policy "leads_insert_own" on leads for insert with check (auth.uid() = user_id);
@@ -199,3 +214,7 @@ create policy "connected_accounts_delete_own" on connected_accounts for delete u
 create policy "business_finances_select_own" on business_finances for select using (auth.uid() = user_id);
 create policy "business_finances_insert_own" on business_finances for insert with check (auth.uid() = user_id);
 create policy "business_finances_update_own" on business_finances for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+create policy "user_settings_select_own" on user_settings for select using (auth.uid() = user_id);
+create policy "user_settings_insert_own" on user_settings for insert with check (auth.uid() = user_id);
+create policy "user_settings_update_own" on user_settings for update using (auth.uid() = user_id) with check (auth.uid() = user_id);

@@ -1,0 +1,46 @@
+{
+  "Common": {
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "cancel": "İptal",
+    "loading": "Yükleniyor...",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "error": "Bir hata oluştu"
+  },
+  "Nav": {
+    "leads": "Lead'ler",
+    "search": "Arama",
+    "pages": "Sayfalar",
+    "smm": "SMM",
+    "recommendations": "Öneriler",
+    "accounts": "Hesaplar",
+    "newLead": "+ Yeni lead",
+    "logout": "Çıkış yap",
+    "language": "Dil"
+  },
+  "Auth": {
+    "email": "E-posta",
+    "password": "Şifre"
+  },
+  "Login": {
+    "title": "Giriş yap",
+    "submit": "Giriş yap",
+    "submitting": "Giriş yapılıyor...",
+    "wrongCredentials": "E-posta veya şifre hatalı",
+    "noAccount": "Hesabınız yok mu?",
+    "signupLink": "Kayıt olun"
+  },
+  "Signup": {
+    "title": "Kayıt ol",
+    "submit": "Kayıt ol",
+    "submitting": "Gönderiliyor...",
+    "alreadyRegistered": "Bu e-posta zaten kayıtlı",
+    "genericError": "Kayıt olurken bir hata oluştu",
+    "checkEmailTitle": "E-postanızı kontrol edin",
+    "checkEmailBody": "{email} adresine bir onay bağlantısı gönderdik. Bağlantıya tıklayıp ardından giriş yapın.",
+    "goToLogin": "Giriş sayfasına git",
+    "haveAccount": "Zaten bir hesabınız var mı?",
+    "loginLink": "Giriş yap"
+  }
+}
