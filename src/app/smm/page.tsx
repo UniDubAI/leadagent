@@ -190,7 +190,9 @@ export default function SmmPage() {
   const [form, setForm] = useState({
     platform: 'instagram',
     contentType: 'single',
-    language: "O'zbek",
+    // SMM post kontenti faqat O'zbek/Rus tilida yoziladi (LANGUAGE_OPTIONS) —
+    // interfeys tili shulardan birortasiga to'g'ri kelmasa, O'zbekka tushadi.
+    language: locale === 'ru' ? 'Rus' : "O'zbek",
     notes: '',
     considerTrends: false,
   })

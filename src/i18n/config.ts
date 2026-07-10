@@ -24,3 +24,14 @@ export const localeToBCP47: Record<Locale, string> = {
   tr: 'tr-TR',
   az: 'az-AZ',
 }
+
+// AI promptlarida "faqat shu tilda yoz" ko'rsatmasi uchun til nomi (ingliz tilida —
+// model uchun eng ishonchli formulировка).
+export const localeToLanguageName: Record<Locale, string> = {
+  uz: 'Uzbek',
+  ru: 'Russian',
+  en: 'English',
+  kk: 'Kazakh',
+  tr: 'Turkish',
+  az: 'Azerbaijani',
+}

@@ -2,7 +2,20 @@ import { NextResponse } from 'next/server'
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
+import { getLocale } from '@/i18n/locale'
+import { localeToBCP47, localeToLanguageName } from '@/i18n/config'
 import type { ConnectedAccount, InstagramAccountData, LeadStatus, RecommendationItem, TelegramAccountData } from '@/types'
+
+// AI tavsiya matni foydalanuvchining interfeys tilida yoziladi — lidga
+// yuboriladigan xabarlardan farqli, bu operator uchun ichki matn.
+const NO_LEADS_YET: Record<string, string> = {
+  uz: "Hali lidlaringiz yo'q. Avval \"Qidiruv\" bo'limi yoki \"+ Yangi lid\" tugmasi orqali birinchi mijozingizni qo'shing — shundan keyin sizga moslashtirilgan tavsiyalar tayyor bo'ladi.",
+  ru: 'У вас пока нет лидов. Сначала добавьте первого клиента через раздел «Поиск» или кнопку «+ Новый лид» — после этого мы подготовим для вас персональные рекомендации.',
+  en: 'You don\'t have any leads yet. Add your first client via the "Search" section or the "+ New lead" button — then we\'ll prepare personalized recommendations for you.',
+  kk: 'Сізде әзірге лидтер жоқ. Алдымен "Іздеу" бөлімі немесе "+ Жаңа лид" түймесі арқылы алғашқы клиентіңізді қосыңыз — содан кейін сізге бейімделген ұсыныстар дайын болады.',
+  tr: 'Henüz lead\'iniz yok. Önce "Arama" bölümü veya "+ Yeni lead" düğmesiyle ilk müşterinizi ekleyin — ardından size özel öneriler hazırlanacak.',
+  az: 'Hələ lidiniz yoxdur. Əvvəlcə "Axtarış" bölməsi və ya "+ Yeni lid" düyməsi vasitəsilə ilk müştərinizi əlavə edin — bundan sonra sizə uyğunlaşdırılmış tövsiyələr hazır olacaq.',
+}
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -37,7 +50,7 @@ const SUBMIT_RECOMMENDATIONS_TOOL: Anthropic.Tool = {
           properties: {
             text: {
               type: 'string',
-              description: "Bitta aniq, amaliy tavsiya, o'zbek tilida, 1-2 gap",
+              description: "Bitta aniq, amaliy tavsiya, system promptda ko'rsatilgan tilda, 1-2 gap",
             },
             action_type: {
               type: 'string',
@@ -92,6 +105,9 @@ export async function POST() {
     const user = await getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+    const locale = await getLocale()
+    const languageName = localeToLanguageName[locale]
+
     const db = createServerClient()
 
     const { data: leads, error: leadsError } = await db
@@ -130,7 +146,7 @@ export async function POST() {
     if (leads.length === 0 && smmPosts.length === 0 && connectedAccounts.length === 0 && !hasFinanceData) {
       const items: RecommendationItem[] = [
         {
-          text: "Hali lidlaringiz yo'q. Avval \"Qidiruv\" bo'limi yoki \"+ Yangi lid\" tugmasi orqali birinchi mijozingizni qo'shing — shundan keyin sizga moslashtirilgan tavsiyalar tayyor bo'ladi.",
+          text: NO_LEADS_YET[locale] ?? NO_LEADS_YET.uz,
           action_type: 'boshqa',
           lead_id: null,
           platform: null,
@@ -204,7 +220,7 @@ export async function POST() {
     const telegramLine = telegramAccount
       ? (() => {
           const d = telegramAccount.data as TelegramAccountData
-          return `${telegramAccount.account_name} — ${d.members_count} obunachi (so'nggi tekshiruv: ${new Date(telegramAccount.updated_at).toLocaleDateString('uz-UZ')})`
+          return `${telegramAccount.account_name} — ${d.members_count} obunachi (so'nggi tekshiruv: ${new Date(telegramAccount.updated_at).toLocaleDateString(localeToBCP47[locale])})`
         })()
       : "Ulanmagan — foydalanuvchi hali Telegram kanalini qo'shmagan."
 
@@ -277,7 +293,8 @@ Qoidalar:
 - Agar muayyan lid javobsiz qolgan bo'lsa, uning ismini aniq ko'rsating (masalan: "Bobur Jamgirov 4 kundan beri javobsiz — follow-up yuboring").
 - Agar emaillar kam yuborilgan bo'lsa, aniq raqam bilan ayting (masalan: "Bu hafta faqat 1 email yubordingiz — kuniga 2-3 taga oshiring").
 - Agar SMM faolligi past bo'lsa, shuni ham eslating.
-- Faqat o'zbek tilida yozing.`
+
+MAJBURIY TIL QOIDASI: Har bir tavsiya matnini (text maydonini) FAQAT ${languageName} tilida yozing — boshqa til aralashmasin. Bu qoida hamma narsadan ustun.`
 
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
