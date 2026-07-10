@@ -30,6 +30,7 @@ function BusinessProfileForm({
 }) {
   const [form, setForm] = useState({
     business_name: initial?.business_name ?? '',
+    owner_name: initial?.owner_name ?? '',
     industry: initial?.industry ?? '',
     description: initial?.description ?? '',
     city: initial?.city ?? '',
@@ -80,6 +81,19 @@ function BusinessProfileForm({
             onChange={set('business_name')}
             placeholder="Masalan: Sunrise Cafe"
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-ink mb-1">Ismingiz</label>
+          <input
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            value={form.owner_name}
+            onChange={set('owner_name')}
+            placeholder="Masalan: Aziz"
+          />
+          <p className="mt-1 text-xs text-ink-muted">
+            Email imzosida &quot;Ismingiz, Biznes nomi&quot; ko&apos;rinishida ishlatiladi.
+          </p>
         </div>
 
         <div>

@@ -17,6 +17,21 @@ const LANG_INSTRUCTION_MAP: Record<string, string> = {
 
 type FollowupLead = Pick<Lead, 'name' | 'company' | 'industry' | 'message_language'>
 
+// Email imzosini "Ism, Kompaniya" ko'rinishida quradi. owner_name bo'sh bo'lsa
+// faqat biznes nomi, u ham bo'lmasa email prefiksi ishlatiladi.
+export function buildSignerName(
+  profile: { owner_name?: string | null; business_name?: string | null } | null | undefined,
+  fallbackEmail?: string | null,
+): string {
+  const ownerName = profile?.owner_name?.trim()
+  const businessName = profile?.business_name?.trim()
+
+  if (ownerName && businessName) return `${ownerName}, ${businessName}`
+  if (businessName) return businessName
+  if (ownerName) return ownerName
+  return fallbackEmail?.split('@')[0] || 'Bizning jamoa'
+}
+
 // Lidning avvalgi kontaktidan 3+ kun o'tgach, cron orqali avtomatik yuboriladigan
 // follow-up email matnini generatsiya qiladi. Cold outreach'dan farqli o'laroq,
 // bu allaqachon bir marta yozilgan lidga "eslatma" ohangida bo'ladi.

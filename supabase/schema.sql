@@ -85,6 +85,7 @@ create table if not exists business_profiles (
   id            uuid primary key default gen_random_uuid(),
   user_id       uuid not null unique references auth.users(id) on delete cascade,
   business_name text not null,
+  owner_name    text,
   industry      text not null,
   description   text,
   city          text,

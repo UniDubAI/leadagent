@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
   const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { business_name, industry, description, city } = await req.json()
+  const { business_name, owner_name, industry, description, city } = await req.json()
 
   if (!business_name || !industry) {
     return NextResponse.json({ error: 'business_name va industry talab qilinadi' }, { status: 400 })
@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
       {
         user_id: user.id,
         business_name,
+        owner_name: owner_name || null,
         industry,
         description: description || null,
         city: city || null,

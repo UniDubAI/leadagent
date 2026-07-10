@@ -57,6 +57,7 @@ export interface SmmPost {
 export interface BusinessProfile {
   id: string
   business_name: string
+  owner_name: string | null
   industry: string
   description: string | null
   city: string | null

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createServerClient } from '@/lib/supabase'
 import { sendTelegramMessage } from '@/lib/telegram'
-import { generateFollowupEmail } from '@/lib/outreach-email'
+import { generateFollowupEmail, buildSignerName } from '@/lib/outreach-email'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const resend = new Resend(process.env.RESEND_API_KEY)
@@ -33,13 +33,13 @@ export async function GET(req: NextRequest) {
   const from = process.env.EMAIL_FROM || 'onboarding@resend.dev'
   const replyTo = process.env.REPLY_TO_EMAIL
 
-  // Har bir foydalanuvchining biznes nomi email imzosi sifatida ishlatiladi
-  // (modelga aniq ism berilmasa, u "[Ismingiz]" kabi placeholder yozib qo'yardi).
+  // Har bir foydalanuvchining "Ism, Kompaniya" imzosi email imzosi sifatida
+  // ishlatiladi (modelga aniq ism berilmasa, u "[Ismingiz]" kabi placeholder yozib qo'yardi).
   const userIds = [...new Set((leads ?? []).map((l) => l.user_id))]
   const { data: profiles } = userIds.length
-    ? await db.from('business_profiles').select('user_id, business_name').in('user_id', userIds)
+    ? await db.from('business_profiles').select('user_id, owner_name, business_name').in('user_id', userIds)
     : { data: [] }
-  const signerNameByUser = new Map((profiles ?? []).map((p) => [p.user_id, p.business_name]))
+  const signerNameByUser = new Map((profiles ?? []).map((p) => [p.user_id, buildSignerName(p)]))
 
   let emailed = 0
   let nudged = 0

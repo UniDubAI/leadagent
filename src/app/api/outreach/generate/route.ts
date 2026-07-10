@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
+import { buildSignerName } from '@/lib/outreach-email'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -30,13 +31,13 @@ export async function POST(req: NextRequest) {
 
     const { data: profile } = await db
       .from('business_profiles')
-      .select('business_name')
+      .select('owner_name, business_name')
       .eq('user_id', user.id)
       .maybeSingle()
 
     // Email imzosi uchun ishlatiladi — modelga aniq ism berilmasa, u
     // "[Ismingiz]" kabi to'ldirilmagan placeholder yozib qo'yardi.
-    const signerName = profile?.business_name || user.email?.split('@')[0] || 'Bizning jamoa'
+    const signerName = buildSignerName(profile, user.email)
 
     const langMap: Record<string, string> = {
       "O'zbek": 'Uzbek',
