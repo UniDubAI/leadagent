@@ -254,5 +254,53 @@
     "saving": "Сохранение...",
     "cancel": "Отмена",
     "genericError": "Произошла ошибка"
+  },
+  "Smm": {
+    "loading": "Загрузка...",
+    "profileTitle": "Расскажите о вашем бизнесе",
+    "profileSubtitle": "Эта информация запрашивается один раз — далее SMM-контент будет создаваться с учётом неё.",
+    "businessName": "Название бизнеса",
+    "businessNamePlaceholder": "Например: Sunrise Cafe",
+    "ownerName": "Ваше имя",
+    "ownerNamePlaceholder": "Например: Азиз",
+    "ownerNameHint": "Используется в подписи email в формате «Ваше имя, Название бизнеса».",
+    "industry": "Сфера",
+    "select": "— Выберите —",
+    "city": "Город",
+    "cityPlaceholder": "Например: Ташкент",
+    "description": "Краткое описание",
+    "descriptionPlaceholder": "Чем занимаетесь, чем отличаетесь?",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "cancel": "Отмена",
+    "saveError": "Ошибка при сохранении",
+    "copy": "Скопировать",
+    "copied": "Скопировано ✓",
+    "trend": "Тренд",
+    "title": "Генерация SMM-контента",
+    "edit": "Редактировать",
+    "platform": "Платформа",
+    "platformLabels": {
+      "instagram": "Instagram",
+      "telegram": "Telegram",
+      "both": "Обе"
+    },
+    "contentType": "Тип контента",
+    "contentTypeLabels": {
+      "single": "Один пост",
+      "weekly": "Недельный контент-план (7 постов)",
+      "launch": "План запуска"
+    },
+    "language": "Язык",
+    "notes": "Дополнительный комментарий (необязательно)",
+    "notesPlaceholder": "Например: новое меню, акция на выходных...",
+    "considerTrends": "Учитывать актуальные тренды",
+    "searchingTrends": "Поиск трендов...",
+    "generating": "AI пишет...",
+    "generate": "Сгенерировать",
+    "generateError": "Ошибка при генерации",
+    "previousGenerations": "Предыдущие генерации",
+    "close": "Свернуть ▲",
+    "view": "Показать ▼"
   }
 }

@@ -254,5 +254,53 @@
     "saving": "Saving...",
     "cancel": "Cancel",
     "genericError": "Something went wrong"
+  },
+  "Smm": {
+    "loading": "Loading...",
+    "profileTitle": "Tell us about your business",
+    "profileSubtitle": "We only ask this once — your SMM content will be tailored to it every time after.",
+    "businessName": "Business name",
+    "businessNamePlaceholder": "E.g. Sunrise Cafe",
+    "ownerName": "Your name",
+    "ownerNamePlaceholder": "E.g. Alex",
+    "ownerNameHint": "Used in the email signature as \"Your name, Business name\".",
+    "industry": "Industry",
+    "select": "— Select —",
+    "city": "City",
+    "cityPlaceholder": "E.g. Tashkent",
+    "description": "Short description",
+    "descriptionPlaceholder": "What do you do, what makes you stand out?",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "saveError": "Something went wrong while saving",
+    "copy": "Copy",
+    "copied": "Copied ✓",
+    "trend": "Trend",
+    "title": "SMM content generation",
+    "edit": "Edit",
+    "platform": "Platform",
+    "platformLabels": {
+      "instagram": "Instagram",
+      "telegram": "Telegram",
+      "both": "Both"
+    },
+    "contentType": "Content type",
+    "contentTypeLabels": {
+      "single": "Single post",
+      "weekly": "Weekly content plan (7 posts)",
+      "launch": "Launch plan"
+    },
+    "language": "Language",
+    "notes": "Extra notes (optional)",
+    "notesPlaceholder": "E.g. new menu launched, weekend promo...",
+    "considerTrends": "Factor in current trends",
+    "searchingTrends": "Searching trends...",
+    "generating": "AI is writing...",
+    "generate": "Generate",
+    "generateError": "Something went wrong while generating",
+    "previousGenerations": "Previous generations",
+    "close": "Collapse ▲",
+    "view": "View ▼"
   }
 }

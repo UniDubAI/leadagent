@@ -254,5 +254,53 @@
     "saving": "Kaydediliyor...",
     "cancel": "İptal",
     "genericError": "Bir hata oluştu"
+  },
+  "Smm": {
+    "loading": "Yükleniyor...",
+    "profileTitle": "İşletmenizden bahsedin",
+    "profileSubtitle": "Bu bilgi yalnızca bir kez sorulur — SMM içeriği bundan sonra buna göre yazılır.",
+    "businessName": "İşletme adı",
+    "businessNamePlaceholder": "Örn: Sunrise Cafe",
+    "ownerName": "Adınız",
+    "ownerNamePlaceholder": "Örn: Aziz",
+    "ownerNameHint": "E-posta imzasında \"Adınız, İşletme adı\" şeklinde kullanılır.",
+    "industry": "Sektör",
+    "select": "— Seçin —",
+    "city": "Şehir",
+    "cityPlaceholder": "Örn: İstanbul",
+    "description": "Kısa açıklama",
+    "descriptionPlaceholder": "Ne iş yapıyorsunuz, sizi farklı kılan ne?",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "cancel": "İptal",
+    "saveError": "Kaydedilirken hata oluştu",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı ✓",
+    "trend": "Trend",
+    "title": "SMM içerik üretimi",
+    "edit": "Düzenle",
+    "platform": "Platform",
+    "platformLabels": {
+      "instagram": "Instagram",
+      "telegram": "Telegram",
+      "both": "İkisi de"
+    },
+    "contentType": "İçerik türü",
+    "contentTypeLabels": {
+      "single": "Tek gönderi",
+      "weekly": "Haftalık içerik planı (7 gönderi)",
+      "launch": "Lansman planı"
+    },
+    "language": "Dil",
+    "notes": "Ek not (isteğe bağlı)",
+    "notesPlaceholder": "Örn: yeni menü çıktı, hafta sonu kampanya var...",
+    "considerTrends": "Güncel trendleri dikkate al",
+    "searchingTrends": "Trendler aranıyor...",
+    "generating": "AI yazıyor...",
+    "generate": "Oluştur",
+    "generateError": "Oluşturulurken hata oluştu",
+    "previousGenerations": "Önceki üretimler",
+    "close": "Kapat ▲",
+    "view": "Görüntüle ▼"
   }
 }

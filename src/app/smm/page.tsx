@@ -2,22 +2,16 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useLocale, useTranslations } from 'next-intl'
 import type { BusinessProfile, SmmPost, SmmPostRecord } from '@/types'
+import { localeToBCP47 } from '@/i18n/config'
 
+// Bu qiymatlar DB'da erkin matn sifatida saqlanadi (biznes profili sohasi,
+// post kontent tili) — tarjima qilinmaydi.
 const INDUSTRY_OPTIONS = ['Restoran', "Go'zallik", 'Avto', "Ta'lim", "Do'kon", 'Boshqa']
-const PLATFORM_OPTIONS = [
-  { value: 'instagram', label: 'Instagram' },
-  { value: 'telegram', label: 'Telegram' },
-  { value: 'both', label: 'Ikkalasi' },
-]
-const CONTENT_TYPE_OPTIONS = [
-  { value: 'single', label: 'Bitta post' },
-  { value: 'weekly', label: 'Haftalik kontent-plan (7 post)' },
-  { value: 'launch', label: 'Zapusk rejasi' },
-]
 const LANGUAGE_OPTIONS = ["O'zbek", 'Rus']
-const PLATFORM_LABELS: Record<string, string> = { instagram: 'Instagram', telegram: 'Telegram', both: 'Instagram va Telegram' }
-const CONTENT_TYPE_LABELS: Record<string, string> = { single: 'Bitta post', weekly: 'Haftalik plan', launch: 'Zapusk rejasi' }
+const PLATFORM_VALUES = ['instagram', 'telegram', 'both'] as const
+const CONTENT_TYPE_VALUES = ['single', 'weekly', 'launch'] as const
 
 function BusinessProfileForm({
   initial,
@@ -28,6 +22,7 @@ function BusinessProfileForm({
   onSaved: (profile: BusinessProfile) => void
   onCancel?: () => void
 }) {
+  const t = useTranslations('Smm')
   const [form, setForm] = useState({
     business_name: initial?.business_name ?? '',
     owner_name: initial?.owner_name ?? '',
@@ -56,7 +51,7 @@ function BusinessProfileForm({
 
     if (!res.ok) {
       const data = await res.json()
-      setError(data.error ?? "Saqlashda xatolik yuz berdi")
+      setError(data.error ?? t('saveError'))
       return
     }
 
@@ -65,40 +60,36 @@ function BusinessProfileForm({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-line p-6">
-      <h1 className="text-xl font-bold text-ink mb-1">Biznesingiz haqida ayting</h1>
-      <p className="text-sm text-ink-muted mb-6">
-        Bu ma&apos;lumot bir marta so&apos;raladi — keyin har safar SMM kontent shunga mos yoziladi.
-      </p>
+      <h1 className="text-xl font-bold text-ink mb-1">{t('profileTitle')}</h1>
+      <p className="text-sm text-ink-muted mb-6">{t('profileSubtitle')}</p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Biznes nomi <span className="text-red-500">*</span>
+            {t('businessName')} <span className="text-red-500">*</span>
           </label>
           <input
             required
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.business_name}
             onChange={set('business_name')}
-            placeholder="Masalan: Sunrise Cafe"
+            placeholder={t('businessNamePlaceholder')}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Ismingiz</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('ownerName')}</label>
           <input
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.owner_name}
             onChange={set('owner_name')}
-            placeholder="Masalan: Aziz"
+            placeholder={t('ownerNamePlaceholder')}
           />
-          <p className="mt-1 text-xs text-ink-muted">
-            Email imzosida &quot;Ismingiz, Biznes nomi&quot; ko&apos;rinishida ishlatiladi.
-          </p>
+          <p className="mt-1 text-xs text-ink-muted">{t('ownerNameHint')}</p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Soha <span className="text-red-500">*</span>
+            {t('industry')} <span className="text-red-500">*</span>
           </label>
           <select
             required
@@ -106,7 +97,7 @@ function BusinessProfileForm({
             value={form.industry}
             onChange={set('industry')}
           >
-            <option value="">— Tanlang —</option>
+            <option value="">{t('select')}</option>
             {INDUSTRY_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
@@ -114,23 +105,23 @@ function BusinessProfileForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Shahar</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('city')}</label>
           <input
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.city}
             onChange={set('city')}
-            placeholder="Masalan: Toshkent"
+            placeholder={t('cityPlaceholder')}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Qisqa tavsif</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('description')}</label>
           <textarea
             rows={3}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.description}
             onChange={set('description')}
-            placeholder="Nima bilan shug'ullanasiz, nimasi bilan ajralib turasiz?"
+            placeholder={t('descriptionPlaceholder')}
           />
         </div>
 
@@ -142,7 +133,7 @@ function BusinessProfileForm({
             disabled={saving}
             className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+            {saving ? t('saving') : t('save')}
           </button>
           {onCancel && (
             <button
@@ -150,7 +141,7 @@ function BusinessProfileForm({
               onClick={onCancel}
               className="px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-300 text-ink hover:bg-gray-50 transition"
             >
-              Bekor qilish
+              {t('cancel')}
             </button>
           )}
         </div>
@@ -165,6 +156,7 @@ function PostCard({ post, index, copiedIndex, onCopy }: {
   copiedIndex: number | null
   onCopy: (post: SmmPost, index: number) => void
 }) {
+  const t = useTranslations('Smm')
   return (
     <div className="bg-white rounded-xl shadow-sm border border-line p-5">
       <div className="flex items-center justify-between mb-3">
@@ -177,18 +169,20 @@ function PostCard({ post, index, copiedIndex, onCopy }: {
               : 'bg-primary-500 hover:bg-primary-600 text-white'
           }`}
         >
-          {copiedIndex === index ? 'Nusxalandi ✓' : 'Nusxalash'}
+          {copiedIndex === index ? t('copied') : t('copy')}
         </button>
       </div>
       <pre className="text-sm text-ink whitespace-pre-wrap font-sans">{post.content}</pre>
       {post.trend_basis && (
-        <p className="mt-2 text-xs text-ink-muted">Trend: {post.trend_basis}</p>
+        <p className="mt-2 text-xs text-ink-muted">{t('trend')}: {post.trend_basis}</p>
       )}
     </div>
   )
 }
 
 export default function SmmPage() {
+  const t = useTranslations('Smm')
+  const locale = useLocale()
   const searchParams = useSearchParams()
   const [profile, setProfile] = useState<BusinessProfile | null | undefined>(undefined)
   const [editingProfile, setEditingProfile] = useState(false)
@@ -253,7 +247,7 @@ export default function SmmPage() {
 
     if (!res.ok) {
       const data = await res.json()
-      setError(data.error ?? 'Generatsiyada xatolik yuz berdi')
+      setError(data.error ?? t('generateError'))
       return
     }
 
@@ -275,7 +269,7 @@ export default function SmmPage() {
   }
 
   if (profile === undefined) {
-    return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-ink-muted">Yuklanmoqda...</div>
+    return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-ink-muted">{t('loading')}</div>
   }
 
   if (!profile || editingProfile) {
@@ -294,7 +288,7 @@ export default function SmmPage() {
     <div className="max-w-3xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-ink">SMM kontent generatsiya</h1>
+          <h1 className="text-2xl font-bold text-ink">{t('title')}</h1>
           <p className="text-sm text-ink-muted mt-1">
             {profile.business_name} — {profile.industry}{profile.city ? ` — ${profile.city}` : ''}
           </p>
@@ -303,39 +297,39 @@ export default function SmmPage() {
           onClick={() => setEditingProfile(true)}
           className="text-sm text-primary-500 hover:text-primary-600 hover:underline shrink-0"
         >
-          Tahrirlash
+          {t('edit')}
         </button>
       </div>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-line p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Platforma</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('platform')}</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.platform}
             onChange={set('platform')}
           >
-            {PLATFORM_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {PLATFORM_VALUES.map((v) => (
+              <option key={v} value={v}>{t(`platformLabels.${v}`)}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Kontent turi</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('contentType')}</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.contentType}
             onChange={set('contentType')}
           >
-            {CONTENT_TYPE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {CONTENT_TYPE_VALUES.map((v) => (
+              <option key={v} value={v}>{t(`contentTypeLabels.${v}`)}</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Til</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('language')}</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.language}
@@ -348,13 +342,13 @@ export default function SmmPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Qo&apos;shimcha izoh (ixtiyoriy)</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('notes')}</label>
           <textarea
             rows={3}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.notes}
             onChange={set('notes')}
-            placeholder="Masalan: yangi menyu chiqdi, hafta oxiri aksiya bor..."
+            placeholder={t('notesPlaceholder')}
           />
         </div>
 
@@ -365,7 +359,7 @@ export default function SmmPage() {
             onChange={(e) => setForm((prev) => ({ ...prev, considerTrends: e.target.checked }))}
             className="h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500"
           />
-          <span className="text-sm font-medium text-ink">Dolzarb trendlarni hisobga ol</span>
+          <span className="text-sm font-medium text-ink">{t('considerTrends')}</span>
         </label>
 
         {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -377,9 +371,9 @@ export default function SmmPage() {
         >
           {generating
             ? form.considerTrends
-              ? 'Trendlar qidirilmoqda...'
-              : 'AI yozmoqda...'
-            : 'Generatsiya qilish'}
+              ? t('searchingTrends')
+              : t('generating')
+            : t('generate')}
         </button>
       </form>
 
@@ -393,7 +387,7 @@ export default function SmmPage() {
 
       {history.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-lg font-semibold text-ink mb-3">Oldingi generatsiyalar</h2>
+          <h2 className="text-lg font-semibold text-ink mb-3">{t('previousGenerations')}</h2>
           <div className="space-y-2">
             {history.map((record) => {
               const isOpen = historyOpenId === record.id
@@ -404,13 +398,13 @@ export default function SmmPage() {
                     className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50"
                   >
                     <span className="text-sm text-ink">
-                      <span className="font-medium">{CONTENT_TYPE_LABELS[record.content_type] ?? record.content_type}</span>
+                      <span className="font-medium">{t(`contentTypeLabels.${record.content_type}`)}</span>
                       {' · '}
-                      {PLATFORM_LABELS[record.platform] ?? record.platform}
+                      {t(`platformLabels.${record.platform}`)}
                       {' · '}
-                      {new Date(record.created_at).toLocaleDateString('uz-UZ')}
+                      {new Date(record.created_at).toLocaleDateString(localeToBCP47[locale as keyof typeof localeToBCP47])}
                     </span>
-                    <span className="text-ink-muted text-xs">{isOpen ? 'Yopish ▲' : "Ko'rish ▼"}</span>
+                    <span className="text-ink-muted text-xs">{isOpen ? t('close') : t('view')}</span>
                   </button>
                   {isOpen && (
                     <div className="px-4 pb-4 space-y-3 border-t border-gray-100 pt-3">

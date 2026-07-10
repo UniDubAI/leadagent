@@ -254,5 +254,53 @@
     "saving": "Yadda saxlanılır...",
     "cancel": "Ləğv et",
     "genericError": "Xəta baş verdi"
+  },
+  "Smm": {
+    "loading": "Yüklənir...",
+    "profileTitle": "Biznesiniz haqqında məlumat verin",
+    "profileSubtitle": "Bu məlumat bir dəfə soruşulur — sonra SMM kontenti buna uyğun yazılır.",
+    "businessName": "Biznes adı",
+    "businessNamePlaceholder": "Məsələn: Sunrise Cafe",
+    "ownerName": "Adınız",
+    "ownerNamePlaceholder": "Məsələn: Əziz",
+    "ownerNameHint": "Email imzasında \"Adınız, Biznes adı\" formasında istifadə olunur.",
+    "industry": "Sahə",
+    "select": "— Seçin —",
+    "city": "Şəhər",
+    "cityPlaceholder": "Məsələn: Bakı",
+    "description": "Qısa təsvir",
+    "descriptionPlaceholder": "Nə ilə məşğulsunuz, nə ilə fərqlənirsiniz?",
+    "save": "Yadda saxla",
+    "saving": "Yadda saxlanılır...",
+    "cancel": "Ləğv et",
+    "saveError": "Yadda saxlanarkən xəta baş verdi",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı ✓",
+    "trend": "Trend",
+    "title": "SMM kontent generasiyası",
+    "edit": "Redaktə et",
+    "platform": "Platforma",
+    "platformLabels": {
+      "instagram": "Instagram",
+      "telegram": "Telegram",
+      "both": "Hər ikisi"
+    },
+    "contentType": "Kontent növü",
+    "contentTypeLabels": {
+      "single": "Bir post",
+      "weekly": "Həftəlik kontent-plan (7 post)",
+      "launch": "Buraxılış planı"
+    },
+    "language": "Dil",
+    "notes": "Əlavə qeyd (istəyə bağlı)",
+    "notesPlaceholder": "Məsələn: yeni menyu çıxdı, həftəsonu aksiya var...",
+    "considerTrends": "Aktual trendləri nəzərə al",
+    "searchingTrends": "Trendlər axtarılır...",
+    "generating": "AI yazır...",
+    "generate": "Generasiya et",
+    "generateError": "Generasiyada xəta baş verdi",
+    "previousGenerations": "Əvvəlki generasiyalar",
+    "close": "Bağla ▲",
+    "view": "Bax ▼"
   }
 }

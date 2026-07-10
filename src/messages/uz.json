@@ -254,5 +254,53 @@
     "saving": "Saqlanmoqda...",
     "cancel": "Bekor qilish",
     "genericError": "Xatolik yuz berdi"
+  },
+  "Smm": {
+    "loading": "Yuklanmoqda...",
+    "profileTitle": "Biznesingiz haqida ayting",
+    "profileSubtitle": "Bu ma'lumot bir marta so'raladi — keyin har safar SMM kontent shunga mos yoziladi.",
+    "businessName": "Biznes nomi",
+    "businessNamePlaceholder": "Masalan: Sunrise Cafe",
+    "ownerName": "Ismingiz",
+    "ownerNamePlaceholder": "Masalan: Aziz",
+    "ownerNameHint": "Email imzosida \"Ismingiz, Biznes nomi\" ko'rinishida ishlatiladi.",
+    "industry": "Soha",
+    "select": "— Tanlang —",
+    "city": "Shahar",
+    "cityPlaceholder": "Masalan: Toshkent",
+    "description": "Qisqa tavsif",
+    "descriptionPlaceholder": "Nima bilan shug'ullanasiz, nimasi bilan ajralib turasiz?",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda...",
+    "cancel": "Bekor qilish",
+    "saveError": "Saqlashda xatolik yuz berdi",
+    "copy": "Nusxalash",
+    "copied": "Nusxalandi ✓",
+    "trend": "Trend",
+    "title": "SMM kontent generatsiya",
+    "edit": "Tahrirlash",
+    "platform": "Platforma",
+    "platformLabels": {
+      "instagram": "Instagram",
+      "telegram": "Telegram",
+      "both": "Ikkalasi"
+    },
+    "contentType": "Kontent turi",
+    "contentTypeLabels": {
+      "single": "Bitta post",
+      "weekly": "Haftalik kontent-plan (7 post)",
+      "launch": "Zapusk rejasi"
+    },
+    "language": "Til",
+    "notes": "Qo'shimcha izoh (ixtiyoriy)",
+    "notesPlaceholder": "Masalan: yangi menyu chiqdi, hafta oxiri aksiya bor...",
+    "considerTrends": "Dolzarb trendlarni hisobga ol",
+    "searchingTrends": "Trendlar qidirilmoqda...",
+    "generating": "AI yozmoqda...",
+    "generate": "Generatsiya qilish",
+    "generateError": "Generatsiyada xatolik yuz berdi",
+    "previousGenerations": "Oldingi generatsiyalar",
+    "close": "Yopish ▲",
+    "view": "Ko'rish ▼"
   }
 }

@@ -254,5 +254,53 @@
     "saving": "Сақталуда...",
     "cancel": "Бас тарту",
     "genericError": "Қате орын алды"
+  },
+  "Smm": {
+    "loading": "Жүктелуде...",
+    "profileTitle": "Бизнесіңіз туралы айтыңыз",
+    "profileSubtitle": "Бұл ақпарат бір рет сұралады — кейін SMM контенті осыған сай жазылады.",
+    "businessName": "Бизнес атауы",
+    "businessNamePlaceholder": "Мысалы: Sunrise Cafe",
+    "ownerName": "Атыңыз",
+    "ownerNamePlaceholder": "Мысалы: Азиз",
+    "ownerNameHint": "Email қолтаңбасында \"Атыңыз, Бизнес атауы\" түрінде қолданылады.",
+    "industry": "Сала",
+    "select": "— Таңдаңыз —",
+    "city": "Қала",
+    "cityPlaceholder": "Мысалы: Ташкент",
+    "description": "Қысқа сипаттама",
+    "descriptionPlaceholder": "Немен айналысасыз, немен ерекшеленесіз?",
+    "save": "Сақтау",
+    "saving": "Сақталуда...",
+    "cancel": "Бас тарту",
+    "saveError": "Сақтауда қате орын алды",
+    "copy": "Көшіру",
+    "copied": "Көшірілді ✓",
+    "trend": "Тренд",
+    "title": "SMM контент генерациясы",
+    "edit": "Өңдеу",
+    "platform": "Платформа",
+    "platformLabels": {
+      "instagram": "Instagram",
+      "telegram": "Telegram",
+      "both": "Екеуі де"
+    },
+    "contentType": "Контент түрі",
+    "contentTypeLabels": {
+      "single": "Бір пост",
+      "weekly": "Апталық контент-жоспар (7 пост)",
+      "launch": "Іске қосу жоспары"
+    },
+    "language": "Тіл",
+    "notes": "Қосымша ескертпе (міндетті емес)",
+    "notesPlaceholder": "Мысалы: жаңа мәзір шықты, демалыс күндері акция бар...",
+    "considerTrends": "Өзекті трендтерді ескеру",
+    "searchingTrends": "Трендтер ізделуде...",
+    "generating": "AI жазуда...",
+    "generate": "Генерациялау",
+    "generateError": "Генерацияда қате орын алды",
+    "previousGenerations": "Алдыңғы генерациялар",
+    "close": "Жию ▲",
+    "view": "Көру ▼"
   }
 }
