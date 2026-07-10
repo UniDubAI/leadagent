@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import type { OsmSearchResult } from '@/types'
 
 // Label'lar leads/page.tsx dagi INDUSTRIES ro'yxati bilan bir xil bo'lishi
-// kerak — shunda qidiruvdan qo'shilgan lid Lidlar sahifasidagi soha filtriga tushadi.
+// kerak — shunda qidiruvdan qo'shilgan lid Lidlar sahifasidagi soha filtriga
+// tushadi (DB'da erkin matn sifatida saqlanadi) — shuning uchun tarjima qilinmaydi.
 const SEARCH_INDUSTRIES = [
   { value: 'restoran', label: 'Restoran' },
   { value: 'gozallik', label: "Go'zallik saloni" },
@@ -19,6 +21,7 @@ type RowStatus = 'idle' | 'adding' | 'added' | 'duplicate'
 type EnrichStatus = 'idle' | 'loading' | 'done' | 'error'
 
 export default function QidiruvPage() {
+  const t = useTranslations('Search')
   const [industry, setIndustry] = useState('restoran')
   const [city, setCity] = useState('Toshkent')
   const [limit, setLimit] = useState(20)
@@ -50,7 +53,7 @@ export default function QidiruvPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setError(data.error ?? 'Qidiruvda xatolik yuz berdi')
+        setError(data.error ?? t('searchError'))
         return
       }
       setResults(data.results)
@@ -130,7 +133,7 @@ export default function QidiruvPage() {
 
     if (!res.ok) {
       setEnrichStatus((prev) => ({ ...prev, [i]: 'error' }))
-      setEnrichError((prev) => ({ ...prev, [i]: data.error ?? 'Boyitishda xatolik yuz berdi' }))
+      setEnrichError((prev) => ({ ...prev, [i]: data.error ?? t('enrichError') }))
       return
     }
 
@@ -151,12 +154,12 @@ export default function QidiruvPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-ink mb-6">Lid qidirish</h1>
+      <h1 className="text-2xl font-bold text-ink mb-6">{t('title')}</h1>
 
       <form onSubmit={handleSearch} className="bg-white rounded-xl shadow-sm border border-line p-6 space-y-4 mb-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Soha</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('industry')}</label>
             <select
               value={industry}
               onChange={(e) => setIndustry(e.target.value)}
@@ -169,7 +172,7 @@ export default function QidiruvPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Shahar</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('city')}</label>
             <input
               required
               value={city}
@@ -179,7 +182,7 @@ export default function QidiruvPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Natija soni</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('resultCount')}</label>
             <input
               type="number"
               min={1}
@@ -198,40 +201,40 @@ export default function QidiruvPage() {
           disabled={searching}
           className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
         >
-          {searching ? 'Qidirilmoqda...' : 'Qidirish'}
+          {searching ? t('searching') : t('search')}
         </button>
       </form>
 
       {results && (
         <div className="bg-white rounded-xl shadow-sm border border-line overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-            <span className="text-xs text-ink-muted">{results.length} ta natija</span>
+            <span className="text-xs text-ink-muted">{t('resultsCount', { count: results.length })}</span>
             {results.length > 0 && (
               <button
                 onClick={handleAddAll}
                 disabled={addingAll}
                 className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border-2 border-primary-500 px-3 py-1.5 rounded-lg text-xs font-medium transition disabled:opacity-50"
               >
-                {addingAll ? "Qo'shilmoqda..." : "Hammasini qo'shish"}
+                {addingAll ? t('addingAll') : t('addAll')}
               </button>
             )}
           </div>
 
           {results.length === 0 ? (
-            <div className="text-center py-12 text-ink-muted text-sm">Hech narsa topilmadi</div>
+            <div className="text-center py-12 text-ink-muted text-sm">{t('noResults')}</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[1200px]">
                 <thead className="bg-gray-50 border-b border-gray-200">
                   <tr>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Nom</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Telefon</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('name')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('phone')}</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Email</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Instagram</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted">Telegram</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Sayt</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Manzil</th>
-                    <th className="text-left px-4 py-3 font-medium text-ink-muted">Ish vaqti</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('website')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('address')}</th>
+                    <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('hours')}</th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
                     <th className="text-left px-4 py-3 font-medium text-ink-muted"></th>
@@ -269,7 +272,7 @@ export default function QidiruvPage() {
                             rel="noopener noreferrer"
                             className="text-xs text-primary-500 hover:underline"
                           >
-                            Tekshirish
+                            {t('check')}
                           </a>
                         </td>
                         <td className="px-4 py-3">
@@ -277,9 +280,9 @@ export default function QidiruvPage() {
                             onClick={() => enrichRow(i)}
                             disabled={eStatus === 'loading'}
                             className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border border-primary-500 px-3 py-1 rounded-lg text-xs font-medium transition disabled:opacity-50"
-                            title="Web qidiruv orqali telefon/email/Instagram/Telegram topish"
+                            title={t('enrichTitle')}
                           >
-                            {eStatus === 'loading' ? '...' : eStatus === 'done' ? "Boyitildi ✓" : 'Boyitish'}
+                            {eStatus === 'loading' ? '...' : eStatus === 'done' ? t('enriched') : t('enrich')}
                           </button>
                           {eStatus === 'error' && (
                             <p className="text-xs text-red-600 mt-1 max-w-[160px]">{enrichError[i]}</p>
@@ -292,11 +295,11 @@ export default function QidiruvPage() {
                                 href={`/leads/${rowLeadId[i]}`}
                                 className="text-xs text-primary-500 hover:underline"
                               >
-                                {status === 'added' ? "Qo'shildi →" : "Qo'shilgan →"}
+                                {status === 'added' ? t('addedArrow') : t('duplicateArrow')}
                               </Link>
                             ) : (
                               <span className="text-xs text-ink-muted">
-                                {status === 'added' ? "Qo'shildi" : "Qo'shilgan"}
+                                {status === 'added' ? t('added') : t('duplicate')}
                               </span>
                             )
                           ) : (
@@ -305,7 +308,7 @@ export default function QidiruvPage() {
                               disabled={status === 'adding'}
                               className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border border-primary-500 px-3 py-1 rounded-lg text-xs font-medium transition disabled:opacity-50"
                             >
-                              {status === 'adding' ? '...' : "Bazaga qo'shish"}
+                              {status === 'adding' ? '...' : t('addToDb')}
                             </button>
                           )}
                         </td>
