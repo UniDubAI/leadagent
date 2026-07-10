@@ -1,15 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import type {
   BusinessFinance,
   ConnectedAccount,
   InstagramAccountData,
   TelegramAccountData,
 } from '@/types'
+import { localeToBCP47 } from '@/i18n/config'
 
-function fmt(n: number) {
-  return n.toLocaleString('uz-UZ')
+function fmt(n: number, locale: string) {
+  return n.toLocaleString(localeToBCP47[locale as keyof typeof localeToBCP47])
 }
 
 function TelegramCard({
@@ -19,6 +21,8 @@ function TelegramCard({
   account: ConnectedAccount | null
   onSaved: (account: ConnectedAccount) => void
 }) {
+  const t = useTranslations('Accounts')
+  const locale = useLocale()
   const [username, setUsername] = useState('')
   const [editing, setEditing] = useState(!account)
   const [connecting, setConnecting] = useState(false)
@@ -41,7 +45,7 @@ function TelegramCard({
     setConnecting(false)
 
     if (!res.ok) {
-      setError(body.error ?? 'Ulanishda xatolik yuz berdi')
+      setError(body.error ?? t('telegramConnectError'))
       return
     }
 
@@ -65,7 +69,7 @@ function TelegramCard({
     setConnecting(false)
 
     if (!res.ok) {
-      setError(body.error ?? 'Yangilashda xatolik yuz berdi')
+      setError(body.error ?? t('telegramRefreshError'))
       return
     }
 
@@ -75,19 +79,17 @@ function TelegramCard({
   return (
     <div className="bg-white rounded-xl shadow-sm border border-line p-6">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="font-semibold text-ink">💬 Telegram kanal</h2>
+        <h2 className="font-semibold text-ink">💬 {t('telegramTitle')}</h2>
         {account && !editing && (
           <button
             onClick={() => setEditing(true)}
             className="text-xs text-primary-500 hover:text-primary-600 hover:underline"
           >
-            Boshqa kanal ulash
+            {t('connectAnother')}
           </button>
         )}
       </div>
-      <p className="text-sm text-ink-muted mb-4">
-        @leadagent_notify_bot orqali kanalingizning ochiq statistikasi olinadi.
-      </p>
+      <p className="text-sm text-ink-muted mb-4">{t('telegramSubtitle')}</p>
 
       {account && !editing ? (
         <div>
@@ -98,23 +100,23 @@ function TelegramCard({
             <p className="text-sm text-ink-muted mb-1">{data.description}</p>
           )}
           <p className="text-sm text-ink-muted mb-1">
-            <span className="font-medium">Obunachilar:</span> {fmt(data?.members_count ?? 0)}
+            <span className="font-medium">{t('subscribers')}:</span> {fmt(data?.members_count ?? 0, locale)}
           </p>
           <p className="text-xs text-ink-muted mb-3">
-            Oxirgi yangilanish: {new Date(account.updated_at).toLocaleString('uz-UZ')}
+            {t('lastUpdated')}: {new Date(account.updated_at).toLocaleString(localeToBCP47[locale as keyof typeof localeToBCP47])}
           </p>
           <button
             onClick={refresh}
             disabled={connecting}
             className="text-sm px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition disabled:opacity-50"
           >
-            {connecting ? 'Yangilanmoqda...' : 'Statistikani yangilash'}
+            {connecting ? t('refreshing') : t('refreshStats')}
           </button>
         </div>
       ) : (
         <form onSubmit={connect} className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Kanal username</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('channelUsername')}</label>
             <input
               required
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -122,9 +124,7 @@ function TelegramCard({
               onChange={(e) => setUsername(e.target.value)}
               placeholder="@kanal_nomi"
             />
-            <p className="text-xs text-ink-muted mt-1">
-              Botni kanalingizga administrator sifatida qo&apos;shing: @leadagent_notify_bot
-            </p>
+            <p className="text-xs text-ink-muted mt-1">{t('botHint')}</p>
           </div>
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <div className="flex gap-2">
@@ -133,7 +133,7 @@ function TelegramCard({
               disabled={connecting}
               className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
             >
-              {connecting ? 'Ulanmoqda...' : 'Ulash'}
+              {connecting ? t('connecting') : t('connect')}
             </button>
             {account && (
               <button
@@ -141,7 +141,7 @@ function TelegramCard({
                 onClick={() => { setEditing(false); setError('') }}
                 className="px-4 py-2 rounded-lg text-sm font-medium border border-gray-300 text-ink hover:bg-gray-50 transition"
               >
-                Bekor qilish
+                {t('cancel')}
               </button>
             )}
           </div>
@@ -158,6 +158,8 @@ function InstagramCard({
   account: ConnectedAccount | null
   onSaved: (account: ConnectedAccount) => void
 }) {
+  const t = useTranslations('Accounts')
+  const locale = useLocale()
   const data = account?.data as InstagramAccountData | undefined
 
   const [form, setForm] = useState({
@@ -191,7 +193,7 @@ function InstagramCard({
     setSaving(false)
 
     if (!res.ok) {
-      setError(body.error ?? 'Saqlashda xatolik yuz berdi')
+      setError(body.error ?? t('instagramSaveError'))
       return
     }
 
@@ -201,14 +203,12 @@ function InstagramCard({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-line p-6">
-      <h2 className="font-semibold text-ink mb-1">📸 Instagram</h2>
-      <p className="text-sm text-ink-muted mb-4">
-        Instagram API ishlatilmaydi — raqamlarni qo&apos;lda kiriting, istalgan payt yangilashingiz mumkin.
-      </p>
+      <h2 className="font-semibold text-ink mb-1">📸 {t('instagramTitle')}</h2>
+      <p className="text-sm text-ink-muted mb-4">{t('instagramSubtitle')}</p>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Username</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('username')}</label>
           <input
             required
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -219,7 +219,7 @@ function InstagramCard({
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Obunachilar</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('subscribers')}</label>
             <input
               type="number"
               min={0}
@@ -229,7 +229,7 @@ function InstagramCard({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Postlar (30 kun)</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('postsLast30d')}</label>
             <input
               type="number"
               min={0}
@@ -239,7 +239,7 @@ function InstagramCard({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">O&apos;rtacha like</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('avgLikes')}</label>
             <input
               type="number"
               min={0}
@@ -249,7 +249,7 @@ function InstagramCard({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">O&apos;rtacha ko&apos;rish</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('avgViews')}</label>
             <input
               type="number"
               min={0}
@@ -268,12 +268,12 @@ function InstagramCard({
             disabled={saving}
             className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+            {saving ? t('saving') : t('save')}
           </button>
-          {saved && <span className="text-sm text-primary-500">Saqlandi ✓</span>}
+          {saved && <span className="text-sm text-primary-500">{t('saved')}</span>}
           {account && (
             <span className="text-xs text-ink-muted ml-auto">
-              Oxirgi yangilanish: {new Date(account.updated_at).toLocaleString('uz-UZ')}
+              {t('lastUpdated')}: {new Date(account.updated_at).toLocaleString(localeToBCP47[locale as keyof typeof localeToBCP47])}
             </span>
           )}
         </div>
@@ -289,6 +289,8 @@ function FinanceCard({
   finance: BusinessFinance | null
   onSaved: (finance: BusinessFinance) => void
 }) {
+  const t = useTranslations('Accounts')
+  const locale = useLocale()
   const [form, setForm] = useState({
     monthly_revenue: finance?.monthly_revenue?.toString() ?? '',
     monthly_expense: finance?.monthly_expense?.toString() ?? '',
@@ -321,7 +323,7 @@ function FinanceCard({
     setSaving(false)
 
     if (!res.ok) {
-      setError(body.error ?? 'Saqlashda xatolik yuz berdi')
+      setError(body.error ?? t('financeSaveError'))
       return
     }
 
@@ -331,15 +333,13 @@ function FinanceCard({
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-line p-6">
-      <h2 className="font-semibold text-ink mb-1">💰 Moliya</h2>
-      <p className="text-sm text-ink-muted mb-4">
-        Oylik raqamlarni qo&apos;lda kiriting — tavsiyalar shu asosda ham beriladi.
-      </p>
+      <h2 className="font-semibold text-ink mb-1">💰 {t('financeTitle')}</h2>
+      <p className="text-sm text-ink-muted mb-4">{t('financeSubtitle')}</p>
 
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Oylik daromad (so&apos;m)</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('monthlyRevenue')}</label>
             <input
               type="number"
               min={0}
@@ -349,7 +349,7 @@ function FinanceCard({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Oylik xarajat (so&apos;m)</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('monthlyExpense')}</label>
             <input
               type="number"
               min={0}
@@ -359,7 +359,7 @@ function FinanceCard({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">O&apos;rtacha chek (so&apos;m)</label>
+            <label className="block text-sm font-medium text-ink mb-1">{t('avgReceipt')}</label>
             <input
               type="number"
               min={0}
@@ -372,9 +372,9 @@ function FinanceCard({
 
         {showProfit && (
           <p className="text-sm text-ink-muted">
-            Taxminiy oylik foyda:{' '}
+            {t('estimatedProfit')}:{' '}
             <span className={`font-medium ${profit >= 0 ? 'text-ink' : 'text-red-600'}`}>
-              {fmt(profit)} so&apos;m
+              {t('currencyAmount', { amount: fmt(profit, locale) })}
             </span>
           </p>
         )}
@@ -387,9 +387,9 @@ function FinanceCard({
             disabled={saving}
             className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+            {saving ? t('saving') : t('save')}
           </button>
-          {saved && <span className="text-sm text-primary-500">Saqlandi ✓</span>}
+          {saved && <span className="text-sm text-primary-500">{t('saved')}</span>}
         </div>
       </form>
     </div>
@@ -397,6 +397,7 @@ function FinanceCard({
 }
 
 export default function AkkauntlarPage() {
+  const t = useTranslations('Accounts')
   const [accounts, setAccounts] = useState<ConnectedAccount[] | undefined>(undefined)
   const [finance, setFinance] = useState<BusinessFinance | null | undefined>(undefined)
   const [loadError, setLoadError] = useState('')
@@ -405,7 +406,7 @@ export default function AkkauntlarPage() {
     fetch('/api/accounts').then(async (r) => {
       const body = await r.json()
       if (!r.ok) {
-        setLoadError(body.error ?? "Ma'lumotlarni yuklashda xatolik yuz berdi")
+        setLoadError(body.error ?? t('loadError'))
         setAccounts([])
         return
       }
@@ -414,12 +415,13 @@ export default function AkkauntlarPage() {
     fetch('/api/finance').then(async (r) => {
       const body = await r.json()
       if (!r.ok) {
-        setLoadError(body.error ?? "Ma'lumotlarni yuklashda xatolik yuz berdi")
+        setLoadError(body.error ?? t('loadError'))
         setFinance(null)
         return
       }
       setFinance(body)
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const upsertAccount = (account: ConnectedAccount) => {
@@ -430,7 +432,7 @@ export default function AkkauntlarPage() {
   }
 
   if (accounts === undefined || finance === undefined) {
-    return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-ink-muted">Yuklanmoqda...</div>
+    return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-ink-muted">{t('loading')}</div>
   }
 
   const telegramAccount = accounts.find((a) => a.platform === 'telegram') ?? null
@@ -439,15 +441,13 @@ export default function AkkauntlarPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-ink">Akkauntlar</h1>
-        <p className="text-sm text-ink-muted mt-1">
-          Ijtimoiy tarmoq va moliya ma&apos;lumotlarini ulang — bular &quot;Tavsiyalar&quot; bo&apos;limida to&apos;liq biznes audit uchun ishlatiladi.
-        </p>
+        <h1 className="text-2xl font-bold text-ink">{t('title')}</h1>
+        <p className="text-sm text-ink-muted mt-1">{t('subtitle')}</p>
       </div>
 
       {loadError && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          Ma&apos;lumotlarni yuklashda xatolik: {loadError}
+          {t('loadError')}: {loadError}
         </div>
       )}
 
