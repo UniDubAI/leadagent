@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
   }
 
   const from = process.env.EMAIL_FROM || 'onboarding@resend.dev'
+  const replyTo = process.env.REPLY_TO_EMAIL
   console.log('[send-email] sending from:', from)
 
   const { error: sendError } = await resend.emails.send({
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
     to,
     subject,
     text: body,
+    ...(replyTo ? { replyTo } : {}),
   })
 
   if (sendError) {
