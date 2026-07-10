@@ -28,6 +28,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }
 
+    const { data: profile } = await db
+      .from('business_profiles')
+      .select('business_name')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    // Email imzosi uchun ishlatiladi — modelga aniq ism berilmasa, u
+    // "[Ismingiz]" kabi to'ldirilmagan placeholder yozib qo'yardi.
+    const signerName = profile?.business_name || user.email?.split('@')[0] || 'Bizning jamoa'
+
     const langMap: Record<string, string> = {
       "O'zbek": 'Uzbek',
       'Rus': 'Russian',
@@ -46,6 +56,11 @@ export async function POST(req: NextRequest) {
     }
     const languageInstruction = langInstructionMap[language]
 
+    // Modelning "[Ismingiz]", "[Your Name]", "[Ваше имя]" kabi to'ldirilmagan
+    // placeholder qoldirishining oldini olish uchun har bir kanal promptida takrorlanadi.
+    const noPlaceholderRule =
+      '- Matnda HECH QACHON kvadrat qavsli placeholder ("[Ismingiz]", "[Your Name]", "[Ваше имя]" va h.k.) qoldirmang — barcha joylar to\'liq va tayyor matn bo\'lsin.'
+
     const CHANNEL_LABELS: Record<string, string> = {
       email: 'email',
       linkedin: 'LinkedIn xabar',
@@ -63,6 +78,8 @@ Qoidalar:
 - Birinchi gap diqqatni tortsin — mijozning sohasiga yoki kompaniyasiga aloqador bo'lsin.
 - 3-4 qisqa paragraf: muammo/vaziyat → qisqa taklif → CTA.
 - CTA yumshoq bo'lsin: "15 daqiqalik qo'ng'iroq", "fikringizni bilsam" kabi.
+- Email oxirida imzo qo'ying va imzo sifatida ANIQ "${signerName}" nomini yozing (masalan "Hurmat bilan, ${signerName}" yoki tilga mos analogi).
+${noPlaceholderRule}
 - Har doim JSON formatida qaytaring: {"subject": "...", "body": "..."}
 - ${languageInstruction}`,
       linkedin: `Siz B2B savdo mutaxassisisiz. Vazifangiz: LinkedIn uchun ikkita alohida matn yozish — qisqa connection so'rovi va connection qabul qilingandan keyin yuboriladigan to'liqroq DM xabari.
@@ -74,6 +91,7 @@ Qoidalar:
 - "dm": to'liqroq DM/InMail xabari, maksimal 1000 belgi. Muammo/vaziyat → qisqa taklif → yumshoq CTA.
 - Ikkalasi ham oddiy, do'stona ohangda — reklama emas, tanishish xabari kabi.
 - Mijozning sohasiga mos bitta aniq sabab ko'rsating.
+${noPlaceholderRule}
 - Har doim JSON formatida qaytaring: {"connection_request": "...", "dm": "..."}
 - ${languageInstruction}`,
       telegram: `Siz B2B savdo mutaxassisisiz. Vazifangiz: Telegram orqali qo'lda yuboriladigan qisqa, do'stona xabar yozish — bu rasmiy email emas, Telegram muloqot uslubida yozilishi kerak.
@@ -85,6 +103,7 @@ Qoidalar:
 - Reklama tilida YOZMANG.
 - Mijozning ismi/sohasiga mos bitta aniq sabab ko'rsating.
 - Yumshoq CTA bilan tugating (masalan: "qisqa gaplashib olsak", "fikringizni bilsam bo'ladimi").
+${noPlaceholderRule}
 - Har doim JSON formatida qaytaring: {"message": "..."}
 - ${languageInstruction}`,
       instagram: `Siz B2B savdo mutaxassisisiz. Vazifangiz: Instagram DM uchun juda qisqa, yengil ohangdagi xabar yozish.
@@ -96,6 +115,7 @@ Qoidalar:
 - Reklama tilida YOZMANG.
 - Mijozning sohasiga mos bitta aniq sabab yoki qisqa komplement bilan boshlang.
 - Yumshoq savol/taklif bilan tugating.
+${noPlaceholderRule}
 - Har doim JSON formatida qaytaring: {"message": "..."}
 - ${languageInstruction}`,
     }

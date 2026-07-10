@@ -33,6 +33,14 @@ export async function GET(req: NextRequest) {
   const from = process.env.EMAIL_FROM || 'onboarding@resend.dev'
   const replyTo = process.env.REPLY_TO_EMAIL
 
+  // Har bir foydalanuvchining biznes nomi email imzosi sifatida ishlatiladi
+  // (modelga aniq ism berilmasa, u "[Ismingiz]" kabi placeholder yozib qo'yardi).
+  const userIds = [...new Set((leads ?? []).map((l) => l.user_id))]
+  const { data: profiles } = userIds.length
+    ? await db.from('business_profiles').select('user_id, business_name').in('user_id', userIds)
+    : { data: [] }
+  const signerNameByUser = new Map((profiles ?? []).map((p) => [p.user_id, p.business_name]))
+
   let emailed = 0
   let nudged = 0
 
@@ -42,7 +50,8 @@ export async function GET(req: NextRequest) {
     // Telegram orqali qo'lda follow-up qilish eslatmasi yuboriladi.
     if (lead.email) {
       try {
-        const { subject, body } = await generateFollowupEmail(lead)
+        const signerName = signerNameByUser.get(lead.user_id) || 'Bizning jamoa'
+        const { subject, body } = await generateFollowupEmail(lead, signerName)
 
         const { error: sendError } = await resend.emails.send({
           from,

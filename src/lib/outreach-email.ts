@@ -22,6 +22,7 @@ type FollowupLead = Pick<Lead, 'name' | 'company' | 'industry' | 'message_langua
 // bu allaqachon bir marta yozilgan lidga "eslatma" ohangida bo'ladi.
 export async function generateFollowupEmail(
   lead: FollowupLead,
+  signerName = 'Bizning jamoa',
 ): Promise<{ subject: string; body: string }> {
   const language = LANG_MAP[lead.message_language ?? ''] ?? 'Uzbek'
   const languageInstruction = LANG_INSTRUCTION_MAP[language]
@@ -35,6 +36,8 @@ Qoidalar:
 - Reklama tilida YOZMANG. Oddiy, insoniy ohangda yozing.
 - Juda qisqa: 2-3 paragraf.
 - Yumshoq CTA bilan tugating: "agar qiziqish bo'lmasa ham, xabar bering" kabi.
+- Email oxirida imzo qo'ying va imzo sifatida ANIQ "${signerName}" nomini yozing (masalan "Hurmat bilan, ${signerName}" yoki tilga mos analogi).
+- Matnda HECH QACHON kvadrat qavsli placeholder ("[Ismingiz]", "[Your Name]", "[Ваше имя]" va h.k.) qoldirmang — barcha joylar to'liq va tayyor matn bo'lsin.
 - Har doim JSON formatida qaytaring: {"subject": "...", "body": "..."}
 - ${languageInstruction}`
 

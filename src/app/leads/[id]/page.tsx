@@ -97,6 +97,10 @@ export default function LeadDetailPage() {
 
   const sendEmail = async () => {
     if (!activeMessage || !lead) return
+    if (/\[[^[\]\n]{1,50}\]/.test(draftSubject) || /\[[^[\]\n]{1,50}\]/.test(draftBody)) {
+      alert("Matnda to'ldirilmagan joy bor — tekshiring")
+      return
+    }
     if (!lead.email) {
       alert('Email kiriting')
       setEditing(true)
