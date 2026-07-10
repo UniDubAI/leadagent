@@ -2,22 +2,22 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
 import { Lead, LeadStatus } from '@/types'
 import { StatusBadge } from '@/components/StatusBadge'
+import { localeToBCP47 } from '@/i18n/config'
 
-const STATUSES = [
-  { value: '', label: 'Barchasi' },
-  { value: 'new', label: 'Yangi' },
-  { value: 'contacted', label: 'Murojaat' },
-  { value: 'replied', label: 'Javob berdi' },
-  { value: 'qualified', label: 'Qualified' },
-  { value: 'closed_won', label: 'Yutildi' },
-  { value: 'closed_lost', label: 'Yutqazildi' },
-]
+const STATUS_VALUES: LeadStatus[] = ['new', 'contacted', 'replied', 'qualified', 'closed_won', 'closed_lost']
 
+// Lead.industry DB'da erkin matn (masalan "Restoran") sifatida saqlanadi —
+// filtr qiymatlari shu saqlangan matn bilan aynan mos kelishi kerak,
+// shuning uchun bu ro'yxat tarjima qilinmaydi.
 const INDUSTRIES = ['Restoran', "Go'zallik saloni", "Do'kon", 'Fitnes', "Ta'lim", 'Boshqa']
 
 export default function LeadsPage() {
+  const t = useTranslations('Leads')
+  const tStatus = useTranslations('StatusBadge')
+  const locale = useLocale()
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -44,12 +44,12 @@ export default function LeadsPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-ink">Lidlar</h1>
+        <h1 className="text-2xl font-bold text-ink">{t('title')}</h1>
         <Link
           href="/leads/new"
           className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border-2 border-primary-500 px-4 py-2 rounded-lg text-sm font-medium transition"
         >
-          + Yangi lid
+          {t('newLead')}
         </Link>
       </div>
 
@@ -57,7 +57,7 @@ export default function LeadsPage() {
       <div className="flex flex-wrap gap-3 mb-6">
         <input
           type="text"
-          placeholder="Ism yoki kompaniya bo'yicha qidirish..."
+          placeholder={t('searchPlaceholder')}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="flex-1 min-w-[220px] border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -68,8 +68,9 @@ export default function LeadsPage() {
           onChange={(e) => setStatusFilter(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
-          {STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
+          <option value="">{t('allStatuses')}</option>
+          {STATUS_VALUES.map((s) => (
+            <option key={s} value={s}>{tStatus(s)}</option>
           ))}
         </select>
 
@@ -78,7 +79,7 @@ export default function LeadsPage() {
           onChange={(e) => setIndustryFilter(e.target.value)}
           className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
-          <option value="">Barcha sohalar</option>
+          <option value="">{t('allIndustries')}</option>
           {INDUSTRIES.map((ind) => (
             <option key={ind} value={ind}>{ind}</option>
           ))}
@@ -89,39 +90,41 @@ export default function LeadsPage() {
             onClick={() => { setSearch(''); setStatusFilter(''); setIndustryFilter('') }}
             className="px-3 py-2 text-sm text-ink-muted hover:text-ink border border-gray-300 rounded-lg hover:bg-gray-50"
           >
-            Tozalash
+            {t('clear')}
           </button>
         )}
       </div>
 
       {loading ? (
-        <div className="text-center py-16 text-ink-muted">Yuklanmoqda...</div>
+        <div className="text-center py-16 text-ink-muted">{t('loading')}</div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 text-ink-muted">
-          <p className="text-lg mb-2">{leads.length === 0 ? 'Lidlar topilmadi' : 'Filtr bo\'yicha natija yo\'q'}</p>
+          <p className="text-lg mb-2">{leads.length === 0 ? t('noLeadsFound') : t('noResultsForFilter')}</p>
           {leads.length === 0 && (
             <Link href="/leads/new" className="text-primary-500 hover:text-primary-600 hover:underline text-sm">
-              Birinchi lidni qo'shing
+              {t('addFirstLead')}
             </Link>
           )}
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm border border-line overflow-hidden overflow-x-auto">
           <div className="px-4 py-2 border-b border-gray-100 text-xs text-ink-muted">
-            {filtered.length} ta lid{filtered.length !== leads.length && ` (jami ${leads.length} dan)`}
+            {filtered.length === leads.length
+              ? t('countFiltered', { count: filtered.length })
+              : t('countOfTotal', { count: filtered.length, total: leads.length })}
           </div>
           <table className="w-full text-sm min-w-[900px]">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Ism</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Kompaniya</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Soha</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Telefon</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Email</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Manba</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Til</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Status</th>
-                <th className="text-left px-4 py-3 font-medium text-ink-muted">Sana</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('name')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('company')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('industry')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('phone')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('email')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('source')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('language')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('status')}</th>
+                <th className="text-left px-4 py-3 font-medium text-ink-muted">{t('date')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -142,7 +145,7 @@ export default function LeadsPage() {
                     <StatusBadge status={lead.status as LeadStatus} />
                   </td>
                   <td className="px-4 py-3 text-ink-muted">
-                    {new Date(lead.created_at).toLocaleDateString('uz-UZ')}
+                    {new Date(lead.created_at).toLocaleDateString(localeToBCP47[locale as keyof typeof localeToBCP47])}
                   </td>
                 </tr>
               ))}

@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
 import { Lead, LeadStatus } from '@/types'
 import { StatusBadge } from '@/components/StatusBadge'
+import { localeToBCP47 } from '@/i18n/config'
 
 const STATUS_ORDER: LeadStatus[] = ['new', 'contacted', 'replied', 'qualified', 'closed_won', 'closed_lost']
-const WEEKDAYS_UZ = ['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Juma', 'Shan']
 const STALE_STATUSES: LeadStatus[] = ['new', 'contacted']
 const STALE_DAYS = 3
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -17,6 +18,9 @@ function dateKey(d: Date) {
 }
 
 export default function DashboardPage() {
+  const t = useTranslations('Home')
+  const locale = useLocale()
+  const weekdays = t.raw('weekdays') as string[]
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -40,9 +44,9 @@ export default function DashboardPage() {
       d.setDate(d.getDate() - (6 - i))
       const key = dateKey(d)
       const count = leads.filter((l) => dateKey(new Date(l.created_at)) === key).length
-      return { key, label: WEEKDAYS_UZ[d.getDay()], date: d.toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit' }), count }
+      return { key, label: weekdays[d.getDay()], date: d.toLocaleDateString(localeToBCP47[locale as keyof typeof localeToBCP47], { day: '2-digit', month: '2-digit' }), count }
     })
-  }, [leads])
+  }, [leads, weekdays, locale])
 
   const maxDayCount = Math.max(1, ...last7Days.map((d) => d.count))
 
@@ -60,28 +64,28 @@ export default function DashboardPage() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-2xl font-bold text-ink">LeadAgent</h1>
-          <p className="text-ink-muted text-sm">Mijoz topish va outreach boshqaruvi</p>
+          <p className="text-ink-muted text-sm">{t('tagline')}</p>
         </div>
         <Link
           href="/leads/new"
           className="bg-white hover:bg-primary-500 text-primary-500 hover:text-white border-2 border-primary-500 px-4 py-2 rounded-lg text-sm font-medium transition"
         >
-          + Yangi lid
+          {t('newLead')}
         </Link>
       </div>
 
       {/* Overview stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <div className="bg-white rounded-xl border border-line shadow-sm p-4">
-          <p className="text-sm text-ink-muted">Jami lidlar</p>
+          <p className="text-sm text-ink-muted">{t('totalLeads')}</p>
           <p className="text-3xl font-bold text-primary-500 mt-1">{loading ? '—' : leads.length}</p>
         </div>
         <div className="bg-white rounded-xl border border-line shadow-sm p-4">
-          <p className="text-sm text-ink-muted">Yuborilgan emaillar</p>
+          <p className="text-sm text-ink-muted">{t('emailsSent')}</p>
           <p className="text-3xl font-bold text-primary-500 mt-1">{loading ? '—' : emailsSent}</p>
         </div>
         <div className="bg-white rounded-xl border border-line shadow-sm p-4">
-          <p className="text-sm text-ink-muted">Konversiya</p>
+          <p className="text-sm text-ink-muted">{t('conversion')}</p>
           <p className="text-3xl font-bold text-primary-500 mt-1">{loading ? '—' : `${conversionRate}%`}</p>
         </div>
       </div>
@@ -104,9 +108,9 @@ export default function DashboardPage() {
 
       {/* Last 7 days */}
       <div className="bg-white rounded-xl shadow-sm border border-line p-5 mb-8">
-        <h2 className="font-semibold text-ink mb-4">Oxirgi 7 kun</h2>
+        <h2 className="font-semibold text-ink mb-4">{t('last7Days')}</h2>
         {loading ? (
-          <div className="text-center py-6 text-ink-muted">Yuklanmoqda...</div>
+          <div className="text-center py-6 text-ink-muted">{t('loading')}</div>
         ) : (
           <div className="flex items-end justify-between gap-2">
             {last7Days.map((day) => {
@@ -121,7 +125,7 @@ export default function DashboardPage() {
                     <div
                       className={`w-full rounded-t-md ${day.count === 0 ? 'bg-gray-200' : 'bg-primary-500'}`}
                       style={{ height: barHeight }}
-                      title={`${day.count} ta lid`}
+                      title={t('leadsCount', { count: day.count })}
                     />
                   </div>
                   <p className="text-[11px] text-ink-muted">{day.label} {day.date}</p>
@@ -135,13 +139,13 @@ export default function DashboardPage() {
       {/* Needs attention */}
       <div className="bg-white rounded-xl shadow-sm border border-line mb-8">
         <div className="px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-ink">E'tibor kerak</h2>
-          <p className="text-xs text-ink-muted mt-0.5">3+ kun aloqasiz qolgan lidlar</p>
+          <h2 className="font-semibold text-ink">{t('needsAttention')}</h2>
+          <p className="text-xs text-ink-muted mt-0.5">{t('needsAttentionSubtitle')}</p>
         </div>
         {loading ? (
-          <div className="text-center py-10 text-ink-muted">Yuklanmoqda...</div>
+          <div className="text-center py-10 text-ink-muted">{t('loading')}</div>
         ) : staleLeads.length === 0 ? (
-          <div className="text-center py-10 text-ink-muted">Hammasi nazoratda — e'tibor talab qiladigan lid yo'q.</div>
+          <div className="text-center py-10 text-ink-muted">{t('allClear')}</div>
         ) : (
           <div className="divide-y divide-gray-100">
             {staleLeads.map(({ lead, days }) => (
@@ -155,7 +159,7 @@ export default function DashboardPage() {
                   <p className="text-xs text-ink-muted">{lead.company ?? '—'}</p>
                 </div>
                 <span className="text-xs font-medium text-primary-500 bg-white border border-primary-500 px-2.5 py-1 rounded-full">
-                  {days} kun
+                  {t('daysAgo', { days })}
                 </span>
               </Link>
             ))}
@@ -166,16 +170,16 @@ export default function DashboardPage() {
       {/* Recent leads */}
       <div className="bg-white rounded-xl shadow-sm border border-line">
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-ink">So'nggi lidlar</h2>
-          <Link href="/leads" className="text-sm text-primary-500 hover:text-primary-600 hover:underline">Barchasi →</Link>
+          <h2 className="font-semibold text-ink">{t('recentLeads')}</h2>
+          <Link href="/leads" className="text-sm text-primary-500 hover:text-primary-600 hover:underline">{t('viewAll')}</Link>
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-ink-muted">Yuklanmoqda...</div>
+          <div className="text-center py-10 text-ink-muted">{t('loading')}</div>
         ) : recent.length === 0 ? (
           <div className="text-center py-10 text-ink-muted">
-            Hali lid yo'q.{' '}
-            <Link href="/leads/new" className="text-primary-500 hover:text-primary-600 hover:underline">Qo'shing</Link>
+            {t('noLeadsYet')}{' '}
+            <Link href="/leads/new" className="text-primary-500 hover:text-primary-600 hover:underline">{t('addOne')}</Link>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
