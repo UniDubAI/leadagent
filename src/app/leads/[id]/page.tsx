@@ -3,22 +3,27 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { useLocale, useTranslations } from 'next-intl'
 import { LeadWithMessages, LeadStatus, OutreachChannel, OutreachMessage } from '@/types'
 import { StatusBadge } from '@/components/StatusBadge'
+import { localeToBCP47 } from '@/i18n/config'
 
 const STATUSES: LeadStatus[] = ['new', 'contacted', 'replied', 'qualified', 'closed_won', 'closed_lost']
+// message_language DB'da erkin matn sifatida saqlanadi va outreach
+// generatsiya promptida aynan shu qiymat bilan solishtiriladi — tarjima qilinmaydi.
 const LANGUAGE_OPTIONS = ["O'zbek", 'Rus', 'Ingliz']
 
-function daysAgo(dateStr: string) {
+function daysAgo(dateStr: string, t: ReturnType<typeof useTranslations>) {
   const diffMs = Date.now() - new Date(dateStr).getTime()
   const days = Math.floor(diffMs / (24 * 60 * 60 * 1000))
-  if (days <= 0) return 'bugun'
-  if (days === 1) return '1 kun oldin'
-  return `${days} kun oldin`
+  if (days <= 0) return t('today')
+  return t('daysAgoN', { days })
 }
 
 export default function LeadDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const t = useTranslations('LeadDetail')
+  const locale = useLocale()
   const router = useRouter()
   const searchParams = useSearchParams()
   const [lead, setLead] = useState<LeadWithMessages | null>(null)
@@ -101,15 +106,15 @@ export default function LeadDetailPage() {
   const sendEmail = async () => {
     if (!activeMessage || !lead) return
     if (/\[[^[\]\n]{1,50}\]/.test(draftSubject) || /\[[^[\]\n]{1,50}\]/.test(draftBody)) {
-      alert("Matnda to'ldirilmagan joy bor — tekshiring")
+      alert(t('placeholderMissing'))
       return
     }
     if (!lead.email) {
-      alert('Email kiriting')
+      alert(t('emailRequired'))
       setEditing(true)
       return
     }
-    if (!confirm('Yuborilsinmi?')) return
+    if (!confirm(t('confirmSend'))) return
 
     setSending(true)
     setSendError('')
@@ -130,7 +135,7 @@ export default function LeadDetailPage() {
 
     if (!res.ok) {
       const data = await res.json()
-      setSendError(data.error ?? 'Email yuborishda xatolik yuz berdi')
+      setSendError(data.error ?? t('sendEmailError'))
       return
     }
 
@@ -164,32 +169,32 @@ export default function LeadDetailPage() {
     setEnriching(false)
 
     if (!res.ok) {
-      setEnrichError(data.error ?? 'Boyitishda xatolik yuz berdi')
+      setEnrichError(data.error ?? t('enrichError'))
       return
     }
 
     const found: string[] = []
     if (data.updated?.email) found.push(`email: ${data.updated.email}`)
-    if (data.updated?.phone) found.push(`telefon: ${data.updated.phone}`)
+    if (data.updated?.phone) found.push(`${t('phone')}: ${data.updated.phone}`)
     if (data.found?.instagram) found.push(`Instagram: ${data.found.instagram}`)
     if (data.found?.telegram) found.push(`Telegram: ${data.found.telegram}`)
-    setEnrichResult(found.length > 0 ? `Topildi — ${found.join(', ')}` : 'Hech narsa topilmadi')
+    setEnrichResult(found.length > 0 ? t('enrichFound', { list: found.join(', ') }) : t('enrichNothingFound'))
     fetchLead()
   }
 
   const deleteLead = async () => {
-    if (!confirm(`"${lead?.name}" ni o'chirasizmi?`)) return
+    if (!confirm(t('deleteConfirm', { name: lead?.name ?? '' }))) return
     await fetch(`/api/leads/${id}`, { method: 'DELETE' })
     router.push('/leads')
   }
 
-  if (loading) return <div className="text-center py-16 text-ink-muted">Yuklanmoqda...</div>
-  if (!lead) return <div className="text-center py-16 text-ink-muted">Lid topilmadi</div>
+  if (loading) return <div className="text-center py-16 text-ink-muted">{t('loading')}</div>
+  if (!lead) return <div className="text-center py-16 text-ink-muted">{t('notFound')}</div>
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <Link href="/leads" className="text-sm text-ink-muted hover:text-ink">← Lidlar ro'yxati</Link>
+        <Link href="/leads" className="text-sm text-ink-muted hover:text-ink">{t('backToList')}</Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -207,7 +212,7 @@ export default function LeadDetailPage() {
             {editing ? (
               <div className="space-y-2 mb-3">
                 <div>
-                  <label className="block text-xs font-medium text-ink-muted mb-1">Email</label>
+                  <label className="block text-xs font-medium text-ink-muted mb-1">{t('email')}</label>
                   <input
                     type="email"
                     className="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -217,7 +222,7 @@ export default function LeadDetailPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-ink-muted mb-1">Telefon</label>
+                  <label className="block text-xs font-medium text-ink-muted mb-1">{t('phone')}</label>
                   <input
                     type="text"
                     className="w-full border border-gray-300 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -232,7 +237,7 @@ export default function LeadDetailPage() {
                     disabled={savingContact}
                     className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition disabled:opacity-50"
                   >
-                    {savingContact ? 'Saqlanmoqda...' : 'Saqlash'}
+                    {savingContact ? t('saving') : t('save')}
                   </button>
                   <button
                     onClick={() => {
@@ -242,43 +247,43 @@ export default function LeadDetailPage() {
                     }}
                     className="text-xs px-3 py-1.5 rounded-lg font-medium text-ink-muted hover:text-ink transition"
                   >
-                    Bekor qilish
+                    {t('cancel')}
                   </button>
                 </div>
               </div>
             ) : (
               <>
                 <p className="text-sm text-ink-muted mb-1">
-                  <span className="font-medium">Email:</span> {lead.email || '—'}
+                  <span className="font-medium">{t('email')}:</span> {lead.email || '—'}
                 </p>
                 {lead.email_sent_at && (
                   <p className="text-sm text-ink-muted mb-1">
-                    <span className="font-medium">Oxirgi email:</span>{' '}
-                    {new Date(lead.email_sent_at).toLocaleDateString('uz-UZ')}
+                    <span className="font-medium">{t('lastEmail')}:</span>{' '}
+                    {new Date(lead.email_sent_at).toLocaleDateString(localeToBCP47[locale as keyof typeof localeToBCP47])}
                   </p>
                 )}
                 {lead.last_contact_at && (
                   <p className="text-sm text-ink-muted mb-1">
-                    <span className="font-medium">Oxirgi aloqa:</span> {daysAgo(lead.last_contact_at)}
+                    <span className="font-medium">{t('lastContact')}:</span> {daysAgo(lead.last_contact_at, t)}
                   </p>
                 )}
                 <p className="text-sm text-ink-muted mb-1">
-                  <span className="font-medium">Telefon:</span> {lead.phone || '—'}
+                  <span className="font-medium">{t('phone')}:</span> {lead.phone || '—'}
                 </p>
                 <div className="flex items-center gap-3 mb-2">
                   <button
                     onClick={() => setEditing(true)}
                     className="text-xs text-primary-500 hover:text-primary-600 font-medium"
                   >
-                    ✎ Kontaktni tahrirlash
+                    ✎ {t('editContact')}
                   </button>
                   <button
                     onClick={enrichLead}
                     disabled={enriching}
                     className="text-xs text-primary-500 hover:text-primary-600 font-medium disabled:opacity-50"
-                    title="Web qidiruv orqali email/telefon/Instagram/Telegram topish"
+                    title={t('enrichTitle')}
                   >
-                    {enriching ? 'Qidirilmoqda...' : '🔎 Boyitish'}
+                    {enriching ? t('enriching') : `🔎 ${t('enrich')}`}
                   </button>
                 </div>
                 {enrichResult && <p className="text-xs text-ink-muted mb-2">{enrichResult}</p>}
@@ -289,23 +294,23 @@ export default function LeadDetailPage() {
               <p className="text-sm text-ink-muted mb-1">
                 <span className="font-medium">LinkedIn:</span>{' '}
                 <a href={lead.linkedin_url} target="_blank" rel="noreferrer" className="text-primary-500 hover:text-primary-600 hover:underline">
-                  Profil
+                  {t('profile')}
                 </a>
               </p>
             )}
             {lead.industry && (
               <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Soha:</span> {lead.industry}
+                <span className="font-medium">{t('industry')}:</span> {lead.industry}
               </p>
             )}
             {lead.source && (
               <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Manba:</span> {lead.source}
+                <span className="font-medium">{t('source')}:</span> {lead.source}
               </p>
             )}
             {lead.message_language && (
               <p className="text-sm text-ink-muted mb-1">
-                <span className="font-medium">Xabar tili:</span> {lead.message_language}
+                <span className="font-medium">{t('messageLanguage')}:</span> {lead.message_language}
               </p>
             )}
             {lead.notes && (
@@ -315,7 +320,7 @@ export default function LeadDetailPage() {
 
           {/* Status update */}
           <div className="bg-white rounded-xl shadow-sm border border-line p-5">
-            <p className="text-sm font-medium text-ink mb-3">Status o'zgartirish</p>
+            <p className="text-sm font-medium text-ink mb-3">{t('changeStatus')}</p>
             <div className="flex flex-col gap-2">
               {STATUSES.map((s) => (
                 <button
@@ -337,7 +342,7 @@ export default function LeadDetailPage() {
             onClick={deleteLead}
             className="w-full text-sm text-red-500 hover:text-red-700 py-2"
           >
-            Lidni o'chirish
+            {t('deleteLead')}
           </button>
         </div>
 
@@ -345,7 +350,7 @@ export default function LeadDetailPage() {
         <div className="md:col-span-2 space-y-4">
           {/* Generate section */}
           <div className="bg-white rounded-xl shadow-sm border border-line p-5">
-            <h2 className="font-semibold text-ink mb-4">AI Outreach Generatsiya</h2>
+            <h2 className="font-semibold text-ink mb-4">{t('outreachTitle')}</h2>
 
             <div className="flex gap-2 mb-4 flex-wrap">
               {(['email', 'linkedin', 'telegram', 'instagram'] as OutreachChannel[]).map((ch) => (
@@ -358,7 +363,7 @@ export default function LeadDetailPage() {
                       : 'bg-white text-ink-muted border-gray-300 hover:border-primary-500'
                   }`}
                 >
-                  {ch === 'email' ? '✉ Email' : ch === 'linkedin' ? '💼 LinkedIn' : ch === 'telegram' ? '💬 Telegram' : '📸 Instagram DM'}
+                  {t(`channels.${ch}`)}
                 </button>
               ))}
 
@@ -376,7 +381,7 @@ export default function LeadDetailPage() {
             <textarea
               rows={2}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Qo'shimcha kontekst (ixtiyoriy): mahsulot, pain point, muloqot sababi..."
+              placeholder={t('contextPlaceholder')}
               value={context}
               onChange={(e) => setContext(e.target.value)}
             />
@@ -386,9 +391,7 @@ export default function LeadDetailPage() {
               disabled={generating}
               className="w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg text-sm font-medium transition disabled:opacity-50"
             >
-              {generating
-                ? 'AI yozmoqda...'
-                : `${channel === 'email' ? 'Email' : channel === 'linkedin' ? 'LinkedIn xabar' : channel === 'telegram' ? 'Telegram xabar' : 'Instagram DM'} generatsiya qilish`}
+              {generating ? t('generating') : t('generateFor', { channel: t(`channelNames.${channel}`) })}
             </button>
           </div>
 
@@ -396,12 +399,12 @@ export default function LeadDetailPage() {
           {activeMessage && activeMessage.channel === 'email' && (
             <div className="bg-white rounded-xl border border-primary-500 p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-primary-500">Yangi draft</p>
+                <p className="text-sm font-semibold text-primary-500">{t('newDraft')}</p>
                 <span className="text-xs text-primary-500 uppercase">{activeMessage.channel}</span>
               </div>
 
               <div className="mb-3">
-                <label className="block text-xs font-medium text-ink-muted mb-1">Mavzu</label>
+                <label className="block text-xs font-medium text-ink-muted mb-1">{t('subject')}</label>
                 <input
                   type="text"
                   disabled={sending || emailSent}
@@ -411,7 +414,7 @@ export default function LeadDetailPage() {
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-xs font-medium text-ink-muted mb-1">Matn</label>
+                <label className="block text-xs font-medium text-ink-muted mb-1">{t('body')}</label>
                 <textarea
                   rows={8}
                   disabled={sending || emailSent}
@@ -431,10 +434,10 @@ export default function LeadDetailPage() {
                       : 'bg-primary-500 hover:bg-primary-600 text-white'
                   }`}
                 >
-                  {sending ? 'Yuborilmoqda...' : emailSent ? 'Yuborildi ✓' : '✉ Email yuborish'}
+                  {sending ? t('sending') : emailSent ? t('sent') : t('sendEmail')}
                 </button>
                 {!lead.email && (
-                  <p className="text-xs text-red-600 mt-2">Lidda email manzil yo&apos;q — avval kiriting</p>
+                  <p className="text-xs text-red-600 mt-2">{t('noEmailWarning')}</p>
                 )}
                 {sendError && <p className="text-xs text-red-600 mt-2">{sendError}</p>}
               </div>
@@ -445,7 +448,7 @@ export default function LeadDetailPage() {
             <div className="space-y-3">
               <div className="bg-white rounded-xl border border-primary-500 p-5">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold text-primary-500">Connection so'rovi</p>
+                  <p className="text-sm font-semibold text-primary-500">{t('connectionRequest')}</p>
                   <span className="text-xs text-primary-500">{(activeMessage.subject ?? '').length}/300</span>
                 </div>
                 <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-3">{activeMessage.subject}</pre>
@@ -453,29 +456,29 @@ export default function LeadDetailPage() {
                   onClick={() => navigator.clipboard.writeText(activeMessage.subject ?? '')}
                   className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition"
                 >
-                  Nusxalash
+                  {t('copy')}
                 </button>
               </div>
 
               <div className="bg-white rounded-xl border border-primary-500 p-5">
-                <p className="text-sm font-semibold text-primary-500 mb-2">DM xabari (connection qabul bo&apos;lgach)</p>
+                <p className="text-sm font-semibold text-primary-500 mb-2">{t('dmAfterConnection')}</p>
                 <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-3">{activeMessage.body}</pre>
                 <button
                   onClick={() => navigator.clipboard.writeText(activeMessage.body)}
                   className="text-xs px-3 py-1.5 rounded-lg font-medium bg-primary-500 hover:bg-primary-600 text-white transition"
                 >
-                  Nusxalash
+                  {t('copy')}
                 </button>
               </div>
 
-              <p className="text-xs text-ink-muted px-1">LinkedIn API ishlatilmaydi — matnlarni nusxalab, qo&apos;lda yuboring.</p>
+              <p className="text-xs text-ink-muted px-1">{t('linkedinNote')}</p>
             </div>
           )}
 
           {activeMessage && (activeMessage.channel === 'telegram' || activeMessage.channel === 'instagram') && (
             <div className="bg-white rounded-xl border border-primary-500 p-5">
               <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold text-primary-500">Yangi draft</p>
+                <p className="text-sm font-semibold text-primary-500">{t('newDraft')}</p>
                 <span className="text-xs text-primary-500 uppercase">{activeMessage.channel}</span>
               </div>
               <pre className="text-sm text-ink whitespace-pre-wrap font-sans mb-4">{activeMessage.body}</pre>
@@ -489,10 +492,10 @@ export default function LeadDetailPage() {
                       : 'bg-primary-500 hover:bg-primary-600 text-white'
                   }`}
                 >
-                  {channelCopied ? 'Nusxalandi ✓' : 'Nusxalash'}
+                  {channelCopied ? t('copied') : t('copy')}
                 </button>
                 <p className="text-xs text-ink-muted mt-2">
-                  {activeMessage.channel === 'telegram' ? 'Telegram' : 'Instagram'} API ishlatilmaydi — matnni nusxalab, qo&apos;lda yuboring.
+                  {activeMessage.channel === 'telegram' ? t('telegramNote') : t('instagramNote')}
                 </p>
               </div>
             </div>
@@ -501,7 +504,7 @@ export default function LeadDetailPage() {
           {/* Message history */}
           {lead.outreach_messages?.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border border-line p-5">
-              <h3 className="font-semibold text-ink mb-4">Xabarlar tarixi</h3>
+              <h3 className="font-semibold text-ink mb-4">{t('messageHistory')}</h3>
               <div className="space-y-3">
                 {[...lead.outreach_messages]
                   .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -510,15 +513,15 @@ export default function LeadDetailPage() {
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-medium uppercase text-ink-muted">{msg.channel}</span>
                         <span className={`text-xs px-1.5 py-0.5 rounded ${msg.status === 'sent' ? 'bg-white border border-primary-500 text-primary-500' : 'bg-gray-100 text-ink-muted'}`}>
-                          {msg.status === 'sent' ? 'Yuborildi' : 'Draft'}
+                          {msg.status === 'sent' ? t('statusSent') : t('statusDraft')}
                         </span>
                         <span className="text-xs text-ink-muted ml-auto">
-                          {new Date(msg.created_at).toLocaleDateString('uz-UZ')}
+                          {new Date(msg.created_at).toLocaleDateString(localeToBCP47[locale as keyof typeof localeToBCP47])}
                         </span>
                       </div>
                       {msg.subject && (
                         <p className="text-xs font-medium text-ink mb-1">
-                          {msg.channel === 'email' ? 'Mavzu' : 'Connection so\'rovi'}: {msg.subject}
+                          {msg.channel === 'email' ? t('subject') : t('connectionRequest')}: {msg.subject}
                         </p>
                       )}
                       <p className="text-xs text-ink-muted line-clamp-3">{msg.body}</p>

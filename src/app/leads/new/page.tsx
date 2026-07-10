@@ -2,12 +2,17 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 
+// Bu qiymatlar DB'da erkin matn sifatida saqlanadi va boshqa joylarda
+// (masalan xabar tili -> outreach generatsiya prompti) aynan shu ko'rinishda
+// solishtiriladi -- shuning uchun tarjima qilinmaydi.
 const INDUSTRY_OPTIONS = ['Restoran', "Go'zallik saloni", "Do'kon", 'Fitnes', "Ta'lim", 'Boshqa']
 const LANGUAGE_OPTIONS = ["O'zbek", 'Rus', 'Ingliz']
 const SOURCE_OPTIONS = ['Instagram', 'LinkedIn', 'Google Maps', 'Telegram', 'Boshqa']
 
 export default function NewLeadPage() {
+  const t = useTranslations('LeadNew')
   const router = useRouter()
   const [form, setForm] = useState({
     name: '',
@@ -39,7 +44,7 @@ export default function NewLeadPage() {
 
     if (!res.ok) {
       const d = await res.json()
-      setError(d.error ?? 'Xatolik yuz berdi')
+      setError(d.error ?? t('genericError'))
       setSaving(false)
       return
     }
@@ -50,13 +55,13 @@ export default function NewLeadPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-ink mb-6">Yangi lid qo'shish</h1>
+      <h1 className="text-2xl font-bold text-ink mb-6">{t('title')}</h1>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-line p-6 space-y-4">
         {/* Name */}
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Ism <span className="text-red-500">*</span>
+            {t('name')} <span className="text-red-500">*</span>
           </label>
           <input
             required
@@ -69,7 +74,7 @@ export default function NewLeadPage() {
 
         {/* Company */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Kompaniya</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('company')}</label>
           <input
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.company}
@@ -80,13 +85,13 @@ export default function NewLeadPage() {
 
         {/* Industry */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Soha</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('industry')}</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.industry}
             onChange={set('industry')}
           >
-            <option value="">— Tanlang —</option>
+            <option value="">{t('select')}</option>
             {INDUSTRY_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
@@ -95,7 +100,7 @@ export default function NewLeadPage() {
 
         {/* Email */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Email</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('email')}</label>
           <input
             type="email"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -107,7 +112,7 @@ export default function NewLeadPage() {
 
         {/* Phone */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Telefon raqam</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('phone')}</label>
           <input
             type="tel"
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -119,7 +124,7 @@ export default function NewLeadPage() {
 
         {/* LinkedIn */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">LinkedIn URL</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('linkedinUrl')}</label>
           <input
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.linkedin_url}
@@ -130,13 +135,13 @@ export default function NewLeadPage() {
 
         {/* Source */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Manba</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('source')}</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.source}
             onChange={set('source')}
           >
-            <option value="">— Tanlang —</option>
+            <option value="">{t('select')}</option>
             {SOURCE_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
@@ -145,13 +150,13 @@ export default function NewLeadPage() {
 
         {/* Message language */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Xabar tili</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('messageLanguage')}</label>
           <select
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
             value={form.message_language}
             onChange={set('message_language')}
           >
-            <option value="">— Tanlang —</option>
+            <option value="">{t('select')}</option>
             {LANGUAGE_OPTIONS.map((opt) => (
               <option key={opt} value={opt}>{opt}</option>
             ))}
@@ -160,13 +165,13 @@ export default function NewLeadPage() {
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Izohlar</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('notes')}</label>
           <textarea
             rows={3}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
             value={form.notes}
             onChange={set('notes')}
-            placeholder="Lid haqida qo'shimcha ma'lumot..."
+            placeholder={t('notesPlaceholder')}
           />
         </div>
 
@@ -178,14 +183,14 @@ export default function NewLeadPage() {
             disabled={saving}
             className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+            {saving ? t('saving') : t('save')}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-ink-muted hover:bg-gray-50 hover:border-primary-500"
           >
-            Bekor qilish
+            {t('cancel')}
           </button>
         </div>
       </form>
