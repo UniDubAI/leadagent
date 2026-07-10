@@ -226,5 +226,33 @@
     "link": "Link",
     "date": "Tarix",
     "view": "Bax"
+  },
+  "PageNew": {
+    "title": "Yeni mini-səhifə",
+    "fillFromLead": "Liddən doldur",
+    "notSelected": "— Seçilməyib —",
+    "businessName": "Biznes adı",
+    "slug": "Slug (URL)",
+    "tagline": "Şüar",
+    "taglinePlaceholder": "Şəhərin ən dadlı qəhvəsi",
+    "phone": "Telefon",
+    "address": "Ünvan",
+    "addressPlaceholder": "Bakı, Nizami küçəsi 1",
+    "website": "Sayt",
+    "scraping": "Axtarılır...",
+    "scrapeFromWebsite": "Saytdan məlumat al",
+    "scrapeError": "Məlumat alınarkən xəta baş verdi",
+    "menu": "Menyu (fayl və ya link)",
+    "workingHours": "İş saatları",
+    "workingHoursPlaceholder": "Hər gün 9:00 - 22:00",
+    "reviews": "Rəylər",
+    "addReview": "+ Rəy əlavə et",
+    "authorName": "Müəllif adı",
+    "delete": "Sil",
+    "reviewText": "Rəy mətni",
+    "save": "Yadda saxla",
+    "saving": "Yadda saxlanılır...",
+    "cancel": "Ləğv et",
+    "genericError": "Xəta baş verdi"
   }
 }

@@ -226,5 +226,33 @@
     "link": "Bağlantı",
     "date": "Tarih",
     "view": "Görüntüle"
+  },
+  "PageNew": {
+    "title": "Yeni mini sayfa",
+    "fillFromLead": "Lead'den doldur",
+    "notSelected": "— Seçilmedi —",
+    "businessName": "İşletme adı",
+    "slug": "Slug (URL)",
+    "tagline": "Slogan",
+    "taglinePlaceholder": "Şehrin en lezzetli kahvesi",
+    "phone": "Telefon",
+    "address": "Adres",
+    "addressPlaceholder": "Örnek Mahallesi No: 1",
+    "website": "Web sitesi",
+    "scraping": "Alınıyor...",
+    "scrapeFromWebsite": "Web sitesinden bilgi al",
+    "scrapeError": "Bilgi alınırken hata oluştu",
+    "menu": "Menü (dosya veya bağlantı)",
+    "workingHours": "Çalışma saatleri",
+    "workingHoursPlaceholder": "Her gün 9:00 - 22:00",
+    "reviews": "Yorumlar",
+    "addReview": "+ Yorum ekle",
+    "authorName": "Yazar adı",
+    "delete": "Sil",
+    "reviewText": "Yorum metni",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "cancel": "İptal",
+    "genericError": "Bir hata oluştu"
   }
 }

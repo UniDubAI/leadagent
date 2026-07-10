@@ -226,5 +226,33 @@
     "link": "Сілтеме",
     "date": "Күні",
     "view": "Қарау"
+  },
+  "PageNew": {
+    "title": "Жаңа мини-бет",
+    "fillFromLead": "Лидтен толтыру",
+    "notSelected": "— Таңдалмаған —",
+    "businessName": "Бизнес атауы",
+    "slug": "Slug (URL)",
+    "tagline": "Ұран",
+    "taglinePlaceholder": "Ташкенттегі ең дәмді кофе",
+    "phone": "Телефон",
+    "address": "Мекенжай",
+    "addressPlaceholder": "Ташкент, Амир Темур көшесі 1",
+    "website": "Сайт",
+    "scraping": "Ізделуде...",
+    "scrapeFromWebsite": "Сайттан деректерді алу",
+    "scrapeError": "Деректерді алуда қате орын алды",
+    "menu": "Мәзір (файл немесе сілтеме)",
+    "workingHours": "Жұмыс уақыты",
+    "workingHoursPlaceholder": "Күнде 9:00 - 22:00",
+    "reviews": "Пікірлер",
+    "addReview": "+ Пікір қосу",
+    "authorName": "Автор аты",
+    "delete": "Жою",
+    "reviewText": "Пікір мәтіні",
+    "save": "Сақтау",
+    "saving": "Сақталуда...",
+    "cancel": "Бас тарту",
+    "genericError": "Қате орын алды"
   }
 }

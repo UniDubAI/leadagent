@@ -226,5 +226,33 @@
     "link": "Link",
     "date": "Date",
     "view": "View"
+  },
+  "PageNew": {
+    "title": "New mini-page",
+    "fillFromLead": "Fill from a lead",
+    "notSelected": "— Not selected —",
+    "businessName": "Business name",
+    "slug": "Slug (URL)",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "The best coffee in town",
+    "phone": "Phone",
+    "address": "Address",
+    "addressPlaceholder": "123 Main Street",
+    "website": "Website",
+    "scraping": "Fetching...",
+    "scrapeFromWebsite": "Fetch info from website",
+    "scrapeError": "Something went wrong while fetching",
+    "menu": "Menu (file or link)",
+    "workingHours": "Working hours",
+    "workingHoursPlaceholder": "Daily 9:00 - 22:00",
+    "reviews": "Reviews",
+    "addReview": "+ Add review",
+    "authorName": "Author name",
+    "delete": "Delete",
+    "reviewText": "Review text",
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "genericError": "Something went wrong"
   }
 }

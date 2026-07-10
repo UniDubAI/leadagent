@@ -226,5 +226,33 @@
     "link": "Ссылка",
     "date": "Дата",
     "view": "Просмотреть"
+  },
+  "PageNew": {
+    "title": "Новая мини-страница",
+    "fillFromLead": "Заполнить из лида",
+    "notSelected": "— Не выбрано —",
+    "businessName": "Название бизнеса",
+    "slug": "Slug (URL)",
+    "tagline": "Слоган",
+    "taglinePlaceholder": "Самый вкусный кофе в Ташкенте",
+    "phone": "Телефон",
+    "address": "Адрес",
+    "addressPlaceholder": "Ташкент, ул. Амира Темура 1",
+    "website": "Сайт",
+    "scraping": "Поиск...",
+    "scrapeFromWebsite": "Получить данные с сайта",
+    "scrapeError": "Ошибка при получении данных",
+    "menu": "Меню (файл или ссылка)",
+    "workingHours": "Часы работы",
+    "workingHoursPlaceholder": "Ежедневно 9:00 - 22:00",
+    "reviews": "Отзывы",
+    "addReview": "+ Добавить отзыв",
+    "authorName": "Имя автора",
+    "delete": "Удалить",
+    "reviewText": "Текст отзыва",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "cancel": "Отмена",
+    "genericError": "Произошла ошибка"
   }
 }

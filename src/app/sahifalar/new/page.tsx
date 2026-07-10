@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import type { Lead, BizReview } from '@/types'
 import { slugify } from '@/lib/slug'
 
@@ -13,6 +14,7 @@ function extractWebsiteFromNotes(notes: string | null): string {
 }
 
 export default function NewBizPage() {
+  const t = useTranslations('PageNew')
   const router = useRouter()
   const [leads, setLeads] = useState<Lead[]>([])
   const [selectedLeadId, setSelectedLeadId] = useState('')
@@ -85,7 +87,7 @@ export default function NewBizPage() {
       })
       const data = await res.json()
       if (!res.ok) {
-        setScrapeError(data.error ?? "Ma'lumot olishda xatolik")
+        setScrapeError(data.error ?? t('scrapeError'))
         return
       }
       setForm((prev) => ({
@@ -118,7 +120,7 @@ export default function NewBizPage() {
 
     if (!res.ok) {
       const d = await res.json()
-      setError(d.error ?? 'Xatolik yuz berdi')
+      setError(d.error ?? t('genericError'))
       setSaving(false)
       return
     }
@@ -130,13 +132,13 @@ export default function NewBizPage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-ink mb-6">Yangi mini-sahifa</h1>
+      <h1 className="text-2xl font-bold text-ink mb-6">{t('title')}</h1>
 
       <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-sm border border-line p-6 space-y-4">
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Liddan to&apos;ldirish</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('fillFromLead')}</label>
           <select value={selectedLeadId} onChange={handleLeadSelect} className={`${inputClass} bg-white`}>
-            <option value="">— Tanlanmagan —</option>
+            <option value="">{t('notSelected')}</option>
             {leads.map((l) => (
               <option key={l.id} value={l.id}>{l.company || l.name}</option>
             ))}
@@ -145,13 +147,13 @@ export default function NewBizPage() {
 
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Biznes nomi <span className="text-red-500">*</span>
+            {t('businessName')} <span className="text-red-500">*</span>
           </label>
           <input required className={inputClass} value={form.business_name} onChange={set('business_name')} placeholder="Sunrise Cafe" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Slug (URL)</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('slug')}</label>
           <div className="flex items-center gap-2">
             <span className="text-sm text-ink-muted">/b/</span>
             <input className={inputClass} value={form.slug} onChange={setSlug} placeholder="sunrise-cafe" />
@@ -159,22 +161,22 @@ export default function NewBizPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Tagline</label>
-          <input className={inputClass} value={form.tagline} onChange={set('tagline')} placeholder="Toshkentdagi eng shirin qahva" />
+          <label className="block text-sm font-medium text-ink mb-1">{t('tagline')}</label>
+          <input className={inputClass} value={form.tagline} onChange={set('tagline')} placeholder={t('taglinePlaceholder')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Telefon</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('phone')}</label>
           <input type="tel" className={inputClass} value={form.phone} onChange={set('phone')} placeholder="+998 90 123 45 67" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Manzil</label>
-          <input className={inputClass} value={form.address} onChange={set('address')} placeholder="Toshkent, Amir Temur ko'chasi 1" />
+          <label className="block text-sm font-medium text-ink mb-1">{t('address')}</label>
+          <input className={inputClass} value={form.address} onChange={set('address')} placeholder={t('addressPlaceholder')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Sayt</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('website')}</label>
           <div className="flex gap-2">
             <input className={inputClass} value={form.website} onChange={set('website')} placeholder="example.uz" />
             <button
@@ -183,7 +185,7 @@ export default function NewBizPage() {
               disabled={!form.website || scraping}
               className="whitespace-nowrap bg-white hover:bg-primary-500 text-primary-500 hover:text-white border border-primary-500 px-3 py-2 rounded-lg text-xs font-medium transition disabled:opacity-50"
             >
-              {scraping ? 'Qidirilmoqda...' : "Saytdan ma'lumot olish"}
+              {scraping ? t('scraping') : t('scrapeFromWebsite')}
             </button>
           </div>
           {scrapeError && <p className="text-xs text-red-600 mt-1">{scrapeError}</p>}
@@ -205,20 +207,20 @@ export default function NewBizPage() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Menyu (fayl yoki link)</label>
+          <label className="block text-sm font-medium text-ink mb-1">{t('menu')}</label>
           <input className={inputClass} value={form.menu_url} onChange={set('menu_url')} placeholder="https://..." />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">Ish vaqti</label>
-          <textarea rows={2} className={inputClass} value={form.working_hours} onChange={set('working_hours')} placeholder="Har kuni 9:00 - 22:00" />
+          <label className="block text-sm font-medium text-ink mb-1">{t('workingHours')}</label>
+          <textarea rows={2} className={inputClass} value={form.working_hours} onChange={set('working_hours')} placeholder={t('workingHoursPlaceholder')} />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1">
-            <label className="block text-sm font-medium text-ink">Otzivlar</label>
+            <label className="block text-sm font-medium text-ink">{t('reviews')}</label>
             <button type="button" onClick={addReview} className="text-xs text-primary-500 hover:underline">
-              + Otziv qo&apos;shish
+              {t('addReview')}
             </button>
           </div>
           <div className="space-y-3">
@@ -229,10 +231,10 @@ export default function NewBizPage() {
                     className={inputClass}
                     value={review.author}
                     onChange={setReview(i, 'author')}
-                    placeholder="Muallif ismi"
+                    placeholder={t('authorName')}
                   />
                   <button type="button" onClick={() => removeReview(i)} className="text-xs text-red-500 hover:underline whitespace-nowrap">
-                    O&apos;chirish
+                    {t('delete')}
                   </button>
                 </div>
                 <textarea
@@ -240,7 +242,7 @@ export default function NewBizPage() {
                   className={inputClass}
                   value={review.text}
                   onChange={setReview(i, 'text')}
-                  placeholder="Otziv matni"
+                  placeholder={t('reviewText')}
                 />
               </div>
             ))}
@@ -255,14 +257,14 @@ export default function NewBizPage() {
             disabled={saving}
             className="flex-1 bg-primary-500 hover:bg-primary-600 text-white py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
           >
-            {saving ? 'Saqlanmoqda...' : 'Saqlash'}
+            {saving ? t('saving') : t('save')}
           </button>
           <button
             type="button"
             onClick={() => router.back()}
             className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-ink-muted hover:bg-gray-50 hover:border-primary-500"
           >
-            Bekor qilish
+            {t('cancel')}
           </button>
         </div>
       </form>

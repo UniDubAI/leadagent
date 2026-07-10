@@ -226,5 +226,33 @@
     "link": "Link",
     "date": "Sana",
     "view": "Ko'rish"
+  },
+  "PageNew": {
+    "title": "Yangi mini-sahifa",
+    "fillFromLead": "Liddan to'ldirish",
+    "notSelected": "— Tanlanmagan —",
+    "businessName": "Biznes nomi",
+    "slug": "Slug (URL)",
+    "tagline": "Tagline",
+    "taglinePlaceholder": "Toshkentdagi eng shirin qahva",
+    "phone": "Telefon",
+    "address": "Manzil",
+    "addressPlaceholder": "Toshkent, Amir Temur ko'chasi 1",
+    "website": "Sayt",
+    "scraping": "Qidirilmoqda...",
+    "scrapeFromWebsite": "Saytdan ma'lumot olish",
+    "scrapeError": "Ma'lumot olishda xatolik",
+    "menu": "Menyu (fayl yoki link)",
+    "workingHours": "Ish vaqti",
+    "workingHoursPlaceholder": "Har kuni 9:00 - 22:00",
+    "reviews": "Otzivlar",
+    "addReview": "+ Otziv qo'shish",
+    "authorName": "Muallif ismi",
+    "delete": "O'chirish",
+    "reviewText": "Otziv matni",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda...",
+    "cancel": "Bekor qilish",
+    "genericError": "Xatolik yuz berdi"
   }
 }
