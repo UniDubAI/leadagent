@@ -32,6 +32,9 @@ export async function GET(req: NextRequest) {
 
   const from = process.env.EMAIL_FROM || 'onboarding@resend.dev'
   const replyTo = process.env.REPLY_TO_EMAIL
+  if (!replyTo) {
+    console.warn('[cron/followup] REPLY_TO_EMAIL not set — replies will go to the from address')
+  }
 
   // Har bir foydalanuvchining "Ism, Kompaniya" imzosi email imzosi sifatida
   // ishlatiladi (modelga aniq ism berilmasa, u "[Ismingiz]" kabi placeholder yozib qo'yardi).

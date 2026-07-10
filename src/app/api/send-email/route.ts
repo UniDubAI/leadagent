@@ -22,6 +22,9 @@ export async function POST(req: NextRequest) {
   const from = process.env.EMAIL_FROM || 'onboarding@resend.dev'
   const replyTo = process.env.REPLY_TO_EMAIL
   console.log('[send-email] sending from:', from)
+  if (!replyTo) {
+    console.warn('[send-email] REPLY_TO_EMAIL not set — replies will go to the from address')
+  }
 
   const { error: sendError } = await resend.emails.send({
     from,
