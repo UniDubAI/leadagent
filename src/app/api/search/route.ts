@@ -209,17 +209,21 @@ export async function POST(req: NextRequest) {
   const db = createServerClient()
   const { data: existing, error: existingError } = await db
     .from('leads')
-    .select('name, email')
+    .select('id, name, email')
     .eq('user_id', user.id)
   if (existingError) return NextResponse.json({ error: existingError.message }, { status: 500 })
 
-  const existingNames = new Set(existing.map((l) => l.name.trim().toLowerCase()))
-  const existingEmails = new Set(existing.filter((l) => l.email).map((l) => l.email!.trim().toLowerCase()))
+  const idByName = new Map(existing.map((l) => [l.name.trim().toLowerCase(), l.id]))
+  const idByEmail = new Map(existing.filter((l) => l.email).map((l) => [l.email!.trim().toLowerCase(), l.id]))
 
-  const results: OsmSearchResult[] = scraped.map((b) => ({
-    ...b,
-    already_added: existingNames.has(b.name.trim().toLowerCase()) || (!!b.email && existingEmails.has(b.email.trim().toLowerCase())),
-  }))
+  const results: OsmSearchResult[] = scraped.map((b) => {
+    const leadId = idByName.get(b.name.trim().toLowerCase()) ?? (b.email ? idByEmail.get(b.email.trim().toLowerCase()) : undefined)
+    return {
+      ...b,
+      already_added: !!leadId,
+      lead_id: leadId ?? null,
+    }
+  })
 
   return NextResponse.json({ results })
 }

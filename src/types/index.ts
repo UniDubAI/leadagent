@@ -85,6 +85,7 @@ export interface OsmSearchResult {
   email: string | null
   opening_hours: string | null
   already_added: boolean
+  lead_id?: string | null
   instagram?: string | null
   telegram?: string | null
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import type { OsmSearchResult } from '@/types'
 
 // Label'lar leads/page.tsx dagi INDUSTRIES ro'yxati bilan bir xil bo'lishi
@@ -25,6 +26,7 @@ export default function QidiruvPage() {
   const [error, setError] = useState('')
   const [results, setResults] = useState<OsmSearchResult[] | null>(null)
   const [rowStatus, setRowStatus] = useState<Record<number, RowStatus>>({})
+  const [rowLeadId, setRowLeadId] = useState<Record<number, string>>({})
   const [addingAll, setAddingAll] = useState(false)
   const [searchedCity, setSearchedCity] = useState('')
   const [enrichStatus, setEnrichStatus] = useState<Record<number, EnrichStatus>>({})
@@ -38,6 +40,7 @@ export default function QidiruvPage() {
     setError('')
     setResults(null)
     setRowStatus({})
+    setRowLeadId({})
 
     try {
       const res = await fetch('/api/search', {
@@ -53,10 +56,13 @@ export default function QidiruvPage() {
       setResults(data.results)
       setSearchedCity(city)
       const initialStatus: Record<number, RowStatus> = {}
+      const initialLeadId: Record<number, string> = {}
       data.results.forEach((r: OsmSearchResult, i: number) => {
         if (r.already_added) initialStatus[i] = 'duplicate'
+        if (r.lead_id) initialLeadId[i] = r.lead_id
       })
       setRowStatus(initialStatus)
+      setRowLeadId(initialLeadId)
     } finally {
       setSearching(false)
     }
@@ -71,7 +77,7 @@ export default function QidiruvPage() {
       return next
     })
 
-    const payload = indices.map((i) => ({ ...results[i], industry: industryLabel }))
+    const payload = indices.map((i) => ({ ...results[i], industry: industryLabel, city: searchedCity }))
     const res = await fetch('/api/search/add', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -83,6 +89,14 @@ export default function QidiruvPage() {
       const next = { ...prev }
       indices.forEach((i, j) => {
         next[i] = data.results?.[j]?.status === 'duplicate' ? 'duplicate' : 'added'
+      })
+      return next
+    })
+    setRowLeadId((prev) => {
+      const next = { ...prev }
+      indices.forEach((i, j) => {
+        const leadId = data.results?.[j]?.lead_id
+        if (leadId) next[i] = leadId
       })
       return next
     })
@@ -272,10 +286,19 @@ export default function QidiruvPage() {
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          {status === 'added' ? (
-                            <span className="text-xs text-ink-muted">Qo&apos;shildi</span>
-                          ) : status === 'duplicate' ? (
-                            <span className="text-xs text-ink-muted">Qo&apos;shilgan</span>
+                          {status === 'added' || status === 'duplicate' ? (
+                            rowLeadId[i] ? (
+                              <Link
+                                href={`/leads/${rowLeadId[i]}`}
+                                className="text-xs text-primary-500 hover:underline"
+                              >
+                                {status === 'added' ? "Qo'shildi →" : "Qo'shilgan →"}
+                              </Link>
+                            ) : (
+                              <span className="text-xs text-ink-muted">
+                                {status === 'added' ? "Qo'shildi" : "Qo'shilgan"}
+                              </span>
+                            )
                           ) : (
                             <button
                               onClick={() => addLeads([i])}
