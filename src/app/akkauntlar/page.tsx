@@ -229,12 +229,15 @@ function InstagramCard({
           </button>
         </div>
       ) : (
-        <a
-          href="/api/accounts/instagram/connect"
-          className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
-        >
-          {t('instagramConnect')}
-        </a>
+        <div>
+          <a
+            href="/api/accounts/instagram/connect"
+            className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+          >
+            {t('instagramConnect')}
+          </a>
+          <p className="text-xs text-ink-muted mt-3">{t('instagramHelp')}</p>
+        </div>
       )}
     </div>
   )

@@ -74,6 +74,19 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {!loading && leads.length === 0 && (
+        <div className="bg-white rounded-xl border-2 border-primary-500 p-6 mb-8">
+          <h2 className="text-lg font-semibold text-ink mb-2">{t('welcomeTitle')}</h2>
+          <p className="text-sm text-ink-muted mb-4">{t('welcomeBody')}</p>
+          <Link
+            href="/leads/new"
+            className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+          >
+            {t('welcomeCta')}
+          </Link>
+        </div>
+      )}
+
       {/* Overview stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
         <div className="bg-white rounded-xl border border-line shadow-sm p-4">

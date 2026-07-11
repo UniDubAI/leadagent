@@ -54,6 +54,9 @@
   "Home": {
     "tagline": "Mijoz topish va outreach boshqaruvi",
     "newLead": "+ Yangi lid",
+    "welcomeTitle": "LeadAgent'ga xush kelibsiz! 👋",
+    "welcomeBody": "Boshlash uchun birinchi lidingizni qo'shing — AI avtomatik email/LinkedIn/Telegram xabarini yozib beradi va follow-up vaqti kelganda eslatib turadi.",
+    "welcomeCta": "Birinchi lidni qo'shish",
     "totalLeads": "Jami lidlar",
     "emailsSent": "Yuborilgan emaillar",
     "conversion": "Konversiya",
@@ -333,6 +336,7 @@
     "instagramTitle": "Instagram",
     "instagramSubtitle": "Instagram akkauntingizni ulang — obunachilar, postlar va yoqtirishlar statistikasi avtomatik olinadi.",
     "instagramConnect": "Instagram bilan ulanish",
+    "instagramHelp": "Qanday ulanadi? Instagram Business yoki Creator akkauntingiz bo'lishi kerak (oddiy shaxsiy akkauntlar ishlamaydi). Instagram ilovasida akkaunt turini o'zgartiring, so'ng yuqoridagi tugma orqali to'g'ridan-to'g'ri Instagram Login bilan ulaning — Facebook sahifasi shart emas.",
     "instagramConnectedNotice": "Instagram muvaffaqiyatli ulandi ✓",
     "instagramConnectError": "Instagram bilan ulanishda xatolik yuz berdi",
     "instagramDisconnectConfirm": "Instagram akkauntini uzasizmi?",

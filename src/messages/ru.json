@@ -54,6 +54,9 @@
   "Home": {
     "tagline": "Поиск клиентов и управление outreach",
     "newLead": "+ Новый лид",
+    "welcomeTitle": "Добро пожаловать в LeadAgent! 👋",
+    "welcomeBody": "Чтобы начать, добавьте первого клиента — AI автоматически напишет письмо/сообщение для LinkedIn/Telegram и напомнит, когда пора сделать follow-up.",
+    "welcomeCta": "Добавить первого клиента",
     "totalLeads": "Всего лидов",
     "emailsSent": "Отправлено писем",
     "conversion": "Конверсия",
@@ -333,6 +336,7 @@
     "instagramTitle": "Instagram",
     "instagramSubtitle": "Подключите свой аккаунт Instagram — статистика подписчиков, постов и лайков будет собираться автоматически.",
     "instagramConnect": "Подключить Instagram",
+    "instagramHelp": "Как подключается? Нужен аккаунт Instagram Business или Creator (обычные личные аккаунты не подходят). Смените тип аккаунта в приложении Instagram, затем подключитесь напрямую через кнопку выше — вход через Instagram, Facebook-страница не нужна.",
     "instagramConnectedNotice": "Instagram успешно подключён ✓",
     "instagramConnectError": "Ошибка при подключении Instagram",
     "instagramDisconnectConfirm": "Отключить аккаунт Instagram?",

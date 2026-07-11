@@ -54,6 +54,9 @@
   "Home": {
     "tagline": "Client sourcing and outreach management",
     "newLead": "+ New lead",
+    "welcomeTitle": "Welcome to LeadAgent! 👋",
+    "welcomeBody": "Add your first lead to get started — AI will draft an email/LinkedIn/Telegram message automatically and remind you when it's time to follow up.",
+    "welcomeCta": "Add your first lead",
     "totalLeads": "Total leads",
     "emailsSent": "Emails sent",
     "conversion": "Conversion",
@@ -333,6 +336,7 @@
     "instagramTitle": "Instagram",
     "instagramSubtitle": "Connect your Instagram account — follower, post, and like stats are pulled in automatically.",
     "instagramConnect": "Connect Instagram",
+    "instagramHelp": "How does it connect? You need an Instagram Business or Creator account (personal accounts won't work). Switch your account type in the Instagram app, then connect directly above via Instagram Login — no Facebook Page required.",
     "instagramConnectedNotice": "Instagram connected successfully ✓",
     "instagramConnectError": "Failed to connect Instagram",
     "instagramDisconnectConfirm": "Disconnect your Instagram account?",

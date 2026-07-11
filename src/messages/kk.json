@@ -54,6 +54,9 @@
   "Home": {
     "tagline": "Клиент іздеу және outreach басқаруы",
     "newLead": "+ Жаңа лид",
+    "welcomeTitle": "LeadAgent-ке қош келдіңіз! 👋",
+    "welcomeBody": "Бастау үшін алғашқы клиентіңізді қосыңыз — AI автоматты түрде email/LinkedIn/Telegram хабарын жазады және follow-up уақыты келгенде еске салады.",
+    "welcomeCta": "Алғашқы клиентті қосу",
     "totalLeads": "Барлық лидтер",
     "emailsSent": "Жіберілген хаттар",
     "conversion": "Конверсия",
@@ -333,6 +336,7 @@
     "instagramTitle": "Instagram",
     "instagramSubtitle": "Instagram аккаунтыңызды қосыңыз — жазылушылар, посттар және лайктар статистикасы автоматты түрде алынады.",
     "instagramConnect": "Instagram қосу",
+    "instagramHelp": "Қалай қосылады? Instagram Business немесе Creator аккаунты керек (жеке аккаунттар істемейді). Instagram қолданбасында аккаунт түрін ауыстырыңыз, содан кейін жоғарыдағы түйме арқылы тікелей Instagram Login арқылы қосылыңыз — Facebook беті қажет емес.",
     "instagramConnectedNotice": "Instagram сәтті қосылды ✓",
     "instagramConnectError": "Instagram қосуда қате шықты",
     "instagramDisconnectConfirm": "Instagram аккаунтын ажыратасыз ба?",

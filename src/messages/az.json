@@ -54,6 +54,9 @@
   "Home": {
     "tagline": "Müştəri axtarışı və outreach idarəetməsi",
     "newLead": "+ Yeni lid",
+    "welcomeTitle": "LeadAgent'a xoş gəlmisiniz! 👋",
+    "welcomeBody": "Başlamaq üçün ilk müştərinizi əlavə edin — AI avtomatik olaraq e-poçt/LinkedIn/Telegram mesajı yazacaq və təqib vaxtı gələndə xatırladacaq.",
+    "welcomeCta": "İlk müştərini əlavə et",
     "totalLeads": "Ümumi lidlər",
     "emailsSent": "Göndərilmiş emaillar",
     "conversion": "Konversiya",
@@ -333,6 +336,7 @@
     "instagramTitle": "Instagram",
     "instagramSubtitle": "Instagram hesabınızı qoşun — izləyici, paylaşım və bəyənmə statistikası avtomatik alınır.",
     "instagramConnect": "Instagram qoş",
+    "instagramHelp": "Necə qoşulur? Instagram Business və ya Creator hesabınız olmalıdır (şəxsi hesablar işləmir). Instagram tətbiqində hesab növünü dəyişin, sonra yuxarıdakı düymə ilə birbaşa Instagram Login vasitəsilə qoşulun — Facebook Səhifəsi tələb olunmur.",
     "instagramConnectedNotice": "Instagram uğurla qoşuldu ✓",
     "instagramConnectError": "Instagram qoşularkən xəta baş verdi",
     "instagramDisconnectConfirm": "Instagram hesabını ayırmaq istəyirsiniz?",

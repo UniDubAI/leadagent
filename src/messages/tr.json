@@ -54,6 +54,9 @@
   "Home": {
     "tagline": "Müşteri bulma ve outreach yönetimi",
     "newLead": "+ Yeni lead",
+    "welcomeTitle": "LeadAgent'a hoş geldiniz! 👋",
+    "welcomeBody": "Başlamak için ilk müşteri adayınızı ekleyin — AI otomatik olarak e-posta/LinkedIn/Telegram mesajı yazar ve takip zamanı geldiğinde hatırlatır.",
+    "welcomeCta": "İlk müşteri adayını ekle",
     "totalLeads": "Toplam lead",
     "emailsSent": "Gönderilen e-postalar",
     "conversion": "Dönüşüm",
@@ -333,6 +336,7 @@
     "instagramTitle": "Instagram",
     "instagramSubtitle": "Instagram hesabınızı bağlayın — takipçi, gönderi ve beğeni istatistikleri otomatik alınır.",
     "instagramConnect": "Instagram'ı bağla",
+    "instagramHelp": "Nasıl bağlanır? Instagram Business veya Creator hesabınız olmalı (kişisel hesaplar çalışmaz). Instagram uygulamasında hesap türünüzü değiştirin, ardından yukarıdaki düğmeyle doğrudan Instagram Login üzerinden bağlanın — Facebook Sayfası gerekmez.",
     "instagramConnectedNotice": "Instagram başarıyla bağlandı ✓",
     "instagramConnectError": "Instagram bağlanırken hata oluştu",
     "instagramDisconnectConfirm": "Instagram hesabının bağlantısını kesmek istiyor musunuz?",
