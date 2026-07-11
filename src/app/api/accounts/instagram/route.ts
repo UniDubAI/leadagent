@@ -1,42 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
+import { revokeInstagramAccess } from '@/lib/instagram'
 
-export async function POST(req: NextRequest) {
+export async function DELETE() {
   const user = await getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { username, followers, posts_last_30d, avg_likes, avg_views } = await req.json()
-
-  if (!username || typeof username !== 'string') {
-    return NextResponse.json({ error: 'Instagram username kiritilmadi' }, { status: 400 })
-  }
-
-  const toNumber = (v: unknown) => {
-    const n = Number(v)
-    return Number.isFinite(n) ? n : 0
-  }
-
   const db = createServerClient()
-  const { data, error } = await db
+  const { data: account } = await db
     .from('connected_accounts')
-    .upsert(
-      {
-        user_id: user.id,
-        platform: 'instagram',
-        account_name: username.trim().replace(/^@/, ''),
-        data: {
-          followers: toNumber(followers),
-          posts_last_30d: toNumber(posts_last_30d),
-          avg_likes: toNumber(avg_likes),
-          avg_views: toNumber(avg_views),
-        },
-      },
-      { onConflict: 'user_id,platform' },
-    )
-    .select()
-    .single()
+    .select('access_token, data')
+    .eq('user_id', user.id)
+    .eq('platform', 'instagram')
+    .maybeSingle()
+
+  if (account?.access_token) {
+    const igUserId = (account.data as { id?: string } | null)?.id
+    if (igUserId) await revokeInstagramAccess(account.access_token, igUserId)
+  }
+
+  const { error } = await db
+    .from('connected_accounts')
+    .delete()
+    .eq('user_id', user.id)
+    .eq('platform', 'instagram')
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+  return NextResponse.json({ ok: true })
 }

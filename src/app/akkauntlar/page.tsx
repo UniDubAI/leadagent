@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import type {
   BusinessFinance,
@@ -153,52 +154,35 @@ function TelegramCard({
 
 function InstagramCard({
   account,
-  onSaved,
+  onDisconnected,
+  notice,
 }: {
   account: ConnectedAccount | null
-  onSaved: (account: ConnectedAccount) => void
+  onDisconnected: () => void
+  notice: { type: 'connected' | 'error'; reason?: string } | null
 }) {
   const t = useTranslations('Accounts')
   const locale = useLocale()
   const data = account?.data as InstagramAccountData | undefined
-
-  const [form, setForm] = useState({
-    username: account?.account_name ?? '',
-    followers: data?.followers?.toString() ?? '',
-    posts_last_30d: data?.posts_last_30d?.toString() ?? '',
-    avg_likes: data?.avg_likes?.toString() ?? '',
-    avg_views: data?.avg_views?.toString() ?? '',
-  })
-  const [saving, setSaving] = useState(false)
+  const [disconnecting, setDisconnecting] = useState(false)
   const [error, setError] = useState('')
-  const [saved, setSaved] = useState(false)
 
-  const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSaved(false)
-    setForm((prev) => ({ ...prev, [field]: e.target.value }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
+  const disconnect = async () => {
+    if (!confirm(t('instagramDisconnectConfirm'))) return
+    setDisconnecting(true)
     setError('')
 
-    const res = await fetch('/api/accounts/instagram', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-    const body = await res.json()
+    const res = await fetch('/api/accounts/instagram', { method: 'DELETE' })
 
-    setSaving(false)
+    setDisconnecting(false)
 
     if (!res.ok) {
-      setError(body.error ?? t('instagramSaveError'))
+      const body = await res.json()
+      setError(body.error ?? t('instagramDisconnectError'))
       return
     }
 
-    onSaved(body)
-    setSaved(true)
+    onDisconnected()
   }
 
   return (
@@ -206,78 +190,52 @@ function InstagramCard({
       <h2 className="font-semibold text-ink mb-1">📸 {t('instagramTitle')}</h2>
       <p className="text-sm text-ink-muted mb-4">{t('instagramSubtitle')}</p>
 
-      <form onSubmit={handleSubmit} className="space-y-3">
+      {notice?.type === 'connected' && (
+        <p className="text-sm text-primary-500 mb-3">{t('instagramConnectedNotice')}</p>
+      )}
+      {notice?.type === 'error' && (
+        <p className="text-sm text-red-600 mb-3">{notice.reason || t('instagramConnectError')}</p>
+      )}
+      {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+
+      {account ? (
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">{t('username')}</label>
-          <input
-            required
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-            value={form.username}
-            onChange={set('username')}
-            placeholder="@biznes_nomi"
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">{t('subscribers')}</label>
-            <input
-              type="number"
-              min={0}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={form.followers}
-              onChange={set('followers')}
-            />
+          <p className="text-sm text-ink mb-1">
+            <span className="font-medium">@{account.account_name}</span>
+          </p>
+          <div className="grid grid-cols-2 gap-2 mb-3">
+            <p className="text-sm text-ink-muted">
+              <span className="font-medium">{t('subscribers')}:</span> {fmt(data?.followers ?? 0, locale)}
+            </p>
+            <p className="text-sm text-ink-muted">
+              <span className="font-medium">{t('postsLast30d')}:</span> {fmt(data?.posts_last_30d ?? 0, locale)}
+            </p>
+            <p className="text-sm text-ink-muted">
+              <span className="font-medium">{t('avgLikes')}:</span> {fmt(data?.avg_likes ?? 0, locale)}
+            </p>
+            <p className="text-sm text-ink-muted">
+              <span className="font-medium">{t('avgViews')}:</span> {fmt(data?.avg_views ?? 0, locale)}
+            </p>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">{t('postsLast30d')}</label>
-            <input
-              type="number"
-              min={0}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={form.posts_last_30d}
-              onChange={set('posts_last_30d')}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">{t('avgLikes')}</label>
-            <input
-              type="number"
-              min={0}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={form.avg_likes}
-              onChange={set('avg_likes')}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-ink mb-1">{t('avgViews')}</label>
-            <input
-              type="number"
-              min={0}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              value={form.avg_views}
-              onChange={set('avg_views')}
-            />
-          </div>
-        </div>
-
-        {error && <p className="text-red-600 text-sm">{error}</p>}
-
-        <div className="flex items-center gap-3">
+          <p className="text-xs text-ink-muted mb-3">
+            {t('lastUpdated')}: {new Date(account.updated_at).toLocaleString(localeToBCP47[locale as keyof typeof localeToBCP47])}
+          </p>
           <button
-            type="submit"
-            disabled={saving}
-            className="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition disabled:opacity-50"
+            onClick={disconnect}
+            disabled={disconnecting}
+            className="text-sm px-3 py-1.5 rounded-lg font-medium border border-gray-300 text-ink hover:bg-gray-50 transition disabled:opacity-50"
           >
-            {saving ? t('saving') : t('save')}
+            {disconnecting ? t('disconnecting') : t('disconnect')}
           </button>
-          {saved && <span className="text-sm text-primary-500">{t('saved')}</span>}
-          {account && (
-            <span className="text-xs text-ink-muted ml-auto">
-              {t('lastUpdated')}: {new Date(account.updated_at).toLocaleString(localeToBCP47[locale as keyof typeof localeToBCP47])}
-            </span>
-          )}
         </div>
-      </form>
+      ) : (
+        <a
+          href="/api/accounts/instagram/connect"
+          className="inline-block bg-primary-500 hover:bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition"
+        >
+          {t('instagramConnect')}
+        </a>
+      )}
     </div>
   )
 }
@@ -396,11 +354,17 @@ function FinanceCard({
   )
 }
 
-export default function AkkauntlarPage() {
+function AkkauntlarPageInner() {
   const t = useTranslations('Accounts')
+  const searchParams = useSearchParams()
   const [accounts, setAccounts] = useState<ConnectedAccount[] | undefined>(undefined)
   const [finance, setFinance] = useState<BusinessFinance | null | undefined>(undefined)
   const [loadError, setLoadError] = useState('')
+
+  const instagramStatus = searchParams.get('instagram')
+  const instagramNotice = instagramStatus === 'connected' || instagramStatus === 'error'
+    ? { type: instagramStatus as 'connected' | 'error', reason: searchParams.get('reason') ?? undefined }
+    : null
 
   useEffect(() => {
     fetch('/api/accounts').then(async (r) => {
@@ -431,6 +395,10 @@ export default function AkkauntlarPage() {
     })
   }
 
+  const removeAccount = (platform: ConnectedAccount['platform']) => {
+    setAccounts((prev) => (prev ?? []).filter((a) => a.platform !== platform))
+  }
+
   if (accounts === undefined || finance === undefined) {
     return <div className="max-w-3xl mx-auto px-4 py-8 text-center text-ink-muted">{t('loading')}</div>
   }
@@ -452,8 +420,20 @@ export default function AkkauntlarPage() {
       )}
 
       <TelegramCard account={telegramAccount} onSaved={upsertAccount} />
-      <InstagramCard account={instagramAccount} onSaved={upsertAccount} />
+      <InstagramCard
+        account={instagramAccount}
+        onDisconnected={() => removeAccount('instagram')}
+        notice={instagramNotice}
+      />
       <FinanceCard finance={finance} onSaved={setFinance} />
     </div>
+  )
+}
+
+export default function AkkauntlarPage() {
+  return (
+    <Suspense>
+      <AkkauntlarPageInner />
+    </Suspense>
   )
 }

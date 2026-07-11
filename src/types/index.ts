@@ -139,10 +139,13 @@ export interface TelegramAccountData {
 }
 
 export interface InstagramAccountData {
+  id?: string
   followers: number
   posts_last_30d: number
   avg_likes: number
   avg_views: number
+  account_type?: string
+  media_count?: number
 }
 
 export interface ConnectedAccount {
@@ -152,6 +155,7 @@ export interface ConnectedAccount {
   data: TelegramAccountData | InstagramAccountData
   connected_at: string
   updated_at: string
+  token_expires_at?: string | null
 }
 
 export interface BusinessFinance {
