@@ -18,6 +18,7 @@ create table if not exists leads (
   email_sent_at    timestamptz,
   last_contact_at  timestamptz,
   followup_sent_at timestamptz,
+  followup_count   int not null default 0,
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );
@@ -157,11 +158,18 @@ create trigger business_finances_updated_at
 -- Per-user interface language preference -- independent of business_profiles
 -- so it exists from first login, before onboarding is completed.
 create table if not exists user_settings (
-  user_id            uuid primary key references auth.users(id) on delete cascade,
-  preferred_language text not null default 'uz'
-                       check (preferred_language in ('uz', 'ru', 'en', 'kk', 'tr', 'az')),
-  created_at         timestamptz not null default now(),
-  updated_at         timestamptz not null default now()
+  user_id              uuid primary key references auth.users(id) on delete cascade,
+  preferred_language   text not null default 'uz'
+                         check (preferred_language in ('uz', 'ru', 'en', 'kk', 'tr', 'az')),
+  outreach_tone        text not null default 'neutral'
+                         check (outreach_tone in ('formal', 'neutral', 'friendly')),
+  followup_delay_days  int not null default 3
+                         check (followup_delay_days > 0),
+  followup_max_count   int not null default 1
+                         check (followup_max_count >= 0),
+  signature            text,
+  created_at           timestamptz not null default now(),
+  updated_at           timestamptz not null default now()
 );
 
 create trigger user_settings_updated_at

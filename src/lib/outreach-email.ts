@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import type { Lead } from '@/types'
+import type { Lead, OutreachTone } from '@/types'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -13,6 +13,24 @@ const LANG_INSTRUCTION_MAP: Record<string, string> = {
   Uzbek: "Javobni FAQAT o'zbek tilida yoz.",
   Russian: 'Javobni FAQAT rus tilida yoz.',
   English: 'Javobni FAQAT ingliz tilida yoz.',
+}
+
+// Foydalanuvchi sozlamalaridagi outreach_tone bo'yicha promptga qo'shiladigan
+// ohang ko'rsatmasi. 'neutral' — hozirgi (sozlamalar qo'shilishidan oldingi)
+// standart matn, shuning uchun sozlama tanlanmagan foydalanuvchilar uchun
+// xatti-harakat o'zgarmaydi.
+export const TONE_INSTRUCTION: Record<OutreachTone, string> = {
+  formal: 'Rasmiy, hurmatli ohangda yozing — "Siz" murojaati, so\'zlashuv uslubidan saqlaning.',
+  neutral: 'Oddiy, insoniy ohangda yozing.',
+  friendly: "Do'stona, iliq va samimiy ohangda yozing, lekin professionallikni saqlang.",
+}
+
+// Generatsiya qilingan xabar oxiriga foydalanuvchining o'z imzosini qo'shadi
+// (agar sozlamada belgilangan bo'lsa). AI promptiga ishonish o'rniga
+// deterministik append — imzo matni har doim aniq va o'zgarishsiz chiqadi.
+export function appendSignature(body: string, signature?: string | null): string {
+  const trimmed = signature?.trim()
+  return trimmed ? `${body}\n\n${trimmed}` : body
 }
 
 type FollowupLead = Pick<Lead, 'name' | 'company' | 'industry' | 'message_language'>
@@ -38,9 +56,12 @@ export function buildSignerName(
 export async function generateFollowupEmail(
   lead: FollowupLead,
   signerName = 'Bizning jamoa',
+  tone: OutreachTone = 'neutral',
+  signature?: string | null,
 ): Promise<{ subject: string; body: string }> {
   const language = LANG_MAP[lead.message_language ?? ''] ?? 'Uzbek'
   const languageInstruction = LANG_INSTRUCTION_MAP[language]
+  const toneInstruction = TONE_INSTRUCTION[tone]
 
   const systemPrompt = `Siz B2B savdo mutaxassisisiz. Vazifangiz: bir necha kun oldin birinchi marta yozilgan, lekin javob kelmagan mijozga qisqa follow-up (eslatma) email yozish.
 
@@ -48,7 +69,7 @@ MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozma
 
 Qoidalar:
 - Bu birinchi email emas, eslatma — "yana bir bor yozyapman" ohangida, lekin bosim o'tkazmasdan.
-- Reklama tilida YOZMANG. Oddiy, insoniy ohangda yozing.
+- Reklama tilida YOZMANG. ${toneInstruction}
 - Juda qisqa: 2-3 paragraf.
 - Yumshoq CTA bilan tugating: "agar qiziqish bo'lmasa ham, xabar bering" kabi.
 - Email oxirida imzo qo'ying va imzo sifatida ANIQ "${signerName}" nomini yozing (masalan "Hurmat bilan, ${signerName}" yoki tilga mos analogi).
@@ -78,5 +99,5 @@ ${languageInstruction} Qisqa va tabiiy yozing.`
   }
 
   const generated = JSON.parse(jsonMatch[0])
-  return { subject: generated.subject, body: generated.body }
+  return { subject: generated.subject, body: appendSignature(generated.body, signature) }
 }

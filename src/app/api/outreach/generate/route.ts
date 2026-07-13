@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import Anthropic, { APIError } from '@anthropic-ai/sdk'
 import { createServerClient } from '@/lib/supabase'
 import { getUser } from '@/lib/supabase/server'
-import { buildSignerName } from '@/lib/outreach-email'
+import { buildSignerName, TONE_INSTRUCTION, appendSignature } from '@/lib/outreach-email'
+import type { OutreachTone } from '@/types'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -38,6 +39,16 @@ export async function POST(req: NextRequest) {
     // Email imzosi uchun ishlatiladi — modelga aniq ism berilmasa, u
     // "[Ismingiz]" kabi to'ldirilmagan placeholder yozib qo'yardi.
     const signerName = buildSignerName(profile, user.email)
+
+    const { data: settings } = await db
+      .from('user_settings')
+      .select('outreach_tone, signature')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const tone: OutreachTone = settings?.outreach_tone ?? 'neutral'
+    const signature = settings?.signature ?? null
+    const toneInstruction = TONE_INSTRUCTION[tone]
 
     const langMap: Record<string, string> = {
       "O'zbek": 'Uzbek',
@@ -75,7 +86,7 @@ export async function POST(req: NextRequest) {
 MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
 Qoidalar:
-- Reklama tilida YOZMANG. Oddiy, insoniy ohangda yozing.
+- Reklama tilida YOZMANG. ${toneInstruction}
 - Birinchi gap diqqatni tortsin — mijozning sohasiga yoki kompaniyasiga aloqador bo'lsin.
 - 3-4 qisqa paragraf: muammo/vaziyat → qisqa taklif → CTA.
 - CTA yumshoq bo'lsin: "15 daqiqalik qo'ng'iroq", "fikringizni bilsam" kabi.
@@ -90,7 +101,7 @@ MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozma
 Qoidalar:
 - "connection_request": MAKSIMAL 300 belgi. Juda qisqa, tabiiy, bitta aniq sabab bilan tanishuv taklifi. Reklama emas.
 - "dm": to'liqroq DM/InMail xabari, maksimal 1000 belgi. Muammo/vaziyat → qisqa taklif → yumshoq CTA.
-- Ikkalasi ham oddiy, do'stona ohangda — reklama emas, tanishish xabari kabi.
+- Ikkalasi ham quyidagi ohangda — reklama emas, tanishish xabari kabi: ${toneInstruction}
 - Mijozning sohasiga mos bitta aniq sabab ko'rsating.
 ${noPlaceholderRule}
 - Har doim JSON formatida qaytaring: {"connection_request": "...", "dm": "..."}
@@ -100,7 +111,7 @@ ${noPlaceholderRule}
 MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
 Qoidalar:
-- 3-5 qisqa gap. Do'stona, tabiiy ohangda — rasmiy email tili emas, xuddi tanish odamga yozayotgandek.
+- 3-5 qisqa gap. ${toneInstruction} Rasmiy email tili emas, Telegram muloqot uslubida yozing.
 - Reklama tilida YOZMANG.
 - Mijozning ismi/sohasiga mos bitta aniq sabab ko'rsating.
 - Yumshoq CTA bilan tugating (masalan: "qisqa gaplashib olsak", "fikringizni bilsam bo'ladimi").
@@ -112,7 +123,7 @@ ${noPlaceholderRule}
 MAJBURIY TIL QOIDASI: ${languageInstruction} Boshqa tilda birorta so'z ham yozmang — bu qoida hamma narsadan ustun.
 
 Qoidalar:
-- Atigi 2-3 qisqa gap. Instagram DM uslubida — yengil, samimiy, rasmiy emas.
+- Atigi 2-3 qisqa gap. Instagram DM uslubida yozing. ${toneInstruction}
 - Reklama tilida YOZMANG.
 - Mijozning sohasiga mos bitta aniq sabab yoki qisqa komplement bilan boshlang.
 - Yumshoq savol/taklif bilan tugating.
@@ -161,11 +172,14 @@ ${languageInstruction} Shaxsiylashtirilgan, qisqa va tabiiy yozing.`
       subject = generated.subject ?? null
       body = generated.body
     } else if (channel === 'linkedin') {
+      // connection_request has a strict 300-char limit, so the signature is
+      // only appended to the longer "dm" text, not the connection request.
       subject = generated.connection_request
       body = generated.dm
     } else {
       body = generated.message
     }
+    body = appendSignature(body, signature)
 
     const { data: saved } = await db
       .from('outreach_messages')

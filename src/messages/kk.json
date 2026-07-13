@@ -17,7 +17,8 @@
     "accounts": "Аккаунттар",
     "newLead": "+ Жаңа лид",
     "logout": "Шығу",
-    "language": "Тіл"
+    "language": "Тіл",
+    "settings": "Баптаулар"
   },
   "Auth": {
     "email": "Email",
@@ -357,5 +358,23 @@
     "estimatedProfit": "Болжамды айлық пайда",
     "currencyAmount": "{amount} сум",
     "financeSaveError": "Сақтауда қате орын алды"
+  },
+  "Settings": {
+    "loading": "Жүктелуде...",
+    "title": "Баптаулар",
+    "subtitle": "Хабарлар үнін, follow-up мерзімін және қолыңызды баптаңыз.",
+    "loadError": "Баптауларды жүктеуде қате",
+    "saveError": "Сақтауда қате шықты",
+    "outreachTone": "Хабар үні",
+    "tone_formal": "Ресми",
+    "tone_neutral": "Бейтарап",
+    "tone_friendly": "Достық",
+    "followupDelayDays": "Follow-up неше күннен кейін жіберілсін",
+    "followupMaxCount": "Follow-up неше рет жіберілсін",
+    "signature": "Қолтаңба",
+    "signaturePlaceholder": "Мысалы: телефон нөмірі, сайт немесе қосымша ақпарат",
+    "save": "Сақтау",
+    "saving": "Сақталуда...",
+    "saved": "Сақталды ✓"
   }
 }

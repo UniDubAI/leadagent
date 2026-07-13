@@ -25,6 +25,7 @@ export function SiteNav({ hasUser }: { hasUser: boolean }) {
         <NavLink href="/smm">{t('smm')}</NavLink>
         <NavLink href="/tavsiyalar">{t('recommendations')}</NavLink>
         <NavLink href="/akkauntlar">{t('accounts')}</NavLink>
+        <NavLink href="/sozlamalar">{t('settings')}</NavLink>
         <NavLink href="/leads/new">{t('newLead')}</NavLink>
         <div className="ml-auto flex items-center gap-3">
           <LanguageSwitcher />

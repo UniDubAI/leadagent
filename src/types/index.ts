@@ -24,6 +24,7 @@ export interface Lead {
   email_sent_at: string | null
   last_contact_at: string | null
   followup_sent_at: string | null
+  followup_count: number
   created_at: string
   updated_at: string
 }
@@ -163,5 +164,16 @@ export interface BusinessFinance {
   monthly_revenue: number | null
   monthly_expense: number | null
   avg_receipt: number | null
+  updated_at: string
+}
+
+export type OutreachTone = 'formal' | 'neutral' | 'friendly'
+
+export interface UserSettings {
+  outreach_tone: OutreachTone
+  followup_delay_days: number
+  followup_max_count: number
+  signature: string | null
+  created_at: string
   updated_at: string
 }

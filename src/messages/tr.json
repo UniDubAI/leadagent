@@ -17,7 +17,8 @@
     "accounts": "Hesaplar",
     "newLead": "+ Yeni lead",
     "logout": "Çıkış yap",
-    "language": "Dil"
+    "language": "Dil",
+    "settings": "Ayarlar"
   },
   "Auth": {
     "email": "E-posta",
@@ -357,5 +358,23 @@
     "estimatedProfit": "Tahmini aylık kâr",
     "currencyAmount": "{amount} UZS",
     "financeSaveError": "Kaydedilirken hata oluştu"
+  },
+  "Settings": {
+    "loading": "Yükleniyor...",
+    "title": "Ayarlar",
+    "subtitle": "Mesaj tonunu, takip (follow-up) süresini ve imzanızı ayarlayın.",
+    "loadError": "Ayarlar yüklenirken hata oluştu",
+    "saveError": "Kaydedilirken hata oluştu",
+    "outreachTone": "Mesaj tonu",
+    "tone_formal": "Resmi",
+    "tone_neutral": "Nötr",
+    "tone_friendly": "Samimi",
+    "followupDelayDays": "Follow-up kaç gün sonra gönderilsin",
+    "followupMaxCount": "Follow-up kaç kez gönderilsin",
+    "signature": "İmza",
+    "signaturePlaceholder": "Örn: telefon numarası, web sitesi veya ek bilgi",
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "saved": "Kaydedildi ✓"
   }
 }

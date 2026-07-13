@@ -17,7 +17,8 @@
     "accounts": "Akkauntlar",
     "newLead": "+ Yangi lid",
     "logout": "Chiqish",
-    "language": "Til"
+    "language": "Til",
+    "settings": "Sozlamalar"
   },
   "Auth": {
     "email": "Email",
@@ -357,5 +358,23 @@
     "estimatedProfit": "Taxminiy oylik foyda",
     "currencyAmount": "{amount} so'm",
     "financeSaveError": "Saqlashda xatolik yuz berdi"
+  },
+  "Settings": {
+    "loading": "Yuklanmoqda...",
+    "title": "Sozlamalar",
+    "subtitle": "Outreach xabarlar ohangi, follow-up muddati va imzoingizni sozlang.",
+    "loadError": "Sozlamalarni yuklashda xatolik",
+    "saveError": "Saqlashda xatolik yuz berdi",
+    "outreachTone": "Xabarlar ohangi",
+    "tone_formal": "Rasmiy",
+    "tone_neutral": "Neytral",
+    "tone_friendly": "Do'stona",
+    "followupDelayDays": "Follow-up necha kundan keyin ketsin",
+    "followupMaxCount": "Follow-up necha marta yuborilsin",
+    "signature": "Imzo",
+    "signaturePlaceholder": "Masalan: telefon raqami, veb-sayt yoki qo'shimcha ma'lumot",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda...",
+    "saved": "Saqlandi ✓"
   }
 }

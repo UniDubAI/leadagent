@@ -17,7 +17,8 @@
     "accounts": "Аккаунты",
     "newLead": "+ Новый лид",
     "logout": "Выйти",
-    "language": "Язык"
+    "language": "Язык",
+    "settings": "Настройки"
   },
   "Auth": {
     "email": "Email",
@@ -357,5 +358,23 @@
     "estimatedProfit": "Примерная месячная прибыль",
     "currencyAmount": "{amount} сум",
     "financeSaveError": "Ошибка при сохранении"
+  },
+  "Settings": {
+    "loading": "Загрузка...",
+    "title": "Настройки",
+    "subtitle": "Настройте тон сообщений, срок follow-up и вашу подпись.",
+    "loadError": "Ошибка загрузки настроек",
+    "saveError": "Ошибка при сохранении",
+    "outreachTone": "Тон сообщений",
+    "tone_formal": "Формальный",
+    "tone_neutral": "Нейтральный",
+    "tone_friendly": "Дружелюбный",
+    "followupDelayDays": "Через сколько дней отправлять follow-up",
+    "followupMaxCount": "Сколько раз отправлять follow-up",
+    "signature": "Подпись",
+    "signaturePlaceholder": "Например: номер телефона, сайт или доп. информация",
+    "save": "Сохранить",
+    "saving": "Сохранение...",
+    "saved": "Сохранено ✓"
   }
 }
