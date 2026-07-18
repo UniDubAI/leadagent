@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
@@ -29,7 +29,7 @@ export default function LeadDetailPage() {
   const [lead, setLead] = useState<LeadWithMessages | null>(null)
   const [loading, setLoading] = useState(true)
   const [channel, setChannel] = useState<OutreachChannel>('email')
-  const [context, setContext] = useState('')
+  const [context, setContext] = useState(() => searchParams.get('kontekst') ?? '')
   const [messageLanguage, setMessageLanguage] = useState<string>("O'zbek")
   const [generating, setGenerating] = useState(false)
   const [sending, setSending] = useState(false)
@@ -47,7 +47,7 @@ export default function LeadDetailPage() {
   const [enrichResult, setEnrichResult] = useState('')
   const [enrichError, setEnrichError] = useState('')
 
-  const fetchLead = () => {
+  const fetchLead = useCallback(() => {
     fetch(`/api/leads/${id}`)
       .then((r) => r.json())
       .then((data: LeadWithMessages) => {
@@ -57,15 +57,9 @@ export default function LeadDetailPage() {
         setEditEmail(data.email ?? '')
         setEditPhone(data.phone ?? '')
       })
-  }
+  }, [id])
 
-  useEffect(() => { fetchLead() }, [id])
-
-  useEffect(() => {
-    const kontekst = searchParams.get('kontekst')
-    if (kontekst) setContext(kontekst)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  useEffect(() => { fetchLead() }, [fetchLead])
 
   const updateStatus = async (status: LeadStatus) => {
     await fetch(`/api/leads/${id}`, {

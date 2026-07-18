@@ -25,7 +25,6 @@ export default function LeadsPage() {
   const [industryFilter, setIndustryFilter] = useState('')
 
   useEffect(() => {
-    setLoading(true)
     fetch('/api/leads')
       .then((r) => r.json())
       .then((data) => { setLeads(data); setLoading(false) })

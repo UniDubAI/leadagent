@@ -23,6 +23,7 @@ export default function DashboardPage() {
   const weekdays = t.raw('weekdays') as string[]
   const [leads, setLeads] = useState<Lead[]>([])
   const [loading, setLoading] = useState(true)
+  const [now] = useState(() => Date.now())
 
   useEffect(() => {
     fetch('/api/leads')
@@ -51,13 +52,12 @@ export default function DashboardPage() {
   const maxDayCount = Math.max(1, ...last7Days.map((d) => d.count))
 
   const staleLeads = useMemo(() => {
-    const now = Date.now()
     return leads
       .filter((l) => STALE_STATUSES.includes(l.status) && l.last_contact_at)
       .map((l) => ({ lead: l, days: Math.floor((now - new Date(l.last_contact_at!).getTime()) / DAY_MS) }))
       .filter(({ days }) => days >= STALE_DAYS)
       .sort((a, b) => b.days - a.days)
-  }, [leads])
+  }, [leads, now])
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">

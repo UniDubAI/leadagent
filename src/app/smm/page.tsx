@@ -187,27 +187,20 @@ export default function SmmPage() {
   const [profile, setProfile] = useState<BusinessProfile | null | undefined>(undefined)
   const [editingProfile, setEditingProfile] = useState(false)
 
-  const [form, setForm] = useState({
-    platform: 'instagram',
-    contentType: 'single',
-    // SMM post kontenti faqat O'zbek/Rus tilida yoziladi (LANGUAGE_OPTIONS) —
-    // interfeys tili shulardan birortasiga to'g'ri kelmasa, O'zbekka tushadi.
-    language: locale === 'ru' ? 'Rus' : "O'zbek",
-    notes: '',
-    considerTrends: false,
-  })
-
-  useEffect(() => {
+  const [form, setForm] = useState(() => {
     const platform = searchParams.get('platform')
     const kontekst = searchParams.get('kontekst')
-    if (platform === 'telegram' || platform === 'instagram' || platform === 'both') {
-      setForm((prev) => ({ ...prev, platform }))
+    return {
+      platform: platform === 'telegram' || platform === 'instagram' || platform === 'both' ? platform : 'instagram',
+      contentType: 'single',
+      // SMM post kontenti faqat O'zbek/Rus tilida yoziladi (LANGUAGE_OPTIONS) —
+      // interfeys tili shulardan birortasiga to'g'ri kelmasa, O'zbekka tushadi.
+      language: locale === 'ru' ? 'Rus' : "O'zbek",
+      notes: kontekst ?? '',
+      considerTrends: false,
     }
-    if (kontekst) {
-      setForm((prev) => ({ ...prev, notes: kontekst }))
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  })
+
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState('')
   const [posts, setPosts] = useState<SmmPost[] | null>(null)
